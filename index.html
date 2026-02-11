@@ -3,30 +3,76 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تليجرام الخاص بي</title>
+    <title>تليجرام المطور - دردشة خاصة</title>
     <style>
-        body { font-family: sans-serif; background-color: #e6eee0; display: flex; flex-direction: column; height: 100vh; margin: 0; }
-        #chat-box { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; }
-        .message { background: white; padding: 12px; margin: 8px; border-radius: 15px; max-width: 80%; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        .input-area { background: white; padding: 15px; display: flex; gap: 10px; border-top: 1px solid #ddd; position: sticky; bottom: 0; }
-        input { flex: 1; padding: 12px; border: 1px solid #ddd; border-radius: 25px; outline: none; }
-        button { background: #0088cc; color: white; border: none; padding: 10px 25px; border-radius: 25px; cursor: pointer; font-weight: bold; }
+        :root { --main-color: #0088cc; --bg-color: #e6eee0; }
+        body { font-family: sans-serif; background-color: var(--bg-color); margin: 0; height: 100vh; display: flex; flex-direction: column; }
+        .hidden { display: none !important; }
+        
+        /* واجهة التسجيل */
+        #auth-screen { background: white; padding: 25px; margin: auto; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 90%; max-width: 400px; text-align: center; }
+        input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+        button { width: 100%; background: var(--main-color); color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; }
+
+        /* الشاشة الرئيسية */
+        .header { background: var(--main-color); color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 10; }
+        #search-section { padding: 10px; background: white; border-bottom: 1px solid #ddd; }
+        
+        /* بطاقة المستخدم في البحث */
+        .user-card { background: #f9f9f9; padding: 15px; border-radius: 12px; display: flex; align-items: center; gap: 15px; margin-top: 10px; border: 1px solid #eee; }
+        .user-img { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid var(--main-color); }
+        .btn-chat { background: #28a745; width: auto; padding: 8px 15px; font-size: 14px; }
+
+        /* شاشة الدردشة الخاصة */
+        #private-chat-ui { flex: 1; display: flex; flex-direction: column; background: var(--bg-color); }
+        #messages-container { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
+        .msg { padding: 10px 15px; border-radius: 15px; max-width: 75%; font-size: 15px; position: relative; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+        .sent { background: #effdde; align-self: flex-end; border-bottom-right-radius: 2px; }
+        .received { background: white; align-self: flex-start; border-bottom-left-radius: 2px; }
+        
+        .chat-input-area { background: white; padding: 10px; display: flex; gap: 8px; border-top: 1px solid #ddd; }
     </style>
 </head>
 <body>
 
-    <div id="chat-box"></div>
+    <div id="auth-screen">
+        <h2>إنشاء حساب</h2>
+        <input type="text" id="reg-name" placeholder="الاسم الكامل">
+        <input type="text" id="reg-user" placeholder="اسم المستخدم (4+ حروف)">
+        <input type="text" id="reg-pic" placeholder="رابط صورتك الشخصية">
+        <button onclick="register()">دخول</button>
+    </div>
 
-    <div class="input-area">
-        <input type="text" id="msgInput" placeholder="اكتب رسالة هنا...">
-        <button onclick="send()">إرسال</button>
+    <div id="main-screen" class="hidden" style="display: flex; flex-direction: column; height: 100vh;">
+        <div class="header">
+            <span id="user-display">مرحباً</span>
+            <button onclick="location.reload()" style="width:auto; padding:5px 10px;">خروج</button>
+        </div>
+
+        <div id="search-section">
+            <input type="text" id="search-input" placeholder="ابحث عن صديق باليوزر...">
+            <button onclick="search()">بحث عن مستخدم</button>
+            <div id="search-result"></div>
+        </div>
+
+        <div id="private-chat-ui" class="hidden">
+            <div style="background:#eee; padding:10px; text-align:center; font-weight:bold;">
+                دردشة مع: <span id="chatting-with-name">...</span>
+                <button onclick="closeChat()" style="width:auto; float:left; padding:2px 10px; background:#666;">إغلاق</button>
+            </div>
+            <div id="messages-container"></div>
+            <div class="chat-input-area">
+                <input type="text" id="msg-input" placeholder="اكتب رسالة خاصة...">
+                <button onclick="sendMessage()" style="width:auto;">إرسال</button>
+            </div>
+        </div>
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
     <script>
-        // هذه هي بياناتك التي ظهرت في الصورة
+        // إعدادات Firebase الخاصة بك
         const firebaseConfig = {
             apiKey: "AIzaSyDRCtfuYrEdnuKUsWu_79N0",
             authDomain: "tttrt-b8c5a.firebaseapp.com",
@@ -34,36 +80,90 @@
             projectId: "tttrt-b8c5a",
             storageBucket: "tttrt-b8c5a.appspot.com",
             messagingSenderId: "975123752593",
-            appId: "1:975123752593:web:e591e930af101968875560",
-            measurementId: "G-VJVE851FEW"
+            appId: "1:975123752593:web:e591e930af101968875560"
         };
 
-        // تشغيل Firebase
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
+        let me = null;
+        let chatRef = null;
 
-        // وظيفة الإرسال
-        function send() {
-            const input = document.getElementById('msgInput');
-            if(input.value.trim() !== "") {
-                db.ref("messages").push().set({
-                    text: input.value,
-                    time: Date.now()
-                });
-                input.value = ""; 
+        function register() {
+            const name = document.getElementById('reg-name').value;
+            const user = document.getElementById('reg-user').value.toLowerCase();
+            const pic = document.getElementById('reg-pic').value || "https://cdn-icons-png.flaticon.com/512/149/149071.png";
+
+            if(user.length < 4) return alert("اليوزر قصير جداً");
+
+            db.ref('users').orderByChild('username').equalTo(user).once('value', s => {
+                if(s.exists()) {
+                    s.forEach(c => login(c.val()));
+                } else {
+                    const id = "ID-" + Math.floor(Math.random()*9999);
+                    const data = { id, name, username: user, pic };
+                    db.ref('users/'+id).set(data);
+                    login(data);
+                }
+            });
+        }
+
+        function login(data) {
+            me = data;
+            document.getElementById('auth-screen').classList.add('hidden');
+            document.getElementById('main-screen').classList.remove('hidden');
+            document.getElementById('user-display').innerText = me.name;
+        }
+
+        function search() {
+            const q = document.getElementById('search-input').value.toLowerCase();
+            db.ref('users').orderByChild('username').equalTo(q).once('value', s => {
+                const res = document.getElementById('search-result');
+                res.innerHTML = "";
+                if(s.exists()){
+                    s.forEach(c => {
+                        const u = c.val();
+                        if(u.id === me.id) return;
+                        res.innerHTML = `
+                            <div class="user-card">
+                                <img src="${u.pic}" class="user-img">
+                                <div style="flex:1"><strong>${u.name}</strong><br><small>@${u.username}</small></div>
+                                <button class="btn-chat" onclick="openChat('${u.id}', '${u.name}')">مراسلة</button>
+                            </div>`;
+                    });
+                } else res.innerHTML = "لم يتم العثور على أحد";
+            });
+        }
+
+        function openChat(targetId, targetName) {
+            document.getElementById('private-chat-ui').classList.remove('hidden');
+            document.getElementById('chatting-with-name').innerText = targetName;
+            
+            // إنشاء معرف فريد للدردشة بين الشخصين (دائماً نضع الـ ID الأصغر أولاً لتوحيد الغرفة)
+            const chatId = me.id < targetId ? me.id + "_" + targetId : targetId + "_" + me.id;
+            
+            if(chatRef) chatRef.off(); // إغلاق الدردشة القديمة
+            document.getElementById('messages-container').innerHTML = "";
+            
+            chatRef = db.ref('private_messages/' + chatId);
+            chatRef.on('child_added', s => {
+                const m = s.val();
+                const div = document.createElement('div');
+                div.className = `msg ${m.sender === me.id ? 'sent' : 'received'}`;
+                div.innerText = m.text;
+                document.getElementById('messages-container').appendChild(div);
+                document.getElementById('messages-container').scrollTop = 99999;
+            });
+        }
+
+        function sendMessage() {
+            const txt = document.getElementById('msg-input').value;
+            if(txt && chatRef) {
+                chatRef.push({ sender: me.id, text: txt, time: Date.now() });
+                document.getElementById('msg-input').value = "";
             }
         }
 
-        // استقبال الرسائل وعرضها فوراً
-        db.ref("messages").on("child_added", (snapshot) => {
-            const data = snapshot.val();
-            const chatBox = document.getElementById('chat-box');
-            const msgDiv = document.createElement('div');
-            msgDiv.className = 'message';
-            msgDiv.innerText = data.text;
-            chatBox.appendChild(msgDiv);
-            chatBox.scrollTop = chatBox.scrollHeight;
-        });
+        function closeChat() { document.getElementById('private-chat-ui').classList.add('hidden'); }
     </script>
 </body>
 </html>
