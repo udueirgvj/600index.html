@@ -1,189 +1,730 @@
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
 
-<script>
-  const firebaseConfig = {
-    apiKey: "AIzaSyDRCtfuYrEdnuKUsWu_79N0",
-    authDomain: "tttrt-b8c5a.firebaseapp.com",
-    databaseURL: "https://tttrt-b8c5a-default-rtdb.asia-southeast1.firebasedatabase.app",
-    projectId: "tttrt-b8c5a",
-    storageBucket: "tttrt-b8c5a.appspot.com",
-    messagingSenderId: "975123752593",
-    appId: "1:975123752593:web:e591e930af101968875560"
-  };
-  // بدء تشغيل فايربيس
-  firebase.initializeApp(firebaseConfig);
-  const db = firebase.database();
-</script>
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyDRCtfuYrEdnuKUsWu_79NC6G_xGLznBJc",
+  authDomain: "tttrt-b8c5a.firebaseapp.com",
+  databaseURL: "https://tttrt-b8c5a-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "tttrt-b8c5a",
+  storageBucket: "tttrt-b8c5a.firebasestorage.app",
+  messagingSenderId: "975123752593",
+  appId: "1:975123752593:web:e591e930af3a3e29568130",
+  measurementId: "G-VJVE851FEW"
+};
 
+// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar" dir="ltr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تطبيق الدردشة العالمي</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
+    <title>تلرفيب - نسخة تلجرام</title>
     <style>
-        :root { --primary: #0088cc; --bg: #e6eee0; }
-        body { font-family: sans-serif; background: var(--bg); margin: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
-        .hidden { display: none !important; }
-        
-        /* شاشة الدخول */
-        #login-page { background: white; padding: 30px; margin: auto; border-radius: 20px; width: 85%; max-width: 400px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
-        input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 10px; box-sizing: border-box; }
-        button { width: 100%; background: var(--primary); color: white; border: none; padding: 12px; border-radius: 10px; cursor: pointer; font-weight: bold; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: system-ui, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+        }
 
-        /* الشاشة الرئيسية */
-        #chat-app { display: flex; flex-direction: column; height: 100vh; }
-        header { background: var(--primary); color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; }
-        
-        /* البحث والمستخدمين */
-        #search-box { background: white; padding: 10px; display: flex; gap: 5px; border-bottom: 1px solid #ddd; }
-        #results { padding: 10px; flex: 1; overflow-y: auto; }
-        .user-card { background: white; padding: 10px; border-radius: 10px; display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
-        .user-card img { width: 45px; height: 45px; border-radius: 50%; }
+        body {
+            background: linear-gradient(145deg, #0f1a2f 0%, #1e2a47 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 12px;
+        }
 
-        /* نافذة الدردشة الخاصة */
-        #private-window { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg); display: flex; flex-direction: column; z-index: 100; }
-        #msg-list { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 8px; }
-        .msg { padding: 10px; border-radius: 10px; max-width: 70%; }
-        .sent { background: #effdde; align-self: flex-end; }
-        .received { background: white; align-self: flex-start; }
-        .input-area { background: white; padding: 15px; display: flex; gap: 10px; }
+        .app-container {
+            max-width: 420px;
+            width: 100%;
+            background-color: #ffffff;
+            border-radius: 28px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+            overflow: hidden;
+            position: relative;
+            height: 700px;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        /* views */
+        .view {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            background: #f9fafc;
+        }
+
+        .hidden-view {
+            display: none !important;
+        }
+
+        /* ========== مصادقة ========= */
+        .auth-view {
+            background: white;
+            padding: 24px 20px;
+            overflow-y: auto;
+        }
+
+        .auth-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .auth-header h1 {
+            color: #1e2a47;
+            font-size: 32px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .auth-tabs {
+            display: flex;
+            background: #eef2f7;
+            border-radius: 50px;
+            padding: 6px;
+            margin-bottom: 30px;
+        }
+
+        .auth-tabs button {
+            flex: 1;
+            border: none;
+            background: transparent;
+            padding: 12px 6px;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: 600;
+            color: #3a4b6c;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .auth-tabs button.active {
+            background: white;
+            color: #1e2a47;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+
+        #authForm {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .form-group label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #2a3950;
+            padding-right: 6px;
+        }
+
+        .form-group input {
+            padding: 14px 18px;
+            border: 1.5px solid #e4e9f2;
+            border-radius: 18px;
+            font-size: 15px;
+            background: #fbfdff;
+            transition: 0.2s;
+        }
+
+        .form-group input:focus {
+            border-color: #3e7cff;
+            outline: none;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(62,124,255,0.1);
+        }
+
+        .btn-submit {
+            background: #1e2a47;
+            color: white;
+            border: none;
+            padding: 16px;
+            border-radius: 30px;
+            font-size: 18px;
+            font-weight: bold;
+            margin-top: 12px;
+            cursor: pointer;
+            transition: 0.2s;
+            border: 1px solid #2f3e62;
+        }
+
+        .btn-submit:hover {
+            background: #26385a;
+            transform: scale(0.98);
+        }
+
+        .error-msg {
+            color: #e34f4f;
+            font-size: 13px;
+            margin-top: 4px;
+            padding-right: 8px;
+        }
+
+        /* ========== التطبيق الرئيسي ========= */
+        .app-view {
+            background: #ffffff;
+            position: relative;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .app-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            background: #1e2a47;
+            color: white;
+            border-bottom: 1px solid #304060;
+        }
+
+        .menu-icon {
+            font-size: 26px;
+            cursor: pointer;
+            width: 40px;
+            text-align: center;
+            color: #eef3ff;
+            transition: 0.2s;
+        }
+
+        .app-name {
+            font-size: 22px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            color: #ffffff;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .search-area {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255,255,255,0.15);
+            padding: 4px 8px;
+            border-radius: 30px;
+        }
+
+        #searchInput {
+            border: none;
+            background: transparent;
+            padding: 8px 12px;
+            border-radius: 30px;
+            color: white;
+            font-size: 14px;
+            width: 130px;
+        }
+
+        #searchInput::placeholder {
+            color: rgba(255,255,255,0.7);
+        }
+
+        #searchBtn {
+            background: #3a5a9c;
+            border: none;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 30px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            border: 1px solid #5b77a9;
+            transition: 0.2s;
+        }
+
+        #searchBtn:hover {
+            background: #4f6ea8;
+        }
+
+        /* قائمة المحادثات */
+        .chats-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 12px 8px;
+            background: #f5f7fb;
+        }
+
+        .chat-item {
+            display: flex;
+            align-items: center;
+            background: white;
+            padding: 14px 16px;
+            border-radius: 18px;
+            margin-bottom: 8px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+            transition: 0.2s;
+            border: 1px solid #f0f0f0;
+        }
+
+        .chat-avatar {
+            width: 54px;
+            height: 54px;
+            border-radius: 50%;
+            background: #3e7cff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 20px;
+            margin-left: 14px;
+        }
+
+        .chat-info {
+            flex: 1;
+        }
+
+        .chat-name {
+            font-size: 17px;
+            font-weight: 700;
+            color: #1e2a47;
+            margin-bottom: 4px;
+        }
+
+        .chat-msg {
+            font-size: 14px;
+            color: #6f7c93;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 200px;
+        }
+
+        /* السحب الجانبي (drawer) */
+        .drawer-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.4);
+            z-index: 10;
+            display: none;
+        }
+
+        .drawer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 280px;
+            height: 100%;
+            background: white;
+            box-shadow: 4px 0 20px rgba(0,0,0,0.15);
+            z-index: 20;
+            transform: translateX(-100%);
+            transition: transform 0.25s ease;
+            display: flex;
+            flex-direction: column;
+            border-top-right-radius: 24px;
+            border-bottom-right-radius: 24px;
+        }
+
+        .drawer.open {
+            transform: translateX(0);
+        }
+
+        .drawer-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 24px 20px;
+            background: #1e2a47;
+            color: white;
+            border-top-right-radius: 24px;
+        }
+
+        .drawer-header span {
+            font-size: 22px;
+            font-weight: bold;
+        }
+
+        .close-drawer {
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 32px;
+            cursor: pointer;
+            line-height: 1;
+        }
+
+        .drawer-menu {
+            list-style: none;
+            padding: 20px 0;
+        }
+
+        .drawer-menu li {
+            padding: 18px 28px;
+            font-size: 18px;
+            color: #1e2a47;
+            font-weight: 500;
+            border-bottom: 1px solid #edf0f5;
+            transition: 0.2s;
+            cursor: pointer;
+        }
+
+        .drawer-menu li:hover {
+            background: #eef3fc;
+            color: #1e2a47;
+        }
+
+        .drawer-menu li:last-child {
+            border-bottom: none;
+        }
+
+        /* حالة عدم وجود نتائج */
+        .no-result {
+            text-align: center;
+            padding: 40px 20px;
+            color: #7e8c9f;
+            font-size: 18px;
+        }
     </style>
 </head>
 <body>
+<div class="app-container">
 
-    <div id="login-page">
-        <h2>أهلاً بك في الدردشة</h2>
-        <input type="text" id="name" placeholder="الاسم الكامل">
-        <input type="text" id="user" placeholder="اسم المستخدم (4 حروف فأكثر)">
-        <input type="text" id="pic" placeholder="رابط صورتك">
-        <button onclick="login()">دخول الآن</button>
+    <!-- ========== شاشة المصادقة (تسجيل/إنشاء) ========= -->
+    <div id="authView" class="view auth-view">
+        <div class="auth-header">
+            <h1>تلرفيب</h1>
+            <p style="color:#3a4b6c; margin-top: 6px;">تواصل بسهولة</p>
+        </div>
+
+        <!-- تبويب دخول / إنشاء -->
+        <div class="auth-tabs">
+            <button id="loginTab" class="active">تسجيل دخول</button>
+            <button id="signupTab">إنشاء حساب</button>
+        </div>
+
+        <!-- النموذج ديناميكي -->
+        <form id="authForm">
+            <!-- الحقول تُحقن بواسطة JS -->
+        </form>
+        <div id="formError" class="error-msg" style="margin-top: 8px;"></div>
     </div>
 
-    <div id="chat-app" class="hidden">
-        <header>
-            <span id="me">...</span>
-            <button onclick="logout()" style="width:auto; padding:5px;">خروج</button>
+    <!-- ========== التطبيق الرئيسي بعد تسجيل الدخول ========= -->
+    <div id="appView" class="view app-view hidden-view">
+
+        <!-- الهيدر: ☰ + اسم التطبيق + بحث -->
+        <header class="app-header">
+            <div class="menu-icon" id="menuIcon">☰</div>
+            <div class="app-name">تلرفيب</div>
+            <div class="search-area">
+                <input type="text" id="searchInput" placeholder="بحث عن محادثة..." value="">
+                <button id="searchBtn">بحث</button>
+            </div>
         </header>
-        
-        <div id="search-box">
-            <input type="text" id="s-input" placeholder="ابحث عن يوزر...">
-            <button onclick="search()" style="width:auto;">بحث</button>
-        </div>
-        
-        <div id="results"></div>
 
-        <div id="private-window" class="hidden">
-            <div style="background:#eee; padding:10px; display:flex; justify-content:space-between;">
-                <span>دردشة مع: <b id="chat-with"></b></span>
-                <button onclick="closeChat()">إغلاق</button>
+        <!-- منطقة المحادثات -->
+        <div class="chats-container" id="chatsContainer">
+            <!-- يتم توليدها عبر JS -->
+        </div>
+
+        <!-- طبقة التعتيم (خلف السحب) -->
+        <div class="drawer-overlay" id="drawerOverlay"></div>
+
+        <!-- السحب الجانبي (القائمة) -->
+        <div class="drawer" id="drawer">
+            <div class="drawer-header">
+                <span>القائمة</span>
+                <button class="close-drawer" id="closeDrawerBtn">×</button>
             </div>
-            <div id="msg-list"></div>
-            <div class="input-area">
-                <input type="text" id="m-text" placeholder="اكتب رسالتك...">
-                <button onclick="sendMsg()" style="width:auto;">إرسال</button>
-            </div>
+            <ul class="drawer-menu">
+                <li>العدادات</li>
+                <li>الرسال محفوظة</li>
+                <li>خصوصية والامان</li>
+                <li>الدعم الفني</li>
+            </ul>
         </div>
     </div>
+</div>
 
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+<script>
+    // ------------------------------------------------------------
+    // بيانات وهمية للمحادثات - للبحث الحقيقي
+    // ------------------------------------------------------------
+    const chatsData = [
+        { id: 1, name: 'أحمد علي', avatar: 'أ', message: 'مرحباً، كيف الحال؟', time: '10:30' },
+        { id: 2, name: 'سارة محمد', avatar: 'س', message: 'هل أرسلت التقرير؟', time: '09:15' },
+        { id: 3, name: 'محمود سالم', avatar: 'م', message: 'نتحدث لاحقاً', time: 'الأمس' },
+        { id: 4, name: 'ندى خالد', avatar: 'ن', message: 'شكراً جزيلاً!', time: 'الأمس' },
+        { id: 5, name: 'كريم حسن', avatar: 'ك', message: 'موعدنا الساعة ٥', time: '٢٠٢٦/٢/١٠' },
+        { id: 6, name: 'Lina Smith', avatar: 'L', message: 'See you tomorrow!', time: '١١:٠٠' },
+        { id: 7, name: 'Omar Johnson', avatar: 'O', message: 'Project is ready', time: '٠٨:٤٥' }
+    ];
 
-    <script>
-        // إعداداتك من الصورة
-        const firebaseConfig = {
-            apiKey: "AIzaSyDRCtfuYrEdnuKUsWu_79N0",
-            authDomain: "tttrt-b8c5a.firebaseapp.com",
-            databaseURL: "https://tttrt-b8c5a-default-rtdb.asia-southeast1.firebasedatabase.app",
-            projectId: "tttrt-b8c5a",
-            storageBucket: "tttrt-b8c5a.appspot.com",
-            messagingSenderId: "975123752593",
-            appId: "1:975123752593:web:e591e930af101968875560"
-        };
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
-        
-        let myData = JSON.parse(localStorage.getItem('chat_user'));
-        let targetUser = null;
-        let chatRef = null;
+    // ------------------------------------------------------------
+    // متغيرات الحالة
+    // ------------------------------------------------------------
+    let currentAuthMode = 'login'; // login / signup
+    let isAuthenticated = false;
 
-        // الدخول التلقائي إذا كان مسجلاً سابقاً
-        if(myData) { showApp(); }
+    // ------------------------------------------------------------
+    // عناصر DOM
+    // ------------------------------------------------------------
+    const authView = document.getElementById('authView');
+    const appView = document.getElementById('appView');
+    const authForm = document.getElementById('authForm');
+    const loginTab = document.getElementById('loginTab');
+    const signupTab = document.getElementById('signupTab');
+    const formError = document.getElementById('formError');
 
-        function login() {
-            const uName = document.getElementById('name').value;
-            const uUser = document.getElementById('user').value.toLowerCase().trim();
-            const uPic = document.getElementById('pic').value || "https://cdn-icons-png.flaticon.com/512/149/149071.png";
+    // عناصر التطبيق الرئيسي
+    const chatsContainer = document.getElementById('chatsContainer');
+    const searchInput = document.getElementById('searchInput');
+    const searchBtn = document.getElementById('searchBtn');
+    const menuIcon = document.getElementById('menuIcon');
+    const drawer = document.getElementById('drawer');
+    const drawerOverlay = document.getElementById('drawerOverlay');
+    const closeDrawerBtn = document.getElementById('closeDrawerBtn');
 
-            if(uUser.length < 4) return alert("اليوزر قصير!");
-
-            const id = "ID-" + Math.floor(Math.random()*9000);
-            myData = { id, name: uName, username: uUser, pic: uPic };
-            
-            // حفظ في Firebase وفي المتصفح
-            db.ref('users/' + id).set(myData);
-            localStorage.setItem('chat_user', JSON.stringify(myData));
-            showApp();
+    // ------------------------------------------------------------
+    // توليد حقول النموذج حسب الوضع (دخول / إنشاء)
+    // ------------------------------------------------------------
+    function renderAuthForm() {
+        let html = '';
+        if (currentAuthMode === 'login') {
+            html = `
+                <div class="form-group">
+                    <label>رقم الهاتف أو البريد الإلكتروني</label>
+                    <input type="text" id="loginIdentifier" placeholder="مثال: 9665xxxxxx أو name@example.com" required>
+                </div>
+                <div class="form-group">
+                    <label>كلمة المرور</label>
+                    <input type="password" id="loginPassword" placeholder="أدخل كلمة المرور" required>
+                </div>
+                <button type="submit" class="btn-submit">دخول</button>
+            `;
+        } else {
+            html = `
+                <div class="form-group">
+                    <label>الاسم الشخصي</label>
+                    <input type="text" id="signupName" placeholder="الاسم الكامل" required>
+                </div>
+                <div class="form-group">
+                    <label>العمر</label>
+                    <input type="number" id="signupAge" placeholder="العمر" min="10" max="100" required>
+                </div>
+                <div class="form-group">
+                    <label>اسم المستخدم (إنجليزي، 5 أحرف فأكثر)</label>
+                    <input type="text" id="signupUsername" placeholder="مثال: ahmed7" pattern="[A-Za-z]{5,}" title="5 أحرف إنجليزية على الأقل" required>
+                </div>
+                <div class="form-group">
+                    <label>رقم الهاتف أو البريد</label>
+                    <input type="text" id="signupIdentifier" placeholder="هاتف أو بريد" required>
+                </div>
+                <div class="form-group">
+                    <label>كلمة المرور</label>
+                    <input type="password" id="signupPassword" placeholder="كلمة المرور" required>
+                </div>
+                <div class="form-group">
+                    <label>تأكيد كلمة المرور</label>
+                    <input type="password" id="signupConfirm" placeholder="أعد إدخال كلمة المرور" required>
+                </div>
+                <button type="submit" class="btn-submit">إنشاء حساب والبدء</button>
+            `;
         }
+        authForm.innerHTML = html;
+        formError.innerText = '';
+    }
 
-        function showApp() {
-            document.getElementById('login-page').classList.add('hidden');
-            document.getElementById('chat-app').classList.remove('hidden');
-            document.getElementById('me').innerText = myData.name;
-        }
+    // ------------------------------------------------------------
+    // تبديل التبويبات
+    // ------------------------------------------------------------
+    loginTab.addEventListener('click', () => {
+        currentAuthMode = 'login';
+        loginTab.classList.add('active');
+        signupTab.classList.remove('active');
+        renderAuthForm();
+    });
 
-        function search() {
-            const q = document.getElementById('s-input').value.toLowerCase().trim();
-            db.ref('users').orderByChild('username').equalTo(q).once('value', s => {
-                const res = document.getElementById('results');
-                res.innerHTML = "";
-                s.forEach(child => {
-                    const u = child.val();
-                    if(u.id === myData.id) return;
-                    res.innerHTML += `
-                        <div class="user-card">
-                            <img src="${u.pic}">
-                            <div style="flex:1"><b>${u.name}</b><br>@${u.username}</div>
-                            <button onclick="openChat('${u.id}', '${u.name}')" style="width:auto; background:#28a745;">مراسلة</button>
-                        </div>`;
-                });
-            });
-        }
+    signupTab.addEventListener('click', () => {
+        currentAuthMode = 'signup';
+        signupTab.classList.add('active');
+        loginTab.classList.remove('active');
+        renderAuthForm();
+    });
 
-        function openChat(tid, tname) {
-            targetUser = tid;
-            document.getElementById('chat-with').innerText = tname;
-            document.getElementById('private-window').classList.remove('hidden');
-            
-            const cid = myData.id < tid ? myData.id+"_"+tid : tid+"_"+myData.id;
-            if(chatRef) chatRef.off();
-            document.getElementById('msg-list').innerHTML = "";
-            
-            chatRef = db.ref('chats/' + cid);
-            chatRef.on('child_added', s => {
-                const m = s.val();
-                const d = document.createElement('div');
-                d.className = `msg ${m.f === myData.id ? 'sent' : 'received'}`;
-                d.innerText = m.t;
-                document.getElementById('msg-list').appendChild(d);
-                document.getElementById('msg-list').scrollTop = 99999;
-            });
-        }
+    // ------------------------------------------------------------
+    // معالجة تقديم النموذج (تسجيل / إنشاء)
+    // ------------------------------------------------------------
+    authForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        formError.innerText = '';
 
-        function sendMsg() {
-            const t = document.getElementById('m-text').value;
-            if(t && chatRef) {
-                chatRef.push({ f: myData.id, t: t });
-                document.getElementById('m-text').value = "";
+        if (currentAuthMode === 'login') {
+            // تسجيل دخول - فقط تأكد من ملء الحقول، يحول فوراً للتطبيق
+            const identifier = document.getElementById('loginIdentifier')?.value.trim();
+            const password = document.getElementById('loginPassword')?.value.trim();
+            if (!identifier || !password) {
+                formError.innerText = 'يرجى ملء جميع الحقول';
+                return;
             }
-        }
+            // محاكاة نجاح تسجيل الدخول
+            goToApp();
 
-        function closeChat() { document.getElementById('private-window').classList.add('hidden'); }
-        function logout() { localStorage.clear(); location.reload(); }
-    </script>
+        } else {
+            // إنشاء حساب جديد مع تحقققات
+            const name = document.getElementById('signupName')?.value.trim();
+            const age = document.getElementById('signupAge')?.value.trim();
+            const username = document.getElementById('signupUsername')?.value.trim();
+            const identifier = document.getElementById('signupIdentifier')?.value.trim();
+            const password = document.getElementById('signupPassword')?.value.trim();
+            const confirm = document.getElementById('signupConfirm')?.value.trim();
+
+            if (!name || !age || !username || !identifier || !password || !confirm) {
+                formError.innerText = 'جميع الحقول مطلوبة';
+                return;
+            }
+
+            // التحقق من العمر
+            if (isNaN(age) || age < 10 || age > 100) {
+                formError.innerText = 'العمر يجب أن يكون رقماً بين 10 و100';
+                return;
+            }
+
+            // التحقق من اسم المستخدم : 5 أحرف إنجليزية على الأقل
+            const usernameRegex = /^[A-Za-z]{5,}$/;
+            if (!usernameRegex.test(username)) {
+                formError.innerText = 'اسم المستخدم يجب أن يكون 5 أحرف إنجليزية على الأقل (بدون أرقام أو رموز)';
+                return;
+            }
+
+            // تحقق كلمة المرور
+            if (password !== confirm) {
+                formError.innerText = 'كلمة المرور غير متطابقة';
+                return;
+            }
+
+            // محاكاة نجاح إنشاء حساب -> الدخول إلى التطبيق
+            goToApp();
+        }
+    });
+
+    // ------------------------------------------------------------
+    // الانتقال إلى واجهة التطبيق الرئيسية
+    // ------------------------------------------------------------
+    function goToApp() {
+        authView.classList.add('hidden-view');
+        appView.classList.remove('hidden-view');
+        isAuthenticated = true;
+
+        // عرض المحادثات (كامل)
+        renderChats(chatsData);
+        // إغلاق أي درو مفتوح
+        closeDrawerFunction();
+    }
+
+    // ------------------------------------------------------------
+    // عرض المحادثات (مع فلتر)
+    // ------------------------------------------------------------
+    function renderChats(items) {
+        if (!chatsContainer) return;
+        if (items.length === 0) {
+            chatsContainer.innerHTML = '<div class="no-result">لا توجد محادثات مطابقة</div>';
+            return;
+        }
+        let html = '';
+        items.forEach(chat => {
+            html += `
+                <div class="chat-item">
+                    <div class="chat-avatar">${chat.avatar}</div>
+                    <div class="chat-info">
+                        <div class="chat-name">${chat.name}</div>
+                        <div class="chat-msg">${chat.message}</div>
+                    </div>
+                </div>
+            `;
+        });
+        chatsContainer.innerHTML = html;
+    }
+
+    // ------------------------------------------------------------
+    // وظيفة البحث المباشر (حقيقي)
+    // ------------------------------------------------------------
+    function performSearch() {
+        const query = searchInput.value.trim().toLowerCase();
+        if (query === '') {
+            renderChats(chatsData);
+            return;
+        }
+        const filtered = chatsData.filter(chat => 
+            chat.name.toLowerCase().includes(query) || 
+            chat.message.toLowerCase().includes(query)
+        );
+        renderChats(filtered);
+    }
+
+    // البحث عند الضغط على الزر أو عند الكتابة (للاستجابة السريعة)
+    searchBtn.addEventListener('click', performSearch);
+    searchInput.addEventListener('keyup', (e) => {
+        // بحث فوري مع كل حرف
+        performSearch();
+    });
+
+    // ------------------------------------------------------------
+    // قائمة الهامبرغر (الدراوير)
+    // ------------------------------------------------------------
+    function openDrawer() {
+        drawer.classList.add('open');
+        drawerOverlay.style.display = 'block';
+    }
+
+    function closeDrawerFunction() {
+        drawer.classList.remove('open');
+        drawerOverlay.style.display = 'none';
+    }
+
+    menuIcon.addEventListener('click', openDrawer);
+    closeDrawerBtn.addEventListener('click', closeDrawerFunction);
+    drawerOverlay.addEventListener('click', closeDrawerFunction);
+
+    // ------------------------------------------------------------
+    // بدء التشغيل: نعرض نموذج الدخول افتراضياً ونضمن المحادثات عند تحميل التطبيق
+    // ------------------------------------------------------------
+    renderAuthForm();
+
+    // تجهيز عرض المحادثات عند تحميل التطبيق (للاستعمال بعد الانتقال)
+    // يتم تخزين البيانات، وسيتم الاستدعاء goToApp
+
+    // (اختياري) إضافة بعض الوهم أن التطبيق يعمل
+    // نضمن أن الدراوير مغلق في البداية
+    window.addEventListener('load', function() {
+        closeDrawerFunction();
+        // تأكد من أن واجهة التطبيق مخفية في البداية
+        appView.classList.add('hidden-view');
+        authView.classList.remove('hidden-view');
+    });
+
+    // عند النقر على أي خيار في القائمة (للتجربة فقط - يظهر رسالة)
+    const menuItems = document.querySelectorAll('.drawer-menu li');
+    menuItems.forEach(item => {
+        item.addEventListener('click', function(e) {
+            alert(`تم النقر على: ${this.innerText} (سيتم ربطه مع قاعدة البيانات)`);
+            // يمكنك إغلاق الدراوير بعد النقر
+            closeDrawerFunction();
+        });
+    });
+
+</script>
+
 </body>
 </html>
-
