@@ -3,78 +3,68 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تطبيق الدردشة المطور</title>
+    <title>تطبيق الدردشة العالمي</title>
     <style>
-        :root { --main-color: #0088cc; --bg: #e6eee0; }
-        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); margin: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+        :root { --primary: #0088cc; --bg: #e6eee0; }
+        body { font-family: sans-serif; background: var(--bg); margin: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
         .hidden { display: none !important; }
         
-        /* شاشة تسجيل الدخول */
-        #auth-screen { background: white; padding: 30px; margin: auto; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 85%; max-width: 400px; text-align: center; }
-        #auth-screen input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 10px; box-sizing: border-box; font-size: 16px; }
-        #auth-screen button { width: 100%; background: var(--main-color); color: white; border: none; padding: 12px; border-radius: 10px; cursor: pointer; font-weight: bold; font-size: 18px; transition: 0.3s; }
+        /* شاشة الدخول */
+        #login-page { background: white; padding: 30px; margin: auto; border-radius: 20px; width: 85%; max-width: 400px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 10px; box-sizing: border-box; }
+        button { width: 100%; background: var(--primary); color: white; border: none; padding: 12px; border-radius: 10px; cursor: pointer; font-weight: bold; }
 
         /* الشاشة الرئيسية */
-        #main-container { display: flex; flex-direction: column; height: 100vh; }
-        header { background: var(--main-color); color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        #chat-app { display: flex; flex-direction: column; height: 100vh; }
+        header { background: var(--primary); color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; }
         
-        /* البحث */
-        #search-area { padding: 10px; background: white; display: flex; gap: 8px; border-bottom: 1px solid #ddd; }
-        #search-input { flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 20px; outline: none; }
-        #search-btn { background: var(--main-color); color: white; border: none; padding: 8px 15px; border-radius: 20px; cursor: pointer; }
-        
-        /* نتائج البحث */
-        #search-results { padding: 10px; }
-        .user-item { background: white; padding: 12px; border-radius: 15px; display: flex; align-items: center; gap: 12px; margin-bottom: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        .user-avatar { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; }
-        .chat-open-btn { background: #28a745; color: white; border: none; padding: 6px 12px; border-radius: 10px; cursor: pointer; margin-right: auto; }
+        /* البحث والمستخدمين */
+        #search-box { background: white; padding: 10px; display: flex; gap: 5px; border-bottom: 1px solid #ddd; }
+        #results { padding: 10px; flex: 1; overflow-y: auto; }
+        .user-card { background: white; padding: 10px; border-radius: 10px; display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+        .user-card img { width: 45px; height: 45px; border-radius: 50%; }
 
-        /* شاشة الدردشة */
-        #chat-window { flex: 1; display: flex; flex-direction: column; background: var(--bg); }
-        #chat-header { background: #f0f0f0; padding: 10px; display: flex; align-items: center; border-bottom: 1px solid #ddd; font-weight: bold; }
-        #messages-list { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 8px; }
-        
-        .m-msg { padding: 10px 15px; border-radius: 15px; max-width: 75%; font-size: 15px; line-height: 1.4; word-wrap: break-word; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
-        .m-sent { background: #effdde; align-self: flex-end; border-bottom-right-radius: 2px; }
-        .m-received { background: white; align-self: flex-start; border-bottom-left-radius: 2px; }
-        
-        .m-footer { background: white; padding: 12px; display: flex; gap: 10px; border-top: 1px solid #ddd; }
-        .m-footer input { flex: 1; padding: 12px; border: 1px solid #ddd; border-radius: 25px; outline: none; }
-        .m-footer button { background: var(--main-color); color: white; border: none; padding: 10px 20px; border-radius: 25px; cursor: pointer; }
+        /* نافذة الدردشة الخاصة */
+        #private-window { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg); display: flex; flex-direction: column; z-index: 100; }
+        #msg-list { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 8px; }
+        .msg { padding: 10px; border-radius: 10px; max-width: 70%; }
+        .sent { background: #effdde; align-self: flex-end; }
+        .received { background: white; align-self: flex-start; }
+        .input-area { background: white; padding: 15px; display: flex; gap: 10px; }
     </style>
 </head>
 <body>
 
-    <div id="auth-screen">
+    <div id="login-page">
         <h2>أهلاً بك في الدردشة</h2>
-        <input type="text" id="in-name" placeholder="اسمك الكامل">
-        <input type="text" id="in-user" placeholder="اسم المستخدم (4+ حروف)">
-        <input type="text" id="in-pic" placeholder="رابط صورتك الشخصية">
-        <button onclick="handleAuth()">دخول / تسجيل</button>
+        <input type="text" id="name" placeholder="الاسم الكامل">
+        <input type="text" id="user" placeholder="اسم المستخدم (4 حروف فأكثر)">
+        <input type="text" id="pic" placeholder="رابط صورتك">
+        <button onclick="login()">دخول الآن</button>
     </div>
 
-    <div id="main-container" class="hidden">
+    <div id="chat-app" class="hidden">
         <header>
-            <span id="my-name-display">...</span>
-            <button onclick="location.reload()" style="background:rgba(255,255,255,0.2); border:none; color:white; padding:5px 10px; border-radius:5px;">خروج</button>
+            <span id="me">...</span>
+            <button onclick="logout()" style="width:auto; padding:5px;">خروج</button>
         </header>
-
-        <div id="search-area">
-            <input type="text" id="search-input" placeholder="ابحث عن صديق باليوزر...">
-            <button id="search-btn" onclick="findUser()">بحث</button>
+        
+        <div id="search-box">
+            <input type="text" id="s-input" placeholder="ابحث عن يوزر...">
+            <button onclick="search()" style="width:auto;">بحث</button>
         </div>
+        
+        <div id="results"></div>
 
-        <div id="search-results"></div>
-
-        <div id="chat-window" class="hidden">
-            <div id="chat-header">
-                <button onclick="closeChat()" style="margin-left:10px; background:#999; border:none; color:white; padding:4px 8px; border-radius:5px;">رجوع</button>
-                متصل الآن مع: <span id="with-name" style="margin-right:5px; color:var(--main-color);">...</span>
+        <div id="private-window" class="hidden">
+            <div style="background:#eee; padding:10px; display:flex; justify-content:space-between;">
+                <span>دردشة مع: <b id="chat-with"></b></span>
+                <button onclick="closeChat()">إغلاق</button>
             </div>
-            <div id="messages-list"></div>
-            <div class="m-footer">
-                <input type="text" id="msg-field" placeholder="اكتب رسالتك...">
-                <button onclick="sendPrivateMsg()">إرسال</button>
+            <div id="msg-list"></div>
+            <div class="input-area">
+                <input type="text" id="m-text" placeholder="اكتب رسالتك...">
+                <button onclick="sendMsg()" style="width:auto;">إرسال</button>
             </div>
         </div>
     </div>
@@ -83,7 +73,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
     <script>
-        // إعدادات Firebase من الصور الخاصة بك
+        // إعداداتك من الصورة
         const firebaseConfig = {
             apiKey: "AIzaSyDRCtfuYrEdnuKUsWu_79N0",
             authDomain: "tttrt-b8c5a.firebaseapp.com",
@@ -93,100 +83,86 @@
             messagingSenderId: "975123752593",
             appId: "1:975123752593:web:e591e930af101968875560"
         };
-
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
-        let userMe = null;
-        let currentChatRef = null;
+        
+        let myData = JSON.parse(localStorage.getItem('chat_user'));
+        let targetUser = null;
+        let chatRef = null;
 
-        // 1. نظام الدخول والتسجيل
-        function handleAuth() {
-            const name = document.getElementById('in-name').value;
-            const user = document.getElementById('in-user').value.toLowerCase().trim();
-            const pic = document.getElementById('in-pic').value || "https://cdn-icons-png.flaticon.com/512/149/149071.png";
+        // الدخول التلقائي إذا كان مسجلاً سابقاً
+        if(myData) { showApp(); }
 
-            if(user.length < 4) return alert("اسم المستخدم يجب أن يكون 4 أحرف على الأقل");
+        function login() {
+            const uName = document.getElementById('name').value;
+            const uUser = document.getElementById('user').value.toLowerCase().trim();
+            const uPic = document.getElementById('pic').value || "https://cdn-icons-png.flaticon.com/512/149/149071.png";
 
-            db.ref('users').orderByChild('username').equalTo(user).once('value', snapshot => {
-                if(snapshot.exists()) {
-                    // تسجيل دخول
-                    snapshot.forEach(child => { startApp(child.val()); });
-                } else {
-                    // إنشاء حساب بـ ID تلقائي
-                    const autoId = "ID-" + Math.floor(Math.random() * 9000 + 1000);
-                    const newUser = { id: autoId, name, username: user, pic };
-                    db.ref('users/' + autoId).set(newUser);
-                    startApp(newUser);
-                }
+            if(uUser.length < 4) return alert("اليوزر قصير!");
+
+            const id = "ID-" + Math.floor(Math.random()*9000);
+            myData = { id, name: uName, username: uUser, pic: uPic };
+            
+            // حفظ في Firebase وفي المتصفح
+            db.ref('users/' + id).set(myData);
+            localStorage.setItem('chat_user', JSON.stringify(myData));
+            showApp();
+        }
+
+        function showApp() {
+            document.getElementById('login-page').classList.add('hidden');
+            document.getElementById('chat-app').classList.remove('hidden');
+            document.getElementById('me').innerText = myData.name;
+        }
+
+        function search() {
+            const q = document.getElementById('s-input').value.toLowerCase().trim();
+            db.ref('users').orderByChild('username').equalTo(q).once('value', s => {
+                const res = document.getElementById('results');
+                res.innerHTML = "";
+                s.forEach(child => {
+                    const u = child.val();
+                    if(u.id === myData.id) return;
+                    res.innerHTML += `
+                        <div class="user-card">
+                            <img src="${u.pic}">
+                            <div style="flex:1"><b>${u.name}</b><br>@${u.username}</div>
+                            <button onclick="openChat('${u.id}', '${u.name}')" style="width:auto; background:#28a745;">مراسلة</button>
+                        </div>`;
+                });
             });
         }
 
-        function startApp(userData) {
-            userMe = userData;
-            document.getElementById('auth-screen').classList.add('hidden');
-            document.getElementById('main-container').classList.remove('hidden');
-            document.getElementById('my-name-display').innerText = "مرحباً: " + userMe.name;
-        }
-
-        // 2. نظام البحث
-        function findUser() {
-            const query = document.getElementById('search-input').value.toLowerCase().trim();
-            if(!query) return;
+        function openChat(tid, tname) {
+            targetUser = tid;
+            document.getElementById('chat-with').innerText = tname;
+            document.getElementById('private-window').classList.remove('hidden');
             
-            db.ref('users').orderByChild('username').equalTo(query).once('value', snapshot => {
-                const results = document.getElementById('search-results');
-                results.innerHTML = "";
-                if(snapshot.exists()){
-                    snapshot.forEach(child => {
-                        const u = child.val();
-                        if(u.id === userMe.id) return;
-                        results.innerHTML += `
-                            <div class="user-item">
-                                <img src="${u.pic}" class="user-avatar">
-                                <div><strong>${u.name}</strong><br><small>@${u.username}</small></div>
-                                <button class="chat-open-btn" onclick="startChat('${u.id}', '${u.name}')">مراسلة</button>
-                            </div>`;
-                    });
-                } else { results.innerHTML = "<p style='text-align:center;'>المستخدم غير موجود</p>"; }
+            const cid = myData.id < tid ? myData.id+"_"+tid : tid+"_"+myData.id;
+            if(chatRef) chatRef.off();
+            document.getElementById('msg-list').innerHTML = "";
+            
+            chatRef = db.ref('chats/' + cid);
+            chatRef.on('child_added', s => {
+                const m = s.val();
+                const d = document.createElement('div');
+                d.className = `msg ${m.f === myData.id ? 'sent' : 'received'}`;
+                d.innerText = m.t;
+                document.getElementById('msg-list').appendChild(d);
+                document.getElementById('msg-list').scrollTop = 99999;
             });
         }
 
-        // 3. نظام الدردشة الخاصة
-        function startChat(targetId, targetName) {
-            document.getElementById('search-results').classList.add('hidden');
-            document.getElementById('search-area').classList.add('hidden');
-            document.getElementById('chat-window').classList.remove('hidden');
-            document.getElementById('with-name').innerText = targetName;
-            
-            const chatId = userMe.id < targetId ? userMe.id + "_" + targetId : targetId + "_" + userMe.id;
-            
-            if(currentChatRef) currentChatRef.off();
-            document.getElementById('messages-list').innerHTML = "";
-            
-            currentChatRef = db.ref('p_chats/' + chatId);
-            currentChatRef.on('child_added', s => {
-                const msg = s.val();
-                const div = document.createElement('div');
-                div.className = `m-msg ${msg.from === userMe.id ? 'm-sent' : 'm-received'}`;
-                div.innerText = msg.text;
-                document.getElementById('messages-list').appendChild(div);
-                document.getElementById('messages-list').scrollTop = 99999;
-            });
-        }
-
-        function sendPrivateMsg() {
-            const txt = document.getElementById('msg-field').value;
-            if(txt && currentChatRef) {
-                currentChatRef.push({ from: userMe.id, text: txt, time: Date.now() });
-                document.getElementById('msg-field').value = "";
+        function sendMsg() {
+            const t = document.getElementById('m-text').value;
+            if(t && chatRef) {
+                chatRef.push({ f: myData.id, t: t });
+                document.getElementById('m-text').value = "";
             }
         }
 
-        function closeChat() {
-            document.getElementById('chat-window').classList.add('hidden');
-            document.getElementById('search-results').classList.remove('hidden');
-            document.getElementById('search-area').classList.remove('hidden');
-        }
+        function closeChat() { document.getElementById('private-window').classList.add('hidden'); }
+        function logout() { localStorage.clear(); location.reload(); }
     </script>
 </body>
 </html>
