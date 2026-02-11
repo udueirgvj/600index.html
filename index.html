@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تليجرام الخاص بي</title>
+    <style>
+        body { font-family: sans-serif; background-color: #e6eee0; display: flex; flex-direction: column; height: 100vh; margin: 0; }
+        #chat-box { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; }
+        .message { background: white; padding: 12px; margin: 8px; border-radius: 15px; max-width: 80%; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .input-area { background: white; padding: 15px; display: flex; gap: 10px; border-top: 1px solid #ddd; position: sticky; bottom: 0; }
+        input { flex: 1; padding: 12px; border: 1px solid #ddd; border-radius: 25px; outline: none; }
+        button { background: #0088cc; color: white; border: none; padding: 10px 25px; border-radius: 25px; cursor: pointer; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <div id="chat-box"></div>
+
+    <div class="input-area">
+        <input type="text" id="msgInput" placeholder="اكتب رسالة هنا...">
+        <button onclick="send()">إرسال</button>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+    <script>
+        // هذه هي بياناتك التي ظهرت في الصورة
+        const firebaseConfig = {
+            apiKey: "AIzaSyDRCtfuYrEdnuKUsWu_79N0",
+            authDomain: "tttrt-b8c5a.firebaseapp.com",
+            databaseURL: "https://tttrt-b8c5a-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "tttrt-b8c5a",
+            storageBucket: "tttrt-b8c5a.appspot.com",
+            messagingSenderId: "975123752593",
+            appId: "1:975123752593:web:e591e930af101968875560",
+            measurementId: "G-VJVE851FEW"
+        };
+
+        // تشغيل Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        // وظيفة الإرسال
+        function send() {
+            const input = document.getElementById('msgInput');
+            if(input.value.trim() !== "") {
+                db.ref("messages").push().set({
+                    text: input.value,
+                    time: Date.now()
+                });
+                input.value = ""; 
+            }
+        }
+
+        // استقبال الرسائل وعرضها فوراً
+        db.ref("messages").on("child_added", (snapshot) => {
+            const data = snapshot.val();
+            const chatBox = document.getElementById('chat-box');
+            const msgDiv = document.createElement('div');
+            msgDiv.className = 'message';
+            msgDiv.innerText = data.text;
+            chatBox.appendChild(msgDiv);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        });
+    </script>
+</body>
+</html>
