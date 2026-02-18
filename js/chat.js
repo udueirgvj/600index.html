@@ -1,5 +1,5 @@
 // ===================================================
-// chat.js - نسخة تشخيصية للبحث
+// chat.js - نسخة تشخيصية كاملة
 // ===================================================
 
 let chatListListener = null;
@@ -14,59 +14,83 @@ const Chat = {
     replyToMessage: null,
     forwardMessage: null,
 
-    // دالة البحث عن المستخدمين (نسخة تشخيصية)
+    // دالة البحث عن المستخدمين (مع تنبيهات)
     async searchUsers() {
         const query = document.getElementById('searchInput').value.trim().toLowerCase();
         const resultsDiv = document.getElementById('searchResults');
 
-        // إخفاء النتائج إذا كان النص أقل من حرفين
+        // التنبيه الأول: تم تشغيل البحث
+        alert('1. تم تشغيل البحث. النص المدخل: ' + (query || '(فارغ)'));
+
         if (query.length < 2) {
+            alert('2. النص أقل من حرفين، لن يتم البحث.');
             resultsDiv.classList.remove('show');
             return;
         }
 
-        alert('🔍 جاري البحث عن: ' + query);
-
-        let html = '';
+        alert('3. جاري الاتصال بقاعدة البيانات...');
 
         try {
-            // جلب جميع المستخدمين من قاعدة البيانات
             const usersSnap = await db.ref('users').once('value');
             const totalUsers = usersSnap.numChildren();
-            alert('📊 عدد المستخدمين الكلي: ' + totalUsers);
+            alert('4. عدد المستخدمين في قاعدة البيانات: ' + totalUsers);
 
+            if (totalUsers === 0) {
+                alert('5. لا يوجد أي مستخدمين في قاعدة البيانات!');
+                resultsDiv.innerHTML = '<div style="padding:12px; color:#999;">لا يوجد مستخدمين</div>';
+                resultsDiv.classList.add('show');
+                return;
+            }
+
+            let html = '';
             let foundCount = 0;
 
             usersSnap.forEach(child => {
                 const u = child.val();
-                // التأكد من أن المستخدم الحالي لا يظهر في النتائج
-                if (u.uid === currentUser.uid) return;
+                alert('6. مستخدم: ' + (u.fullName || 'بدون اسم') + ' | اسم المستخدم: ' + (u.username || 'غير موجود'));
 
-                // طباعة معلومات كل مستخدم (للتشخيص)
-                console.log('مستخدم:', u.username, '← هل يطابق؟', u.username?.toLowerCase().includes(query));
+                // التأكد من أن المستخدم الحالي لا يظهر
+                if (u.uid === currentUser.uid) {
+                    alert('7. هذا هو المستخدم الحالي (تم تخطيه).');
+                    return;
+                }
 
-                // التحقق من وجود اسم المستخدم ومطابقته
-                if (u.username && u.username.toLowerCase().includes(query)) {
-                    foundCount++;
-                    html += `<div class="search-result-item" onclick="Chat.startPrivate('${u.uid}', '${u.username}', '${u.fullName}')">
-                        <div class="chat-avatar">${u.fullName ? u.fullName.charAt(0) : '👤'}</div>
-                        <div><strong>${u.fullName || 'مستخدم'}</strong><br><span style="color:#666;">@${u.username}</span></div>
-                    </div>`;
+                if (u.username) {
+                    alert('8. اسم المستخدم موجود: ' + u.username);
+                    if (u.username.toLowerCase().includes(query)) {
+                        alert('9. تم العثور على تطابق!');
+                        foundCount++;
+                        html += `<div class="search-result-item" onclick="Chat.startPrivate('${u.uid}', '${u.username}', '${u.fullName}')">
+                            <div class="chat-avatar">${u.fullName.charAt(0)}</div>
+                            <div><strong>${u.fullName}</strong><br><span style="color:#666;">@${u.username}</span></div>
+                        </div>`;
+                    } else {
+                        alert('10. اسم المستخدم لا يحتوي على النص المطلوب.');
+                    }
+                } else {
+                    alert('11. هذا المستخدم ليس لديه اسم مستخدم!');
                 }
             });
 
-            alert('✅ عدد النتائج: ' + foundCount);
+            alert('12. عدد النتائج النهائي: ' + foundCount);
+
+            if (foundCount === 0) {
+                resultsDiv.innerHTML = '<div style="padding:12px; color:#999;">لا توجد نتائج</div>';
+            } else {
+                resultsDiv.innerHTML = html;
+            }
+            resultsDiv.classList.add('show');
+            alert('13. تم عرض النتائج.');
+
         } catch (e) {
             alert('❌ خطأ: ' + e.message);
             console.error(e);
         }
-
-        resultsDiv.innerHTML = html || '<div style="padding:12px; color:#999;">لا توجد نتائج</div>';
-        resultsDiv.classList.add('show');
     },
 
     // بدء محادثة خاصة مع مستخدم
     async startPrivate(uid, username, fullName) {
+        alert('فتح محادثة مع: ' + fullName);
         this.currentChatType = 'private';
         this.currentChatUser = { uid, username, fullName };
         const ids = [currentUser.uid, uid].sort();
@@ -174,7 +198,7 @@ const Chat = {
 };
 
 // ===================================================
-// قائمة المحادثات (تحميل حقيقي)
+// قائمة المحادثات
 // ===================================================
 function loadChatList() {
     if (!currentUser) return;
