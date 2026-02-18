@@ -1,5 +1,5 @@
 // ===================================================
-// chat.js - كل ما يتعلق بالمحادثات والبحث (نسخة معدلة)
+// chat.js - الإصدار النهائي (البحث يعمل فوراً)
 // ===================================================
 
 let chatListListener = null;
@@ -14,7 +14,7 @@ const Chat = {
     replyToMessage: null,
     forwardMessage: null,
 
-    // دالة البحث عن المستخدمين (معدلة لتعمل 100%)
+    // دالة البحث عن المستخدمين (نسخة مبسطة ومضمونة)
     async searchUsers() {
         const query = document.getElementById('searchInput').value.trim().toLowerCase();
         const resultsDiv = document.getElementById('searchResults');
@@ -28,43 +28,12 @@ const Chat = {
         let html = '';
 
         try {
-            // محاولة البحث المتقدم (أسرع)
-            const usersSnap = await db.ref('users')
-                .orderByChild('username')
-                .startAt(query)
-                .endAt(query + '\uf8ff')
-                .limitToFirst(10)
-                .once('value');
-
+            // جلب جميع المستخدمين من قاعدة البيانات
+            const usersSnap = await db.ref('users').once('value');
+            
             usersSnap.forEach(child => {
                 const u = child.val();
-                if (u.uid !== currentUser.uid) {
-                    html += `<div class="search-result-item" onclick="Chat.startPrivate('${u.uid}', '${u.username}', '${u.fullName}')">
-                        <div class="chat-avatar">${u.fullName.charAt(0)}</div>
-                        <div><strong>${u.fullName}</strong><br><span style="color:#666;">@${u.username}</span></div>
-                    </div>`;
-                }
-            });
-
-            // إذا لم توجد نتائج بالبحث المتقدم، نستخدم البحث البسيط كنسخة احتياطية
-            if (html === '') {
-                const allUsersSnap = await db.ref('users').once('value');
-                allUsersSnap.forEach(child => {
-                    const u = child.val();
-                    if (u.username && u.username.toLowerCase().includes(query) && u.uid !== currentUser.uid) {
-                        html += `<div class="search-result-item" onclick="Chat.startPrivate('${u.uid}', '${u.username}', '${u.fullName}')">
-                            <div class="chat-avatar">${u.fullName.charAt(0)}</div>
-                            <div><strong>${u.fullName}</strong><br><span style="color:#666;">@${u.username}</span></div>
-                        </div>`;
-                    }
-                });
-            }
-        } catch (e) {
-            console.error('خطأ في البحث:', e);
-            // في حال حدوث خطأ، نستخدم البحث البسيط مباشرة
-            const allUsersSnap = await db.ref('users').once('value');
-            allUsersSnap.forEach(child => {
-                const u = child.val();
+                // التأكد من أن اسم المستخدم موجود، ويحتوي على النص المطلوب، وليس المستخدم الحالي
                 if (u.username && u.username.toLowerCase().includes(query) && u.uid !== currentUser.uid) {
                     html += `<div class="search-result-item" onclick="Chat.startPrivate('${u.uid}', '${u.username}', '${u.fullName}')">
                         <div class="chat-avatar">${u.fullName.charAt(0)}</div>
@@ -72,8 +41,11 @@ const Chat = {
                     </div>`;
                 }
             });
+        } catch (e) {
+            console.error('خطأ في البحث:', e);
         }
 
+        // عرض النتائج أو رسالة عدم وجود نتائج
         resultsDiv.innerHTML = html || '<div style="padding:12px; color:#999;">لا توجد نتائج</div>';
         resultsDiv.classList.add('show');
     },
