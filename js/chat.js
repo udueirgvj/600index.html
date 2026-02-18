@@ -1,5 +1,5 @@
 // ===================================================
-// chat.js - كل ما يتعلق بالمحادثات والبحث
+// chat.js - كل ما يتعلق بالمحادثات والبحث (نسخة معدلة)
 // ===================================================
 
 let chatListListener = null;
@@ -14,7 +14,7 @@ const Chat = {
     replyToMessage: null,
     forwardMessage: null,
 
-    // دالة البحث عن المستخدمين (مُحسَّنة)
+    // دالة البحث عن المستخدمين (معدلة لتعمل 100%)
     async searchUsers() {
         const query = document.getElementById('searchInput').value.trim().toLowerCase();
         const resultsDiv = document.getElementById('searchResults');
@@ -27,8 +27,8 @@ const Chat = {
 
         let html = '';
 
-        // البحث في Firebase باستخدام orderByChild (أسرع)
         try {
+            // محاولة البحث المتقدم (أسرع)
             const usersSnap = await db.ref('users')
                 .orderByChild('username')
                 .startAt(query)
@@ -45,11 +45,25 @@ const Chat = {
                     </div>`;
                 }
             });
+
+            // إذا لم توجد نتائج بالبحث المتقدم، نستخدم البحث البسيط كنسخة احتياطية
+            if (html === '') {
+                const allUsersSnap = await db.ref('users').once('value');
+                allUsersSnap.forEach(child => {
+                    const u = child.val();
+                    if (u.username && u.username.toLowerCase().includes(query) && u.uid !== currentUser.uid) {
+                        html += `<div class="search-result-item" onclick="Chat.startPrivate('${u.uid}', '${u.username}', '${u.fullName}')">
+                            <div class="chat-avatar">${u.fullName.charAt(0)}</div>
+                            <div><strong>${u.fullName}</strong><br><span style="color:#666;">@${u.username}</span></div>
+                        </div>`;
+                    }
+                });
+            }
         } catch (e) {
-            console.log('البحث المتقدم فشل، نستخدم البحث البسيط', e);
-            // إذا فشل البحث المتقدم (مثلاً بسبب عدم وجود indexOn)، نستخدم البحث البسيط
-            const usersSnap = await db.ref('users').once('value');
-            usersSnap.forEach(child => {
+            console.error('خطأ في البحث:', e);
+            // في حال حدوث خطأ، نستخدم البحث البسيط مباشرة
+            const allUsersSnap = await db.ref('users').once('value');
+            allUsersSnap.forEach(child => {
                 const u = child.val();
                 if (u.username && u.username.toLowerCase().includes(query) && u.uid !== currentUser.uid) {
                     html += `<div class="search-result-item" onclick="Chat.startPrivate('${u.uid}', '${u.username}', '${u.fullName}')">
@@ -60,7 +74,6 @@ const Chat = {
             });
         }
 
-        // عرض النتائج
         resultsDiv.innerHTML = html || '<div style="padding:12px; color:#999;">لا توجد نتائج</div>';
         resultsDiv.classList.add('show');
     },
@@ -95,7 +108,6 @@ const Chat = {
         });
     },
 
-    // دالة مساعدة لحساب الوقت المنقضي
     timeAgo(timestamp) {
         const seconds = Math.floor((Date.now() - timestamp) / 1000);
         if (seconds < 60) return 'منذ لحظات';
@@ -107,7 +119,6 @@ const Chat = {
         return `منذ ${days} يوم`;
     },
 
-    // فتح واجهة الدردشة
     openChatUI(name, avatarChar, status) {
         document.getElementById('chatName').innerText = name;
         document.getElementById('chatAvatar').innerText = avatarChar;
@@ -115,7 +126,6 @@ const Chat = {
         document.getElementById('chatRoom').classList.add('open');
     },
 
-    // إغلاق الدردشة
     close() {
         document.getElementById('chatRoom').classList.remove('open');
         if (this.messagesListener) this.messagesListener.off();
@@ -130,7 +140,6 @@ const Chat = {
         this.forwardMessage = null;
     },
 
-    // تحميل الرسائل الخاصة
     loadPrivateMessages() {
         const messagesRef = db.ref(`messages/${this.currentChatId}`);
         this.messagesListener = messagesRef.orderByChild('timestamp').on('value', (snap) => {
@@ -138,13 +147,7 @@ const Chat = {
         });
     },
 
-    // تحميل رسائل المجموعة (إذا أردت لاحقاً)
-    loadGroupMessages(groupId) {
-        // يمكن إضافتها لاحقاً
-    },
-
-    // عرض الرسائل في الواجهة
-    async displayMessages(snapshot, isGroup = false) {
+    async displayMessages(snapshot) {
         const container = document.getElementById('messagesContainer');
         container.innerHTML = '';
         if (!snapshot.exists()) {
@@ -164,41 +167,90 @@ const Chat = {
         container.scrollTop = container.scrollHeight;
     },
 
-    // إرسال رسالة (وهمية حالياً)
     async sendMessage() {
         const input = document.getElementById('messageInput');
         const text = input.value.trim();
         if (!text || !this.currentChatId) return;
-        alert('إرسال رسالة: ' + text);
+
+        const msg = {
+            messageId: db.ref().push().key,
+            senderId: currentUser.uid,
+            receiverId: this.currentChatUser.uid,
+            text,
+            timestamp: Date.now()
+        };
+        await db.ref(`messages/${this.currentChatId}/${msg.messageId}`).set(msg);
         input.value = '';
     },
 
-    // دالة وهمية (للتوسع لاحقاً)
     banUser() { alert('خاصية الحظر قيد التطوير'); }
 };
 
 // ===================================================
-// قائمة المحادثات (وهمية للاختبار)
+// قائمة المحادثات (تحميل حقيقي)
 // ===================================================
 function loadChatList() {
+    if (!currentUser) return;
+    const uid = currentUser.uid;
+    const conversations = new Map();
+
+    db.ref('messages').on('value', (snapshot) => {
+        conversations.clear();
+        snapshot.forEach(chatSnap => {
+            const msgs = chatSnap.val();
+            if (msgs && typeof msgs === 'object') {
+                Object.values(msgs).forEach(msg => {
+                    if (msg.senderId === uid || msg.receiverId === uid) {
+                        const otherId = msg.senderId === uid ? msg.receiverId : msg.senderId;
+                        if (!conversations.has(otherId) || conversations.get(otherId).timestamp < msg.timestamp) {
+                            conversations.set(otherId, {
+                                id: otherId,
+                                lastMessage: msg.text,
+                                timestamp: msg.timestamp
+                            });
+                        }
+                    }
+                });
+            }
+        });
+        renderChatList(Array.from(conversations.values()));
+    });
+}
+
+async function renderChatList(list) {
     const container = document.getElementById('chatListContainer');
     if (!container) return;
-    container.innerHTML = `
-        <div class="chat-list-item" onclick="alert('فتح محادثة مع وكيل ابو الياس')">
-            <div class="chat-avatar">👤</div>
-            <div class="chat-info">
-                <div class="chat-name"><span>وكيل ابو الياس</span><span class="chat-time">الاثنين</span></div>
-                <div class="chat-last-msg">حساب يجي للبيع 🔥</div>
+    container.innerHTML = '';
+    list.sort((a, b) => b.timestamp - a.timestamp);
+
+    for (let item of list) {
+        const userSnap = await db.ref('users').orderByChild('uid').equalTo(item.id).once('value');
+        if (!userSnap.exists()) continue;
+        let user;
+        userSnap.forEach(u => user = u.val());
+
+        const statusSnap = await db.ref(`status/${user.uid}`).once('value');
+        const status = statusSnap.val();
+        const isOnline = status && status.state === 'online';
+
+        const div = document.createElement('div');
+        div.className = 'chat-list-item';
+        div.innerHTML = `
+            <div class="chat-avatar" style="position:relative;">
+                ${user.photoURL ? `<img src="${user.photoURL}">` : user.fullName.charAt(0)}
+                <span class="${isOnline ? 'online-indicator' : 'offline-indicator'}"></span>
             </div>
-        </div>
-        <div class="chat-list-item" onclick="alert('فتح محادثة مع سوبر القائد')">
-            <div class="chat-avatar">👤</div>
             <div class="chat-info">
-                <div class="chat-name"><span>سوبر القائد</span><span class="chat-time">01:00</span></div>
-                <div class="chat-last-msg">السلام عليكم يا شبابنا الطيبة</div>
+                <div class="chat-name"><span>${user.fullName}</span><span class="chat-time">${new Date(item.timestamp).toLocaleTimeString('ar', { hour: '2-digit', minute: '2-digit' })}</span></div>
+                <div class="chat-last-msg">${item.lastMessage}</div>
             </div>
-        </div>
-    `;
+        `;
+        div.onclick = () => Chat.startPrivate(user.uid, user.username, user.fullName);
+        container.appendChild(div);
+    }
+    if (list.length === 0) {
+        container.innerHTML = '<div style="text-align:center;padding:30px;color:#999;">لا توجد محادثات بعد</div>';
+    }
 }
 
 window.Chat = Chat;
