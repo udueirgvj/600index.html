@@ -1,5 +1,5 @@
 // ===================================================
-// chat.js - الإصدار النهائي (البحث يعمل فوراً)
+// chat.js - نسخة تشخيصية للبحث
 // ===================================================
 
 let chatListListener = null;
@@ -14,7 +14,7 @@ const Chat = {
     replyToMessage: null,
     forwardMessage: null,
 
-    // دالة البحث عن المستخدمين (نسخة مبسطة ومضمونة)
+    // دالة البحث عن المستخدمين (نسخة تشخيصية)
     async searchUsers() {
         const query = document.getElementById('searchInput').value.trim().toLowerCase();
         const resultsDiv = document.getElementById('searchResults');
@@ -25,27 +25,42 @@ const Chat = {
             return;
         }
 
+        alert('🔍 جاري البحث عن: ' + query);
+
         let html = '';
 
         try {
             // جلب جميع المستخدمين من قاعدة البيانات
             const usersSnap = await db.ref('users').once('value');
-            
+            const totalUsers = usersSnap.numChildren();
+            alert('📊 عدد المستخدمين الكلي: ' + totalUsers);
+
+            let foundCount = 0;
+
             usersSnap.forEach(child => {
                 const u = child.val();
-                // التأكد من أن اسم المستخدم موجود، ويحتوي على النص المطلوب، وليس المستخدم الحالي
-                if (u.username && u.username.toLowerCase().includes(query) && u.uid !== currentUser.uid) {
+                // التأكد من أن المستخدم الحالي لا يظهر في النتائج
+                if (u.uid === currentUser.uid) return;
+
+                // طباعة معلومات كل مستخدم (للتشخيص)
+                console.log('مستخدم:', u.username, '← هل يطابق؟', u.username?.toLowerCase().includes(query));
+
+                // التحقق من وجود اسم المستخدم ومطابقته
+                if (u.username && u.username.toLowerCase().includes(query)) {
+                    foundCount++;
                     html += `<div class="search-result-item" onclick="Chat.startPrivate('${u.uid}', '${u.username}', '${u.fullName}')">
-                        <div class="chat-avatar">${u.fullName.charAt(0)}</div>
-                        <div><strong>${u.fullName}</strong><br><span style="color:#666;">@${u.username}</span></div>
+                        <div class="chat-avatar">${u.fullName ? u.fullName.charAt(0) : '👤'}</div>
+                        <div><strong>${u.fullName || 'مستخدم'}</strong><br><span style="color:#666;">@${u.username}</span></div>
                     </div>`;
                 }
             });
+
+            alert('✅ عدد النتائج: ' + foundCount);
         } catch (e) {
-            console.error('خطأ في البحث:', e);
+            alert('❌ خطأ: ' + e.message);
+            console.error(e);
         }
 
-        // عرض النتائج أو رسالة عدم وجود نتائج
         resultsDiv.innerHTML = html || '<div style="padding:12px; color:#999;">لا توجد نتائج</div>';
         resultsDiv.classList.add('show');
     },
