@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تواصل - إنشاء بوت</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        body {
+            background: #f0f2f5;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .header {
+            background: #2A6B9C;
+            color: white;
+            padding: 0.8rem 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .back-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.8rem;
+            cursor: pointer;
+            line-height: 1;
+        }
+        .header h2 {
+            font-size: 1.3rem;
+        }
+        .content {
+            flex: 1;
+            padding: 1rem;
+        }
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        label {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #4b5f73;
+            margin-bottom: 0.3rem;
+        }
+        input {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border: 1px solid #d9e1ec;
+            border-radius: 12px;
+            background: #f9fcff;
+            font-size: 1rem;
+            outline: none;
+        }
+        input:focus {
+            border-color: #2A6B9C;
+            box-shadow: 0 0 0 3px rgba(42,107,156,0.1);
+        }
+        .btn {
+            background: #2A6B9C;
+            color: white;
+            border: none;
+            border-radius: 30px;
+            padding: 0.8rem 2rem;
+            font-size: 1rem;
+            cursor: pointer;
+            width: 100%;
+        }
+        .btn:hover {
+            background: #1f4e7a;
+        }
+        .message {
+            padding: 0.8rem;
+            border-radius: 10px;
+            margin-top: 1rem;
+            text-align: center;
+            display: none;
+        }
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            display: block;
+        }
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            display: block;
+        }
+        .info-box {
+            background: #e9f0fa;
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
+            color: #1f4e7a;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <button class="back-btn" onclick="goBack()">←</button>
+        <h2>إنشاء بوت جديد</h2>
+    </div>
+
+    <div class="content">
+        <div class="info-box">
+            🤖 لإنشاء بوت، يجب أن ينتهي اسم المستخدم بـ <strong>bot</strong>. مثال: MyBot, MySuperBot.
+        </div>
+        <form id="botForm">
+            <div class="form-group">
+                <label>اسم البوت</label>
+                <input type="text" id="botName" placeholder="مثال: MySuperBot" required>
+            </div>
+            <div class="form-group">
+                <label>اسم المستخدم (username)</label>
+                <input type="text" id="botUsername" placeholder="مثال: MySuperBot (يجب أن ينتهي بـ bot)" required>
+            </div>
+            <button type="submit" class="btn">متابعة إلى التوثيق</button>
+            <div id="message" class="message"></div>
+        </form>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getDatabase, ref, push, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDRCtfuYrEdnuKUsWu_79NC6G_xGLznBJc",
+            authDomain: "tttrt-b8c5a.firebaseapp.com",
+            databaseURL: "https://tttrt-b8c5a-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "tttrt-b8c5a",
+            storageBucket: "tttrt-b8c5a.firebasestorage.app",
+            messagingSenderId: "975123752593",
+            appId: "1:975123752593:web:e591e930af3a3e29568130"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const database = getDatabase(app);
+
+        let currentUserId = null;
+
+        onAuthStateChanged(auth, (user) => {
+            if (!user) {
+                window.location.href = 'index.html';
+                return;
+            }
+            currentUserId = user.uid;
+        });
+
+        window.goBack = function() {
+            window.location.href = 'create.html';
+        };
+
+        document.getElementById('botForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const botName = document.getElementById('botName').value.trim();
+            const botUsername = document.getElementById('botUsername').value.trim().toLowerCase();
+
+            if (!botName || !botUsername) {
+                showMessage('جميع الحقول مطلوبة', false);
+                return;
+            }
+            if (!botUsername.endsWith('bot')) {
+                showMessage('اسم المستخدم يجب أن ينتهي بـ "bot"', false);
+                return;
+            }
+
+            // تخزين مؤقت للبيانات في sessionStorage للانتقال إلى صفحة التوثيق
+            sessionStorage.setItem('botName', botName);
+            sessionStorage.setItem('botUsername', botUsername);
+
+            // التوجيه إلى صفحة البوت الموثق (محاكاة)
+            window.location.href = 'bot_verification.html';
+        });
+
+        function showMessage(msg, isSuccess) {
+            const msgDiv = document.getElementById('message');
+            msgDiv.textContent = msg;
+            msgDiv.className = isSuccess ? 'message success' : 'message error';
+        }
+    </script>
+</body>
+</html>
