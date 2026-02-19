@@ -17,63 +17,62 @@
             display: flex;
             flex-direction: column;
         }
-        /* شريط العلوي */
+        /* الشريط العلوي */
         .header {
             background: #2A6B9C;
             color: white;
-            padding: 1rem;
+            padding: 0.8rem 1rem;
             display: flex;
             align-items: center;
-            gap: 1rem;
+            justify-content: space-between;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: relative;
         }
-        .header h1 {
+        .header .menu-icon {
+            font-size: 1.8rem;
+            cursor: pointer;
+            width: 40px;
+            text-align: center;
+        }
+        .header .app-title {
             font-size: 1.5rem;
-            flex-grow: 1;
+            font-weight: 600;
         }
-        .back-btn {
-            background: none;
-            border: none;
-            color: white;
+        .header .search-icon {
             font-size: 1.5rem;
             cursor: pointer;
+            width: 40px;
+            text-align: center;
         }
-        .container {
-            display: flex;
-            flex: 1;
-            height: calc(100vh - 70px);
-        }
-        /* الشريط الجانبي (قائمة المحادثات) */
-        .sidebar {
-            width: 350px;
+        /* شريط البحث (يظهر عند الضغط على أيقونة البحث) */
+        .search-bar {
             background: white;
-            border-left: 1px solid #eef2f7;
-            display: flex;
-            flex-direction: column;
-            overflow-y: auto;
-        }
-        .search-box {
-            padding: 1rem;
+            padding: 0.8rem 1rem;
             border-bottom: 1px solid #eef2f7;
+            display: none;
         }
-        .search-box input {
+        .search-bar.show {
+            display: block;
+        }
+        .search-bar input {
             width: 100%;
             padding: 0.8rem 1rem;
             border: 1px solid #d9e1ec;
             border-radius: 30px;
             background: #f9fcff;
-            font-size: 0.95rem;
+            font-size: 1rem;
             outline: none;
         }
-        .search-box input:focus {
+        .search-bar input:focus {
             border-color: #2A6B9C;
             box-shadow: 0 0 0 3px rgba(42,107,156,0.1);
         }
+        /* منطقة نتائج البحث */
         .search-results {
             background: white;
-            border-bottom: 1px solid #eef2f7;
             max-height: 300px;
             overflow-y: auto;
+            border-bottom: 1px solid #eef2f7;
             display: none;
         }
         .search-results.show {
@@ -113,6 +112,21 @@
         .user-info p {
             font-size: 0.85rem;
             color: #7f8fa4;
+        }
+        /* الحاوية الرئيسية (منطقتين: قائمة المحادثات ومنطقة المحادثة) */
+        .container {
+            display: flex;
+            flex: 1;
+            height: calc(100vh - 120px); /* نترك مساحة للشريط العلوي والبحث */
+        }
+        /* الشريط الجانبي (قائمة المحادثات) */
+        .sidebar {
+            width: 350px;
+            background: white;
+            border-left: 1px solid #eef2f7;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
         }
         .chat-list {
             flex: 1;
@@ -154,20 +168,89 @@
             background: #f9fcff;
             display: flex;
             flex-direction: column;
+        }
+        .chat-header {
+            background: white;
+            padding: 1rem;
+            border-bottom: 1px solid #eef2f7;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .chat-header .avatar {
+            width: 40px;
+            height: 40px;
+            background: #2A6B9C;
+            color: white;
+            border-radius: 50%;
+            display: flex;
             align-items: center;
             justify-content: center;
+            font-weight: bold;
+        }
+        .chat-header .info h3 {
+            font-size: 1.1rem;
+            color: #1a2b3e;
+        }
+        .chat-header .info p {
+            font-size: 0.85rem;
+            color: #7f8fa4;
+        }
+        .messages-area {
+            flex: 1;
+            padding: 1rem;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        .message {
+            max-width: 70%;
+            padding: 0.6rem 1rem;
+            border-radius: 20px;
+            margin-bottom: 0.3rem;
+        }
+        .message.received {
+            background: white;
+            align-self: flex-start;
+            border-top-right-radius: 5px;
+        }
+        .message.sent {
+            background: #2A6B9C;
+            color: white;
+            align-self: flex-end;
+            border-top-left-radius: 5px;
+        }
+        .message-input-area {
+            background: white;
+            padding: 1rem;
+            border-top: 1px solid #eef2f7;
+            display: flex;
+            gap: 0.5rem;
+        }
+        .message-input-area input {
+            flex: 1;
+            padding: 0.8rem 1rem;
+            border: 1px solid #d9e1ec;
+            border-radius: 30px;
+            outline: none;
+        }
+        .message-input-area button {
+            background: #2A6B9C;
+            color: white;
+            border: none;
+            border-radius: 30px;
+            padding: 0 1.5rem;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .placeholder {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
             color: #8899aa;
-        }
-        .main-chat .placeholder {
             text-align: center;
-        }
-        .main-chat .placeholder h2 {
-            font-size: 1.8rem;
-            color: #2A6B9C;
-            margin-bottom: 1rem;
-        }
-        .main-chat .placeholder p {
-            font-size: 1rem;
         }
         .hidden {
             display: none;
@@ -180,32 +263,33 @@
     </style>
 </head>
 <body>
+    <!-- الشريط العلوي -->
     <div class="header">
-        <button class="back-btn" onclick="goBack()">←</button>
-        <h1>المحادثات</h1>
-        <div style="width: 40px;"></div> <!-- فراغ للتوازن -->
+        <div class="menu-icon" onclick="toggleMenu()">☰</div>
+        <div class="app-title">تواصل</div>
+        <div class="search-icon" onclick="toggleSearch()">🔍</div>
     </div>
 
-    <div class="container">
-        <!-- الشريط الجانبي -->
-        <div class="sidebar">
-            <div class="search-box">
-                <input type="text" id="searchInput" placeholder="ابحث باسم المستخدم..." oninput="searchUsers()">
-            </div>
-            <!-- نتائج البحث -->
-            <div id="searchResults" class="search-results"></div>
+    <!-- شريط البحث (يظهر عند الضغط على أيقونة البحث) -->
+    <div id="searchBar" class="search-bar">
+        <input type="text" id="searchInput" placeholder="ابحث باسم المستخدم..." oninput="searchUsers()">
+    </div>
 
-            <!-- قائمة المحادثات الحالية (يمكن تطويرها لاحقاً) -->
+    <!-- نتائج البحث -->
+    <div id="searchResults" class="search-results"></div>
+
+    <!-- الحاوية الرئيسية -->
+    <div class="container">
+        <!-- الشريط الجانبي (قائمة المحادثات) -->
+        <div class="sidebar">
             <div class="chat-list" id="chatList">
                 <div class="loading" id="chatLoading">جاري تحميل المحادثات...</div>
-                <!-- سيتم إضافة المحادثات هنا لاحقاً -->
             </div>
         </div>
 
-        <!-- منطقة المحادثة الرئيسية (مكان فارغ حتى يتم اختيار محادثة) -->
+        <!-- منطقة المحادثة الرئيسية -->
         <div class="main-chat" id="mainChat">
             <div class="placeholder">
-                <h2>مرحباً بك في المحادثات</h2>
                 <p>اختر محادثة من القائمة أو ابحث عن مستخدم لبدء محادثة جديدة</p>
             </div>
         </div>
@@ -233,6 +317,7 @@
         const database = getDatabase(app);
 
         // عناصر الصفحة
+        const searchBar = document.getElementById('searchBar');
         const searchInput = document.getElementById('searchInput');
         const searchResultsDiv = document.getElementById('searchResults');
         const chatListDiv = document.getElementById('chatList');
@@ -242,18 +327,26 @@
         // التحقق من حالة المصادقة
         onAuthStateChanged(auth, (user) => {
             if (!user) {
-                // إذا لم يكن هناك مستخدم مسجل، توجه إلى صفحة تسجيل الدخول
                 window.location.href = 'index.html';
                 return;
             }
             currentUserId = user.uid;
-            // تحميل المحادثات (يمكن تطويرها لاحقاً)
             loadChats();
         });
 
-        // دالة العودة إلى الصفحة الرئيسية (app.html)
-        window.goBack = function() {
-            window.location.href = 'app.html';
+        // إظهار/إخفاء شريط البحث
+        window.toggleSearch = function() {
+            searchBar.classList.toggle('show');
+            if (searchBar.classList.contains('show')) {
+                searchInput.focus();
+            } else {
+                searchResultsDiv.classList.remove('show');
+            }
+        };
+
+        // قائمة جانبية (يمكن تفعيلها لاحقاً)
+        window.toggleMenu = function() {
+            alert('القائمة الجانبية - يمكن إضافتها لاحقاً');
         };
 
         // دالة البحث عن المستخدمين
@@ -270,11 +363,6 @@
 
             try {
                 const usersRef = ref(database, 'users');
-                // البحث عن المستخدمين الذين يبدأ اسم المستخدم لديهم بـ searchText (غير حساس لحالة الأحرف - سنقارن بالحروف الصغيرة)
-                // ملاحظة: يجب أن تكون أسماء المستخدمين مخزنة بأحرف صغيرة في قاعدة البيانات أو نقوم بتحويل البحث.
-                // هنا نفترض أن usernames مخزنة كما هي، لكن البحث حساس لحالة الأحرف.
-                // لتجنب المشكلة، يمكننا تخزين نسخة صغيرة (username_lower) والبحث بها.
-                // للتبسيط، سنستخدم username كما هو.
                 const userQuery = query(usersRef, orderByChild('username'), startAt(searchText), endAt(searchText + '\uf8ff'));
                 const snapshot = await get(userQuery);
                 
@@ -283,10 +371,8 @@
                     snapshot.forEach((childSnapshot) => {
                         const userData = childSnapshot.val();
                         const uid = childSnapshot.key;
-                        // لا نعرض المستخدم الحالي في نتائج البحث
                         if (uid === currentUserId) return;
                         
-                        // الحصول على أول حرف للصورة الرمزية
                         const initial = userData.fullName ? userData.fullName.charAt(0) : userData.username.charAt(0);
                         
                         results += `
@@ -314,41 +400,63 @@
             }
         };
 
-        // دالة بدء محادثة مع مستخدم (عند النقر على نتيجة بحث)
+        // دالة بدء محادثة مع مستخدم
         window.startChat = function(uid, name, username) {
-            // إخفاء نتائج البحث
+            // إخفاء نتائج البحث وشريط البحث
             searchResultsDiv.classList.remove('show');
+            searchBar.classList.remove('show');
             searchInput.value = '';
-            
-            // هنا يمكن التوجه إلى صفحة محادثة فردية مع هذا المستخدم
-            // سنقوم ببساطة بعرض رسالة في منطقة المحادثة الرئيسية (للمعاينة)
+
+            // عرض منطقة المحادثة مع هذا المستخدم
+            const initial = name.charAt(0);
             mainChatDiv.innerHTML = `
-                <div style="text-align: center; padding: 2rem;">
-                    <h2 style="color:#2A6B9C;">محادثة مع ${name}</h2>
-                    <p>@${username}</p>
-                    <p style="margin-top: 2rem;">هذه هي بداية المحادثة. يمكنك إرسال أول رسالة.</p>
-                    <!-- هنا يمكن إضافة صندوق كتابة الرسائل والرسائل السابقة -->
+                <div class="chat-header">
+                    <div class="avatar">${initial}</div>
+                    <div class="info">
+                        <h3>${name}</h3>
+                        <p>@${username}</p>
+                    </div>
+                </div>
+                <div class="messages-area" id="messagesArea">
+                    <div class="message received">مرحباً، كيف يمكنني مساعدتك؟</div>
+                    <div class="message sent">أهلاً، أنا بخير</div>
+                </div>
+                <div class="message-input-area">
+                    <input type="text" placeholder="اكتب رسالة..." id="messageInput">
+                    <button onclick="sendMessage('${uid}')">إرسال</button>
                 </div>
             `;
-            
-            // في المستقبل، يمكن استبدال هذا بفتح نافذة محادثة حقيقية
         };
 
-        // دالة تحميل المحادثات الحالية (سنتركها فارغة حالياً)
+        // دالة إرسال رسالة (وهمية حالياً)
+        window.sendMessage = function(receiverUid) {
+            const input = document.getElementById('messageInput');
+            const messageText = input.value.trim();
+            if (messageText === '') return;
+
+            const messagesArea = document.getElementById('messagesArea');
+            messagesArea.innerHTML += `<div class="message sent">${messageText}</div>`;
+            input.value = '';
+            messagesArea.scrollTop = messagesArea.scrollHeight;
+        };
+
+        // دالة تحميل المحادثات الحالية (وهمية)
         async function loadChats() {
             chatListDiv.innerHTML = '<div class="loading">لا توجد محادثات حالياً</div>';
-            // يمكن لاحقاً إضافة منطق لجلب المحادثات من قاعدة البيانات
+            // يمكن لاحقاً إضافة منطق حقيقي
         }
     </script>
 
-    <!-- دالة غير معيارية لإخفاء نتائج البحث عند النقر خارجها (اختياري) -->
     <script>
-        // عند النقر خارج منطقة البحث، نخفي النتائج
+        // إخفاء نتائج البحث عند النقر خارجها
         document.addEventListener('click', function(event) {
-            const searchBox = document.querySelector('.search-box');
-            const searchResults = document.getElementById('searchResults');
-            if (!searchBox.contains(event.target) && !searchResults.contains(event.target)) {
-                searchResults.classList.remove('show');
+            const searchBarEl = document.getElementById('searchBar');
+            const searchResultsEl = document.getElementById('searchResults');
+            const searchIcon = document.querySelector('.search-icon');
+            
+            if (!searchBarEl.contains(event.target) && !searchResultsEl.contains(event.target) && !searchIcon.contains(event.target)) {
+                searchBarEl.classList.remove('show');
+                searchResultsEl.classList.remove('show');
             }
         });
     </script>
