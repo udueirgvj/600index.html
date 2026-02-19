@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تواصل - المحادثات</title>
+    <title>تواصل - المحادثة</title>
     <style>
         * {
             margin: 0;
@@ -24,77 +24,27 @@
             padding: 0.8rem 1rem;
             display: flex;
             align-items: center;
-            justify-content: space-between;
+            gap: 1rem;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            position: relative;
         }
-        .header .menu-icon {
+        .back-btn {
+            background: none;
+            border: none;
+            color: white;
             font-size: 1.8rem;
             cursor: pointer;
-            width: 40px;
-            text-align: center;
+            line-height: 1;
         }
-        .header .app-title {
-            font-size: 1.5rem;
-            font-weight: 600;
-        }
-        .header .search-icon {
-            font-size: 1.5rem;
-            cursor: pointer;
-            width: 40px;
-            text-align: center;
-        }
-        /* شريط البحث (يظهر عند الضغط على أيقونة البحث) */
-        .search-bar {
-            background: white;
-            padding: 0.8rem 1rem;
-            border-bottom: 1px solid #eef2f7;
-            display: none;
-        }
-        .search-bar.show {
-            display: block;
-        }
-        .search-bar input {
-            width: 100%;
-            padding: 0.8rem 1rem;
-            border: 1px solid #d9e1ec;
-            border-radius: 30px;
-            background: #f9fcff;
-            font-size: 1rem;
-            outline: none;
-        }
-        .search-bar input:focus {
-            border-color: #2A6B9C;
-            box-shadow: 0 0 0 3px rgba(42,107,156,0.1);
-        }
-        /* منطقة نتائج البحث */
-        .search-results {
-            background: white;
-            max-height: 300px;
-            overflow-y: auto;
-            border-bottom: 1px solid #eef2f7;
-            display: none;
-        }
-        .search-results.show {
-            display: block;
-        }
-        .user-item {
+        .user-info {
             display: flex;
             align-items: center;
             gap: 0.8rem;
-            padding: 0.8rem 1rem;
-            cursor: pointer;
-            transition: background 0.2s;
-            border-bottom: 1px solid #f0f2f5;
         }
-        .user-item:hover {
-            background: #f0f2f5;
-        }
-        .user-avatar {
+        .avatar {
             width: 40px;
             height: 40px;
-            background: #2A6B9C;
-            color: white;
+            background: white;
+            color: #2A6B9C;
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -102,100 +52,14 @@
             font-weight: bold;
             font-size: 1.2rem;
         }
-        .user-info {
-            flex: 1;
-        }
-        .user-info h4 {
-            font-size: 1rem;
-            color: #1a2b3e;
-        }
-        .user-info p {
-            font-size: 0.85rem;
-            color: #7f8fa4;
-        }
-        /* الحاوية الرئيسية (منطقتين: قائمة المحادثات ومنطقة المحادثة) */
-        .container {
-            display: flex;
-            flex: 1;
-            height: calc(100vh - 120px); /* نترك مساحة للشريط العلوي والبحث */
-        }
-        /* الشريط الجانبي (قائمة المحادثات) */
-        .sidebar {
-            width: 350px;
-            background: white;
-            border-left: 1px solid #eef2f7;
-            display: flex;
-            flex-direction: column;
-            overflow-y: auto;
-        }
-        .chat-list {
-            flex: 1;
-            overflow-y: auto;
-        }
-        .chat-item {
-            display: flex;
-            align-items: center;
-            gap: 0.8rem;
-            padding: 1rem;
-            cursor: pointer;
-            transition: background 0.2s;
-            border-bottom: 1px solid #f0f2f5;
-        }
-        .chat-item:hover {
-            background: #f0f2f5;
-        }
-        .chat-info {
-            flex: 1;
-        }
-        .chat-info h4 {
-            font-size: 1rem;
-            color: #1a2b3e;
-        }
-        .chat-info p {
-            font-size: 0.85rem;
-            color: #7f8fa4;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        .chat-time {
-            font-size: 0.75rem;
-            color: #8899aa;
-        }
-        /* منطقة المحادثة الرئيسية */
-        .main-chat {
-            flex: 1;
-            background: #f9fcff;
-            display: flex;
-            flex-direction: column;
-        }
-        .chat-header {
-            background: white;
-            padding: 1rem;
-            border-bottom: 1px solid #eef2f7;
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-        .chat-header .avatar {
-            width: 40px;
-            height: 40px;
-            background: #2A6B9C;
-            color: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-        }
-        .chat-header .info h3 {
+        .details h3 {
             font-size: 1.1rem;
-            color: #1a2b3e;
         }
-        .chat-header .info p {
+        .details p {
             font-size: 0.85rem;
-            color: #7f8fa4;
+            opacity: 0.9;
         }
+        /* منطقة الرسائل */
         .messages-area {
             flex: 1;
             padding: 1rem;
@@ -203,12 +67,14 @@
             display: flex;
             flex-direction: column;
             gap: 0.5rem;
+            background: #e5e9f0;
         }
         .message {
             max-width: 70%;
             padding: 0.6rem 1rem;
-            border-radius: 20px;
+            border-radius: 18px;
             margin-bottom: 0.3rem;
+            word-wrap: break-word;
         }
         .message.received {
             background: white;
@@ -221,85 +87,81 @@
             align-self: flex-end;
             border-top-left-radius: 5px;
         }
-        .message-input-area {
+        /* منطقة إدخال الرسالة */
+        .input-area {
             background: white;
             padding: 1rem;
             border-top: 1px solid #eef2f7;
             display: flex;
             gap: 0.5rem;
         }
-        .message-input-area input {
+        .input-area input {
             flex: 1;
             padding: 0.8rem 1rem;
             border: 1px solid #d9e1ec;
             border-radius: 30px;
             outline: none;
+            font-size: 1rem;
         }
-        .message-input-area button {
+        .input-area input:focus {
+            border-color: #2A6B9C;
+            box-shadow: 0 0 0 3px rgba(42,107,156,0.1);
+        }
+        .input-area button {
             background: #2A6B9C;
             color: white;
             border: none;
             border-radius: 30px;
             padding: 0 1.5rem;
-            cursor: pointer;
+            font-size: 1rem;
             font-weight: 600;
+            cursor: pointer;
         }
-        .placeholder {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 100%;
-            color: #8899aa;
-            text-align: center;
-        }
-        .hidden {
-            display: none;
+        .input-area button:hover {
+            background: #1f4e7a;
         }
         .loading {
             text-align: center;
-            padding: 1rem;
+            padding: 2rem;
             color: #8899aa;
+        }
+        .error {
+            text-align: center;
+            padding: 2rem;
+            color: #dc3545;
         }
     </style>
 </head>
 <body>
     <!-- الشريط العلوي -->
-    <div class="header">
-        <div class="menu-icon" onclick="toggleMenu()">☰</div>
-        <div class="app-title">تواصل</div>
-        <div class="search-icon" onclick="toggleSearch()">🔍</div>
-    </div>
-
-    <!-- شريط البحث (يظهر عند الضغط على أيقونة البحث) -->
-    <div id="searchBar" class="search-bar">
-        <input type="text" id="searchInput" placeholder="ابحث باسم المستخدم..." oninput="searchUsers()">
-    </div>
-
-    <!-- نتائج البحث -->
-    <div id="searchResults" class="search-results"></div>
-
-    <!-- الحاوية الرئيسية -->
-    <div class="container">
-        <!-- الشريط الجانبي (قائمة المحادثات) -->
-        <div class="sidebar">
-            <div class="chat-list" id="chatList">
-                <div class="loading" id="chatLoading">جاري تحميل المحادثات...</div>
+    <div class="header" id="header">
+        <button class="back-btn" onclick="goBack()">←</button>
+        <div class="user-info" id="userInfo">
+            <div class="avatar" id="avatar">...</div>
+            <div class="details">
+                <h3 id="userName">جاري التحميل...</h3>
+                <p id="userUsername">@...</p>
             </div>
         </div>
+    </div>
 
-        <!-- منطقة المحادثة الرئيسية -->
-        <div class="main-chat" id="mainChat">
-            <div class="placeholder">
-                <p>اختر محادثة من القائمة أو ابحث عن مستخدم لبدء محادثة جديدة</p>
-            </div>
-        </div>
+    <!-- منطقة الرسائل -->
+    <div class="messages-area" id="messagesArea">
+        <!-- الرسائل ستظهر هنا ديناميكياً -->
+        <div class="loading" id="loadingMessages">جاري تحميل المحادثة...</div>
+    </div>
+
+    <!-- منطقة إدخال الرسالة (تظهر فقط بعد تحميل البيانات) -->
+    <div class="input-area" id="inputArea" style="display: none;">
+        <input type="text" id="messageInput" placeholder="اكتب رسالة..." onkeypress="if(event.key==='Enter') sendMessage()">
+        <button onclick="sendMessage()">إرسال</button>
     </div>
 
     <!-- Firebase SDK -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { getDatabase, ref, query, orderByChild, startAt, endAt, get, child } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
         // 🔥 استبدل بمفاتيح مشروعك
         const firebaseConfig = {
@@ -316,149 +178,92 @@
         const auth = getAuth(app);
         const database = getDatabase(app);
 
-        // عناصر الصفحة
-        const searchBar = document.getElementById('searchBar');
-        const searchInput = document.getElementById('searchInput');
-        const searchResultsDiv = document.getElementById('searchResults');
-        const chatListDiv = document.getElementById('chatList');
-        const mainChatDiv = document.getElementById('mainChat');
-        let currentUserId = null;
+        // الحصول على userId من الرابط (query parameter)
+        const urlParams = new URLSearchParams(window.location.search);
+        const otherUserId = urlParams.get('uid');
+        const otherUserName = urlParams.get('name');
+        const otherUserUsername = urlParams.get('username');
 
-        // التحقق من حالة المصادقة
-        onAuthStateChanged(auth, (user) => {
+        // عناصر الصفحة
+        const avatarDiv = document.getElementById('avatar');
+        const userNameEl = document.getElementById('userName');
+        const userUsernameEl = document.getElementById('userUsername');
+        const messagesArea = document.getElementById('messagesArea');
+        const inputArea = document.getElementById('inputArea');
+        const loadingMessages = document.getElementById('loadingMessages');
+
+        let currentUserId = null;
+        let currentUserData = null;
+
+        // التحقق من المصادقة
+        onAuthStateChanged(auth, async (user) => {
             if (!user) {
                 window.location.href = 'index.html';
                 return;
             }
             currentUserId = user.uid;
-            loadChats();
-        });
-
-        // إظهار/إخفاء شريط البحث
-        window.toggleSearch = function() {
-            searchBar.classList.toggle('show');
-            if (searchBar.classList.contains('show')) {
-                searchInput.focus();
-            } else {
-                searchResultsDiv.classList.remove('show');
-            }
-        };
-
-        // قائمة جانبية (يمكن تفعيلها لاحقاً)
-        window.toggleMenu = function() {
-            alert('القائمة الجانبية - يمكن إضافتها لاحقاً');
-        };
-
-        // دالة البحث عن المستخدمين
-        window.searchUsers = async function() {
-            const searchText = searchInput.value.trim();
-            if (searchText.length < 1) {
-                searchResultsDiv.classList.remove('show');
-                searchResultsDiv.innerHTML = '';
+            
+            // إذا لم يتم تمرير userId في الرابط، نعود للصفحة الرئيسية
+            if (!otherUserId) {
+                alert('لم يتم تحديد مستخدم للمحادثة');
+                window.location.href = 'app.html';
                 return;
             }
 
-            searchResultsDiv.classList.add('show');
-            searchResultsDiv.innerHTML = '<div class="loading">جاري البحث...</div>';
-
-            try {
-                const usersRef = ref(database, 'users');
-                const userQuery = query(usersRef, orderByChild('username'), startAt(searchText), endAt(searchText + '\uf8ff'));
-                const snapshot = await get(userQuery);
-                
-                if (snapshot.exists()) {
-                    let results = '';
-                    snapshot.forEach((childSnapshot) => {
-                        const userData = childSnapshot.val();
-                        const uid = childSnapshot.key;
-                        if (uid === currentUserId) return;
-                        
-                        const initial = userData.fullName ? userData.fullName.charAt(0) : userData.username.charAt(0);
-                        
-                        results += `
-                            <div class="user-item" onclick="startChat('${uid}', '${userData.fullName || userData.username}', '${userData.username}')">
-                                <div class="user-avatar">${initial}</div>
-                                <div class="user-info">
-                                    <h4>${userData.fullName || userData.username}</h4>
-                                    <p>@${userData.username}</p>
-                                </div>
-                            </div>
-                        `;
-                    });
-                    
-                    if (results === '') {
-                        searchResultsDiv.innerHTML = '<div style="padding:1rem; text-align:center;">لا توجد نتائج</div>';
+            // تحميل بيانات المستخدم الآخر (إذا لم تكن موجودة في الرابط)
+            if (otherUserName && otherUserUsername) {
+                // استخدم البيانات المرسلة عبر الرابط
+                userNameEl.textContent = otherUserName;
+                userUsernameEl.textContent = '@' + otherUserUsername;
+                avatarDiv.textContent = otherUserName.charAt(0).toUpperCase();
+                inputArea.style.display = 'flex';
+                loadingMessages.style.display = 'none';
+                // يمكنك هنا تحميل الرسائل من قاعدة البيانات
+            } else {
+                // جلب البيانات من Firebase باستخدام otherUserId
+                try {
+                    const userRef = ref(database, 'users/' + otherUserId);
+                    const snapshot = await get(userRef);
+                    if (snapshot.exists()) {
+                        const userData = snapshot.val();
+                        userNameEl.textContent = userData.fullName || userData.username;
+                        userUsernameEl.textContent = '@' + userData.username;
+                        avatarDiv.textContent = (userData.fullName || userData.username).charAt(0).toUpperCase();
+                        inputArea.style.display = 'flex';
+                        loadingMessages.style.display = 'none';
                     } else {
-                        searchResultsDiv.innerHTML = results;
+                        messagesArea.innerHTML = '<div class="error">المستخدم غير موجود</div>';
                     }
-                } else {
-                    searchResultsDiv.innerHTML = '<div style="padding:1rem; text-align:center;">لا توجد نتائج</div>';
+                } catch (error) {
+                    console.error(error);
+                    messagesArea.innerHTML = '<div class="error">حدث خطأ في تحميل البيانات</div>';
                 }
-            } catch (error) {
-                console.error(error);
-                searchResultsDiv.innerHTML = '<div style="padding:1rem; text-align:center;">حدث خطأ في البحث</div>';
-            }
-        };
-
-        // دالة بدء محادثة مع مستخدم
-        window.startChat = function(uid, name, username) {
-            // إخفاء نتائج البحث وشريط البحث
-            searchResultsDiv.classList.remove('show');
-            searchBar.classList.remove('show');
-            searchInput.value = '';
-
-            // عرض منطقة المحادثة مع هذا المستخدم
-            const initial = name.charAt(0);
-            mainChatDiv.innerHTML = `
-                <div class="chat-header">
-                    <div class="avatar">${initial}</div>
-                    <div class="info">
-                        <h3>${name}</h3>
-                        <p>@${username}</p>
-                    </div>
-                </div>
-                <div class="messages-area" id="messagesArea">
-                    <div class="message received">مرحباً، كيف يمكنني مساعدتك؟</div>
-                    <div class="message sent">أهلاً، أنا بخير</div>
-                </div>
-                <div class="message-input-area">
-                    <input type="text" placeholder="اكتب رسالة..." id="messageInput">
-                    <button onclick="sendMessage('${uid}')">إرسال</button>
-                </div>
-            `;
-        };
-
-        // دالة إرسال رسالة (وهمية حالياً)
-        window.sendMessage = function(receiverUid) {
-            const input = document.getElementById('messageInput');
-            const messageText = input.value.trim();
-            if (messageText === '') return;
-
-            const messagesArea = document.getElementById('messagesArea');
-            messagesArea.innerHTML += `<div class="message sent">${messageText}</div>`;
-            input.value = '';
-            messagesArea.scrollTop = messagesArea.scrollHeight;
-        };
-
-        // دالة تحميل المحادثات الحالية (وهمية)
-        async function loadChats() {
-            chatListDiv.innerHTML = '<div class="loading">لا توجد محادثات حالياً</div>';
-            // يمكن لاحقاً إضافة منطق حقيقي
-        }
-    </script>
-
-    <script>
-        // إخفاء نتائج البحث عند النقر خارجها
-        document.addEventListener('click', function(event) {
-            const searchBarEl = document.getElementById('searchBar');
-            const searchResultsEl = document.getElementById('searchResults');
-            const searchIcon = document.querySelector('.search-icon');
-            
-            if (!searchBarEl.contains(event.target) && !searchResultsEl.contains(event.target) && !searchIcon.contains(event.target)) {
-                searchBarEl.classList.remove('show');
-                searchResultsEl.classList.remove('show');
             }
         });
+
+        // العودة إلى الصفحة السابقة
+        window.goBack = function() {
+            window.location.href = 'app.html';
+        };
+
+        // إرسال رسالة (وهمية حالياً)
+        window.sendMessage = function() {
+            const input = document.getElementById('messageInput');
+            const text = input.value.trim();
+            if (text === '') return;
+
+            // إضافة الرسالة إلى منطقة الرسائل
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message sent';
+            messageDiv.textContent = text;
+            messagesArea.appendChild(messageDiv);
+            input.value = '';
+            messagesArea.scrollTop = messagesArea.scrollHeight;
+
+            // هنا يمكنك حفظ الرسالة في قاعدة البيانات لاحقاً
+        };
+
+        // يمكن إضافة وظيفة لاستقبال الرسائل الحقيقية لاحقاً
     </script>
 </body>
 </html>
