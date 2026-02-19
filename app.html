@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تطبيق تواصل - الرئيسية</title>
+    <title>تواصل - الرئيسية</title>
     <style>
         * {
             margin: 0;
@@ -15,70 +15,182 @@
             background: #f0f2f5;
             min-height: 100vh;
             display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 1rem;
+            flex-direction: column;
         }
-        .container {
-            max-width: 500px;
-            width: 100%;
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            padding: 2rem;
+        /* الشريط العلوي */
+        .header {
+            background: #2A6B9C;
+            color: white;
+            padding: 0.8rem 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .header .menu-icon {
+            font-size: 1.8rem;
+            cursor: pointer;
+            width: 40px;
             text-align: center;
         }
-        h1 {
-            color: #2A6B9C;
-            margin-bottom: 1rem;
-        }
-        p {
-            color: #1a2b3e;
-            margin-bottom: 2rem;
-            font-size: 1.1rem;
-        }
-        .user-info {
-            background: #f9fcff;
-            padding: 1rem;
-            border-radius: 12px;
-            border: 1px solid #d9e1ec;
-            margin-bottom: 2rem;
-        }
-        .btn {
-            padding: 0.8rem 2rem;
-            font-size: 1rem;
+        .header .app-title {
+            font-size: 1.5rem;
             font-weight: 600;
-            border: none;
-            border-radius: 12px;
-            background: #dc3545;
-            color: white;
+        }
+        .header .search-icon {
+            font-size: 1.5rem;
+            cursor: pointer;
+            width: 40px;
+            text-align: center;
+        }
+        /* شريط البحث */
+        .search-bar {
+            background: white;
+            padding: 0.8rem 1rem;
+            border-bottom: 1px solid #eef2f7;
+            display: none;
+        }
+        .search-bar.show {
+            display: block;
+        }
+        .search-bar input {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border: 1px solid #d9e1ec;
+            border-radius: 30px;
+            background: #f9fcff;
+            font-size: 1rem;
+            outline: none;
+        }
+        .search-bar input:focus {
+            border-color: #2A6B9C;
+            box-shadow: 0 0 0 3px rgba(42,107,156,0.1);
+        }
+        /* نتائج البحث */
+        .search-results {
+            background: white;
+            max-height: 300px;
+            overflow-y: auto;
+            border-bottom: 1px solid #eef2f7;
+            display: none;
+        }
+        .search-results.show {
+            display: block;
+        }
+        .user-item {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            padding: 0.8rem 1rem;
             cursor: pointer;
             transition: background 0.2s;
+            border-bottom: 1px solid #f0f2f5;
         }
-        .btn:hover {
-            background: #bb2d3b;
+        .user-item:hover {
+            background: #f0f2f5;
+        }
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: #2A6B9C;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        .user-info {
+            flex: 1;
+        }
+        .user-info h4 {
+            font-size: 1rem;
+            color: #1a2b3e;
+        }
+        .user-info p {
+            font-size: 0.85rem;
+            color: #7f8fa4;
+        }
+        /* المحتوى الرئيسي */
+        .main-content {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #8899aa;
+            text-align: center;
+            padding: 2rem;
         }
         .loading {
             color: #8899aa;
+            padding: 1rem;
+        }
+        .user-info-card {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            max-width: 400px;
+            width: 100%;
+        }
+        .user-info-card h2 {
+            color: #2A6B9C;
+            margin-bottom: 1.5rem;
+        }
+        .user-detail {
+            text-align: right;
+            margin-bottom: 1rem;
+        }
+        .user-detail strong {
+            color: #2A6B9C;
+            display: inline-block;
+            width: 100px;
+        }
+        .btn {
+            background: #2A6B9C;
+            color: white;
+            border: none;
+            border-radius: 30px;
+            padding: 0.8rem 2rem;
+            font-size: 1rem;
+            cursor: pointer;
+            margin-top: 1rem;
+            width: 100%;
+        }
+        .btn:hover {
+            background: #1f4e7a;
         }
     </style>
 </head>
 <body>
-    <div class="container" id="app">
-        <h1>مرحباً بك في تواصل</h1>
-        <div id="userInfo" class="user-info">
-            جاري تحميل المعلومات...
-        </div>
-        <button class="btn" onclick="logout()">تسجيل خروج</button>
+    <!-- الشريط العلوي -->
+    <div class="header">
+        <div class="menu-icon" onclick="toggleMenu()">☰</div>
+        <div class="app-title">تواصل</div>
+        <div class="search-icon" onclick="toggleSearch()">🔍</div>
+    </div>
+
+    <!-- شريط البحث (يظهر عند النقر) -->
+    <div id="searchBar" class="search-bar">
+        <input type="text" id="searchInput" placeholder="ابحث باسم المستخدم..." oninput="searchUsers()">
+    </div>
+
+    <!-- نتائج البحث -->
+    <div id="searchResults" class="search-results"></div>
+
+    <!-- المحتوى الرئيسي (يعرض معلومات المستخدم الحالي) -->
+    <div class="main-content" id="mainContent">
+        <div class="loading">جاري تحميل المعلومات...</div>
     </div>
 
     <!-- Firebase SDK -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getDatabase, ref, query, orderByChild, startAt, endAt, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-        // 🔥 استخدم نفس إعدادات Firebase من index.html
+        // 🔥 استبدل هذا الكائن بمفاتيح مشروعك الفعلية
         const firebaseConfig = {
             apiKey: "AIzaSyDRCtfuYrEdnuKUsWu_79NC6G_xGLznBJc",
             authDomain: "tttrt-b8c5a.firebaseapp.com",
@@ -93,41 +205,149 @@
         const auth = getAuth(app);
         const database = getDatabase(app);
 
-        const userInfoDiv = document.getElementById('userInfo');
+        // عناصر الصفحة
+        const searchBar = document.getElementById('searchBar');
+        const searchInput = document.getElementById('searchInput');
+        const searchResultsDiv = document.getElementById('searchResults');
+        const mainContentDiv = document.getElementById('mainContent');
+        let currentUserId = null;
+        let currentUserData = null;
 
         // التحقق من حالة المصادقة
         onAuthStateChanged(auth, async (user) => {
             if (!user) {
-                // إذا لم يكن هناك مستخدم مسجل، توجه إلى صفحة تسجيل الدخول
                 window.location.href = 'index.html';
                 return;
             }
+            currentUserId = user.uid;
+            await loadUserInfo(user);
+        });
 
-            // جلب معلومات المستخدم من قاعدة البيانات
+        // تحميل معلومات المستخدم الحالي
+        async function loadUserInfo(user) {
             try {
                 const userRef = ref(database, 'users/' + user.uid);
                 const snapshot = await get(userRef);
                 if (snapshot.exists()) {
-                    const userData = snapshot.val();
-                    userInfoDiv.innerHTML = `
-                        <p><strong>الاسم:</strong> ${userData.fullName || 'غير محدد'}</p>
-                        <p><strong>اسم المستخدم:</strong> ${userData.username || 'غير محدد'}</p>
-                        <p><strong>البريد:</strong> ${userData.email || user.email}</p>
+                    currentUserData = snapshot.val();
+                    mainContentDiv.innerHTML = `
+                        <div class="user-info-card">
+                            <h2>مرحباً بك 👋</h2>
+                            <div class="user-detail"><strong>الاسم:</strong> ${currentUserData.fullName || 'غير محدد'}</div>
+                            <div class="user-detail"><strong>اسم المستخدم:</strong> ${currentUserData.username || 'غير محدد'}</div>
+                            <div class="user-detail"><strong>البريد:</strong> ${currentUserData.email || user.email}</div>
+                            <button class="btn" onclick="logout()">تسجيل خروج</button>
+                        </div>
                     `;
                 } else {
-                    userInfoDiv.innerHTML = `<p>مرحباً ${user.email}</p>`;
+                    mainContentDiv.innerHTML = `
+                        <div class="user-info-card">
+                            <h2>مرحباً بك 👋</h2>
+                            <div class="user-detail"><strong>البريد:</strong> ${user.email}</div>
+                            <button class="btn" onclick="logout()">تسجيل خروج</button>
+                        </div>
+                    `;
                 }
             } catch (error) {
                 console.error(error);
-                userInfoDiv.innerHTML = `<p>مرحباً ${user.email}</p>`;
+                mainContentDiv.innerHTML = `<p>حدث خطأ في تحميل المعلومات</p>`;
+            }
+        }
+
+        // إظهار/إخفاء شريط البحث
+        window.toggleSearch = function() {
+            searchBar.classList.toggle('show');
+            if (searchBar.classList.contains('show')) {
+                searchInput.focus();
+            } else {
+                searchResultsDiv.classList.remove('show');
+            }
+        };
+
+        // قائمة جانبية (يمكنك تفعيلها لاحقاً)
+        window.toggleMenu = function() {
+            alert('القائمة الجانبية - يمكن إضافتها لاحقاً');
+        };
+
+        // دالة البحث عن المستخدمين
+        window.searchUsers = async function() {
+            const searchText = searchInput.value.trim();
+            if (searchText.length < 1) {
+                searchResultsDiv.classList.remove('show');
+                searchResultsDiv.innerHTML = '';
+                return;
+            }
+
+            searchResultsDiv.classList.add('show');
+            searchResultsDiv.innerHTML = '<div class="loading">جاري البحث...</div>';
+
+            try {
+                const usersRef = ref(database, 'users');
+                // البحث باستخدام startAt و endAt للحصول على النتائج التي تبدأ بالنص
+                const userQuery = query(usersRef, orderByChild('username'), startAt(searchText), endAt(searchText + '\uf8ff'));
+                const snapshot = await get(userQuery);
+                
+                if (snapshot.exists()) {
+                    let results = '';
+                    snapshot.forEach((childSnapshot) => {
+                        const userData = childSnapshot.val();
+                        const uid = childSnapshot.key;
+                        // لا نعرض المستخدم الحالي
+                        if (uid === currentUserId) return;
+                        
+                        const initial = userData.fullName ? userData.fullName.charAt(0) : userData.username.charAt(0);
+                        
+                        results += `
+                            <div class="user-item" onclick="goToChat('${uid}', '${userData.fullName || userData.username}', '${userData.username}')">
+                                <div class="user-avatar">${initial}</div>
+                                <div class="user-info">
+                                    <h4>${userData.fullName || userData.username}</h4>
+                                    <p>@${userData.username}</p>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    
+                    if (results === '') {
+                        searchResultsDiv.innerHTML = '<div style="padding:1rem; text-align:center;">لا توجد نتائج</div>';
+                    } else {
+                        searchResultsDiv.innerHTML = results;
+                    }
+                } else {
+                    searchResultsDiv.innerHTML = '<div style="padding:1rem; text-align:center;">لا توجد نتائج</div>';
+                }
+            } catch (error) {
+                console.error(error);
+                searchResultsDiv.innerHTML = '<div style="padding:1rem; text-align:center;">حدث خطأ في البحث</div>';
+            }
+        };
+
+        // الذهاب إلى صفحة المحادثة مع تمرير معرف المستخدم المختار
+        window.goToChat = function(uid, name, username) {
+            // يمكن تمرير البيانات عبر query parameters
+            window.location.href = `chat.html?uid=${uid}&name=${encodeURIComponent(name)}&username=${username}`;
+        };
+
+        // تسجيل الخروج
+        window.logout = async function() {
+            await signOut(auth);
+            // سيتم التوجيه تلقائياً عبر onAuthStateChanged
+        };
+    </script>
+
+    <!-- نصوص إضافية لإخفاء نتائج البحث عند النقر خارجها -->
+    <script>
+        document.addEventListener('click', function(event) {
+            const searchBarEl = document.getElementById('searchBar');
+            const searchResultsEl = document.getElementById('searchResults');
+            const searchIcon = document.querySelector('.search-icon');
+            const searchInputEl = document.getElementById('searchInput');
+            
+            if (!searchBarEl.contains(event.target) && !searchResultsEl.contains(event.target) && !searchIcon.contains(event.target)) {
+                searchBarEl.classList.remove('show');
+                searchResultsEl.classList.remove('show');
             }
         });
-
-        // دالة تسجيل الخروج
-        window.logout = async () => {
-            await signOut(auth);
-            // onAuthStateChanged سيتولى التوجيه إلى index.html
-        };
     </script>
 </body>
 </html>
