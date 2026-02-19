@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تواصل - إنشاء جديد</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        body {
+            background: #f0f2f5;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .header {
+            background: #2A6B9C;
+            color: white;
+            padding: 0.8rem 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .back-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.8rem;
+            cursor: pointer;
+            line-height: 1;
+        }
+        .header h2 {
+            font-size: 1.3rem;
+        }
+        .content {
+            flex: 1;
+            padding: 1rem;
+        }
+        .option-card {
+            background: white;
+            border-radius: 16px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .option-card .icon {
+            width: 50px;
+            height: 50px;
+            background: #2A6B9C;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+        .option-card .text h3 {
+            font-size: 1.1rem;
+            color: #1a2b3e;
+            margin-bottom: 0.2rem;
+        }
+        .option-card .text p {
+            font-size: 0.85rem;
+            color: #7f8fa4;
+        }
+        .info {
+            background: #e9f0fa;
+            border-radius: 12px;
+            padding: 1rem;
+            margin-top: 2rem;
+            font-size: 0.9rem;
+            color: #1f4e7a;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <button class="back-btn" onclick="goBack()">←</button>
+        <h2>إنشاء جديد</h2>
+    </div>
+
+    <div class="content">
+        <div class="option-card" onclick="createChannel()">
+            <div class="icon">📢</div>
+            <div class="text">
+                <h3>قناة</h3>
+                <p>قناة عامة أو خاصة، يمكن للمشتركين متابعة المحتوى</p>
+            </div>
+        </div>
+
+        <div class="option-card" onclick="createGroup()">
+            <div class="icon">👥</div>
+            <div class="text">
+                <h3>مجموعة</h3>
+                <p>مجموعة للمناقشة مع أصدقائك أو فريق العمل</p>
+            </div>
+        </div>
+
+        <div class="option-card" onclick="createBot()">
+            <div class="icon">🤖</div>
+            <div class="text">
+                <h3>بوت</h3>
+                <p>بوت مخصص للخدمات والتفاعل الآلي</p>
+            </div>
+        </div>
+
+        <div class="info">
+            <p>🔹 القناة: يمكنك نشر المحتوى والمشتركين يرونه فقط.</p>
+            <p>🔹 المجموعة: يمكن للأعضاء المشاركة بالكتابة (خاص أو عام).</p>
+            <p>🔹 البوت: يتطلب توثيقاً عبر بوت الموثق @MSMBOT (قيد التطوير).</p>
+        </div>
+    </div>
+
+    <!-- Firebase SDK (للتحقق من المصادقة) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDRCtfuYrEdnuKUsWu_79NC6G_xGLznBJc",
+            authDomain: "tttrt-b8c5a.firebaseapp.com",
+            databaseURL: "https://tttrt-b8c5a-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "tttrt-b8c5a",
+            storageBucket: "tttrt-b8c5a.firebasestorage.app",
+            messagingSenderId: "975123752593",
+            appId: "1:975123752593:web:e591e930af3a3e29568130"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        onAuthStateChanged(auth, (user) => {
+            if (!user) {
+                window.location.href = 'index.html';
+            }
+        });
+
+        window.goBack = function() {
+            window.location.href = 'app.html';
+        };
+
+        // هذه الدوال يمكن تطويرها لاحقاً
+        window.createChannel = function() {
+            alert('إنشاء قناة - قيد التطوير');
+        };
+        window.createGroup = function() {
+            alert('إنشاء مجموعة - قيد التطوير');
+        };
+        window.createBot = function() {
+            alert('إنشاء بوت - يتطلب التواصل مع @MSMBOT');
+            // يمكن فتح صفحة بوت الموثق
+            window.location.href = 'https://t.me/MSMBOT'; // رابط وهمي
+        };
+    </script>
+</body>
+</html>
