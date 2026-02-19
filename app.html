@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>تواصل - الرئيسية</title>
     <style>
-        /* نفس التصميم السابق تماماً */
+        /* نفس التصميم السابق */
         * {
             margin: 0;
             padding: 0;
@@ -410,6 +410,7 @@
             endAt, 
             get, 
             onValue,
+            set,
             limitToLast
         } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
@@ -475,7 +476,7 @@
             }
         }
 
-        // تحميل المحادثات الحقيقية
+        // تحميل المحادثات
         function loadChats() {
             const chatsRef = ref(database, 'chats');
             onValue(chatsRef, async (snapshot) => {
@@ -518,7 +519,7 @@
                             <div class="avatar">${initial}</div>
                             <div class="details">
                                 <h4>${userData.fullName || userData.username}</h4>
-                                <p>${lastMsg || '...'}</p>
+                                <p>${lastMsg || 'اضغط لبدء المحادثة'}</p>
                             </div>
                             <div class="time">${lastTime}</div>
                         </div>
@@ -528,7 +529,7 @@
             });
         }
 
-        // تحميل الجهات (جميع المستخدمين عدا الحالي)
+        // تحميل الجهات
         function loadContacts() {
             const usersRef = ref(database, 'users');
             onValue(usersRef, (snapshot) => {
@@ -569,6 +570,32 @@
                 <button class="btn btn-danger" onclick="logout()">تسجيل خروج</button>
             `;
         }
+
+        // دالة إنشاء المحادثة إذا لم تكن موجودة
+        async function ensureChatExists(otherUserId) {
+            const ids = [currentUserId, otherUserId].sort();
+            const chatId = `${ids[0]}_${ids[1]}`;
+            const chatRef = ref(database, `chats/${chatId}`);
+            const snapshot = await get(chatRef);
+            if (!snapshot.exists()) {
+                // إنشاء المحادثة مع معلومات أساسية
+                await set(chatRef, {
+                    participants: [currentUserId, otherUserId],
+                    createdAt: Date.now()
+                });
+                // إنشاء عقدة الرسائل فارغة (اختياري)
+                await set(ref(database, `chats/${chatId}/messages`), null); // أو set(null) يعني عدم وجود رسائل
+                console.log('تم إنشاء محادثة جديدة');
+            }
+            return chatId;
+        }
+
+        // دالة الذهاب إلى المحادثة مع إنشاء المحادثة أولاً
+        window.goToChat = async function(uid, name, username) {
+            if (!currentUserId) return;
+            await ensureChatExists(uid);
+            window.location.href = `chat.html?uid=${uid}&name=${encodeURIComponent(name)}&username=${username}`;
+        };
 
         // البحث عن المستخدمين
         window.searchUsers = async function() {
@@ -621,10 +648,6 @@
             }
         };
 
-        window.goToChat = function(uid, name, username) {
-            window.location.href = `chat.html?uid=${uid}&name=${encodeURIComponent(name)}&username=${username}`;
-        };
-
         window.toggleSearch = function() {
             searchBar.classList.toggle('show');
             if (searchBar.classList.contains('show')) {
@@ -642,9 +665,8 @@
             await signOut(auth);
         };
 
-        // --- التحديث عند العودة إلى الصفحة ---
+        // تحديث عند العودة للصفحة
         window.addEventListener('pageshow', function(event) {
-            // إذا كانت الصفحة قد تم تحميلها من الكاش (bfcache)، نعيد تحميل البيانات
             if (event.persisted || performance.getEntriesByType('navigation')[0].type === 'back_forward') {
                 if (currentUserId) {
                     loadChats();
