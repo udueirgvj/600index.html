@@ -208,7 +208,6 @@
         let currentUserId = null;
         let chatId = null;
 
-        // التحقق من تسجيل الدخول
         onAuthStateChanged(auth, async (user) => {
             if (!user) {
                 window.location.href = 'index.html';
@@ -222,7 +221,6 @@
                 return;
             }
 
-            // عرض بيانات المستخدم الآخر
             if (otherUserName && otherUserUsername) {
                 userNameEl.textContent = otherUserName;
                 userUsernameEl.textContent = '@' + otherUserUsername;
@@ -247,33 +245,13 @@
                 }
             }
 
-            // حساب chatId بنفس طريقة app.html
             const ids = [currentUserId, otherUserId].sort();
             chatId = `${ids[0]}_${ids[1]}`;
             console.log('Chat ID:', chatId);
 
-            // إنشاء المحادثة إذا لم تكن موجودة (لضمان ظهورها في app.html فوراً)
-            await ensureChatExists();
-
-            // إظهار منطقة الإدخال
             inputArea.style.display = 'flex';
-            
-            // تحميل الرسائل
             loadMessages();
         });
-
-        // دالة إنشاء المحادثة إذا لم تكن موجودة
-        async function ensureChatExists() {
-            const chatRef = ref(database, `chats/${chatId}`);
-            const snapshot = await get(chatRef);
-            if (!snapshot.exists()) {
-                await set(chatRef, {
-                    participants: [currentUserId, otherUserId],
-                    createdAt: Date.now()
-                });
-                console.log('تم إنشاء المحادثة الجديدة:', chatId);
-            }
-        }
 
         function loadMessages() {
             const messagesRef = ref(database, `chats/${chatId}/messages`);
@@ -283,6 +261,7 @@
             
             onChildAdded(messagesQuery, (snapshot) => {
                 const message = snapshot.val();
+                console.log('📨 رسالة واردة:', message);
                 displayMessage(message);
             });
         }
@@ -316,10 +295,10 @@
                     timestamp: Date.now(),
                     type: 'text'
                 });
-                console.log('تم إرسال الرسالة بنجاح');
+                console.log('✅ تم إرسال الرسالة بنجاح');
                 messageInput.value = '';
             } catch (error) {
-                console.error('خطأ في الإرسال:', error);
+                console.error('❌ خطأ في الإرسال:', error);
                 alert('فشل إرسال الرسالة: ' + error.message);
             }
         };
