@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>تواصل - الرئيسية</title>
     <style>
-        /* نفس التصميم السابق - ثابت */
         * {
             margin: 0;
             padding: 0;
@@ -26,12 +25,6 @@
             align-items: center;
             justify-content: space-between;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        .header .menu-icon {
-            font-size: 1.8rem;
-            cursor: pointer;
-            width: 40px;
-            text-align: center;
         }
         .header .app-title {
             font-size: 1.5rem;
@@ -115,12 +108,6 @@
             overflow-y: auto;
             padding: 1rem;
         }
-        .tab-content {
-            display: none;
-        }
-        .tab-content.active {
-            display: block;
-        }
         .chat-list {
             display: flex;
             flex-direction: column;
@@ -135,6 +122,7 @@
             border-radius: 12px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.05);
             cursor: pointer;
+            margin-bottom: 0.5rem;
         }
         .chat-item .avatar {
             width: 50px;
@@ -158,114 +146,10 @@
         .chat-item .details p {
             font-size: 0.85rem;
             color: #7f8fa4;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            max-width: 200px;
         }
         .chat-item .time {
             font-size: 0.75rem;
             color: #8899aa;
-        }
-        .contacts-list {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-        }
-        .contact-item {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            background: white;
-            padding: 0.8rem 1rem;
-            border-radius: 12px;
-            cursor: pointer;
-        }
-        .contact-item .avatar {
-            width: 50px;
-            height: 50px;
-            background: #2A6B9C;
-            color: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            font-size: 1.2rem;
-        }
-        .contact-item .details {
-            flex: 1;
-        }
-        .contact-item .details h4 {
-            font-size: 1rem;
-            color: #1a2b3e;
-        }
-        .contact-item .details p {
-            font-size: 0.85rem;
-            color: #7f8fa4;
-        }
-        .settings-list {
-            background: white;
-            border-radius: 12px;
-            overflow: hidden;
-        }
-        .setting-item {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            padding: 1rem;
-            border-bottom: 1px solid #eef2f7;
-            cursor: pointer;
-        }
-        .setting-item:last-child {
-            border-bottom: none;
-        }
-        .setting-item .icon {
-            font-size: 1.5rem;
-            width: 30px;
-            text-align: center;
-        }
-        .setting-item .text {
-            flex: 1;
-            font-size: 1rem;
-            color: #1a2b3e;
-        }
-        .profile-card {
-            background: white;
-            border-radius: 16px;
-            padding: 2rem;
-            text-align: center;
-        }
-        .profile-avatar {
-            width: 100px;
-            height: 100px;
-            background: #2A6B9C;
-            color: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            font-size: 2.5rem;
-            margin: 0 auto 1rem;
-        }
-        .profile-name {
-            font-size: 1.5rem;
-            color: #1a2b3e;
-            margin-bottom: 0.5rem;
-        }
-        .profile-username {
-            font-size: 1rem;
-            color: #7f8fa4;
-            margin-bottom: 1.5rem;
-        }
-        .profile-email {
-            font-size: 0.95rem;
-            color: #4b5f73;
-            background: #f9fcff;
-            padding: 0.8rem;
-            border-radius: 30px;
-            border: 1px solid #d9e1ec;
         }
         .bottom-nav {
             background: white;
@@ -282,7 +166,6 @@
             padding: 0.5rem;
             cursor: pointer;
             color: #8899aa;
-            transition: color 0.2s;
             text-decoration: none;
         }
         .nav-item.active {
@@ -294,20 +177,6 @@
         }
         .nav-item span:last-child {
             font-size: 0.7rem;
-        }
-        .btn {
-            background: #2A6B9C;
-            color: white;
-            border: none;
-            border-radius: 30px;
-            padding: 0.8rem 2rem;
-            font-size: 1rem;
-            cursor: pointer;
-            margin-top: 1rem;
-            width: 100%;
-        }
-        .btn-danger {
-            background: #dc3545;
         }
         .loading {
             text-align: center;
@@ -325,12 +194,14 @@
             color: #8899aa;
             font-size: 0.85rem;
         }
+        .hidden {
+            display: none;
+        }
     </style>
 </head>
 <body>
-    <!-- الشريط العلوي -->
+    <!-- الشريط العلوي مبسط (بدون قائمة مؤقتاً) -->
     <div class="header">
-        <div class="menu-icon" onclick="toggleMenu()">☰</div>
         <div class="app-title">تواصل</div>
         <div class="search-icon" onclick="toggleSearch()">🔍</div>
     </div>
@@ -341,73 +212,25 @@
     </div>
     <div id="searchResults" class="search-results"></div>
 
-    <!-- المحتوى الرئيسي -->
-    <div class="main-content" id="mainContent">
-        <!-- تبويب المحادثات -->
-        <div id="tab1" class="tab-content active">
-            <div class="chat-list" id="chatList">
-                <div class="loading">جاري تحميل المحادثات...</div>
-            </div>
-        </div>
-        <!-- تبويب الجهات -->
-        <div id="tab2" class="tab-content">
-            <div class="contacts-list" id="contactsList">
-                <div class="loading">جاري تحميل الجهات...</div>
-            </div>
-        </div>
-        <!-- تبويب الإعدادات -->
-        <div id="tab3" class="tab-content">
-            <div class="settings-list">
-                <div class="setting-item" onclick="alert('سيتم إضافة هذه الميزة قريباً')">
-                    <span class="icon">🔔</span>
-                    <span class="text">الإشعارات</span>
-                </div>
-                <div class="setting-item" onclick="alert('سيتم إضافة هذه الميزة قريباً')">
-                    <span class="icon">🌙</span>
-                    <span class="text">الوضع الليلي</span>
-                </div>
-                <div class="setting-item" onclick="alert('سيتم إضافة هذه الميزة قريباً')">
-                    <span class="icon">🔒</span>
-                    <span class="text">الخصوصية والأمان</span>
-                </div>
-                <div class="setting-item" onclick="alert('سيتم إضافة هذه الميزة قريباً')">
-                    <span class="icon">❓</span>
-                    <span class="text">المساعدة</span>
-                </div>
-            </div>
-        </div>
-        <!-- تبويب الملف الشخصي -->
-        <div id="tab4" class="tab-content">
-            <div class="profile-card" id="profileCard">
-                <div class="loading">جاري تحميل الملف الشخصي...</div>
-            </div>
+    <!-- المحتوى الرئيسي (فقط المحادثات) -->
+    <div class="main-content">
+        <div class="chat-list" id="chatList">
+            <div class="loading">جاري تحميل المحادثات...</div>
         </div>
     </div>
 
-    <!-- الشريط السفلي -->
+    <!-- شريط سفلي مبسط (اختياري) -->
     <div class="bottom-nav">
-        <a class="nav-item active" href="#chats" onclick="switchTabByHash('chats'); return false;">
-            <span>💬</span>
-            <span>المحادثات</span>
-        </a>
-        <a class="nav-item" href="#contacts" onclick="switchTabByHash('contacts'); return false;">
-            <span>📞</span>
-            <span>جهات الاتصال</span>
-        </a>
-        <a class="nav-item" href="#settings" onclick="switchTabByHash('settings'); return false;">
-            <span>⚙️</span>
-            <span>الإعدادات</span>
-        </a>
-        <a class="nav-item" href="#profile" onclick="switchTabByHash('profile'); return false;">
-            <span>👤</span>
-            <span>الملف الشخصي</span>
-        </a>
+        <a class="nav-item active" href="#">💬 المحادثات</a>
+        <a class="nav-item" href="#" onclick="alert('قريباً')">📞 جهات</a>
+        <a class="nav-item" href="#" onclick="alert('قريباً')">⚙️ إعدادات</a>
+        <a class="nav-item" href="#" onclick="alert('قريباً')">👤 حسابي</a>
     </div>
 
     <!-- Firebase SDK -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         import { 
             getDatabase, 
             ref, 
@@ -435,189 +258,130 @@
         const auth = getAuth(app);
         const database = getDatabase(app);
 
-        // عناصر الصفحة
+        const chatListDiv = document.getElementById('chatList');
         const searchBar = document.getElementById('searchBar');
         const searchInput = document.getElementById('searchInput');
         const searchResultsDiv = document.getElementById('searchResults');
-        const chatListDiv = document.getElementById('chatList');
-        const contactsListDiv = document.getElementById('contactsList');
-        const profileCardDiv = document.getElementById('profileCard');
 
         let currentUserId = null;
-        let currentUserData = null;
-        let currentTab = 1;
 
-        // دالة تبديل التبويبات بناءً على التجزئة
-        window.switchTabByHash = function(hash) {
-            const tabName = hash.replace('#', '');
-            let tabNumber = 1; // افتراضي المحادثات
-            if (tabName === 'contacts') tabNumber = 2;
-            else if (tabName === 'settings') tabNumber = 3;
-            else if (tabName === 'profile') tabNumber = 4;
-            
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-            document.getElementById(`tab${tabNumber}`).classList.add('active');
-            
-            document.querySelectorAll('.nav-item').forEach((el, index) => {
-                if (index + 1 === tabNumber) el.classList.add('active');
-                else el.classList.remove('active');
-            });
-            
-            window.location.hash = tabName;
-        };
-
-        // قراءة التجزئة عند تحميل الصفحة
-        function loadTabFromHash() {
-            const hash = window.location.hash.substring(1);
-            if (hash) {
-                switchTabByHash(hash);
-            } else {
-                switchTabByHash('chats');
-            }
-        }
-
-        // مراقبة المصادقة
-        onAuthStateChanged(auth, async (user) => {
+        // مراقبة تسجيل الدخول
+        onAuthStateChanged(auth, (user) => {
             if (!user) {
                 window.location.href = 'index.html';
                 return;
             }
             currentUserId = user.uid;
-            console.log('المستخدم الحالي:', currentUserId);
-            
-            await loadCurrentUserData();
-            loadChats();
-            loadContacts();
-            loadProfile();
-            loadTabFromHash();
+            console.log('✅ المستخدم الحالي:', currentUserId);
+            loadChats(); // تحميل المحادثات فوراً
         });
 
-        // تحميل بيانات المستخدم الحالي
-        async function loadCurrentUserData() {
-            const userRef = ref(database, 'users/' + currentUserId);
-            const snapshot = await get(userRef);
-            if (snapshot.exists()) {
-                currentUserData = snapshot.val();
-                console.log('بيانات المستخدم:', currentUserData);
-            }
-        }
-
-        // تحميل المحادثات - الإصدار المحسن
+        // دالة تحميل المحادثات (مبسطة ومركزة)
         function loadChats() {
             const chatsRef = ref(database, 'chats');
             
             // استماع دائم للتغييرات في المحادثات
             onValue(chatsRef, async (snapshot) => {
-                console.log('تم جلب المحادثات من Firebase');
-                const chats = [];
+                console.log('📦 تم جلب بيانات المحادثات من Firebase');
                 
-                if (snapshot.exists()) {
-                    snapshot.forEach((childSnapshot) => {
-                        const chatId = childSnapshot.key;
-                        console.log('معرف المحادثة:', chatId);
-                        
-                        // التحقق من أن المستخدم الحالي مشارك في هذه المحادثة
-                        if (chatId.includes(currentUserId)) {
-                            // استخراج معرف المستخدم الآخر
-                            const otherUserId = chatId.replace(currentUserId, '').replace('_', '');
-                            console.log('المستخدم الآخر:', otherUserId);
-                            chats.push({ chatId, otherUserId });
-                        }
-                    });
-                }
-
-                console.log('عدد المحادثات التي وجدت:', chats.length);
-
-                if (chats.length === 0) {
+                if (!snapshot.exists()) {
+                    console.log('⚠️ لا توجد أي محادثات في قاعدة البيانات');
                     chatListDiv.innerHTML = '<div style="text-align:center; padding:2rem;">لا توجد محادثات بعد</div>';
                     return;
                 }
 
-                let html = '';
-                for (const chat of chats) {
-                    // جلب بيانات المستخدم الآخر
-                    const userSnap = await get(ref(database, 'users/' + chat.otherUserId));
-                    const userData = userSnap.exists() ? userSnap.val() : { fullName: 'مستخدم', username: 'user' };
-                    
-                    // جلب آخر رسالة في المحادثة
-                    const messagesRef = ref(database, `chats/${chat.chatId}/messages`);
-                    const lastMsgQuery = query(messagesRef, orderByChild('timestamp'), limitToLast(1));
-                    const lastMsgSnap = await get(lastMsgQuery);
-                    let lastMsg = '';
-                    let lastTime = '';
-                    
-                    if (lastMsgSnap.exists()) {
-                        lastMsgSnap.forEach((msg) => {
-                            const msgData = msg.val();
-                            lastMsg = msgData.text;
-                            lastTime = new Date(msgData.timestamp).toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
-                        });
-                    }
-
-                    const initial = (userData.fullName || userData.username).charAt(0).toUpperCase();
-                    html += `
-                        <div class="chat-item" onclick="goToChat('${chat.otherUserId}', '${userData.fullName || userData.username}', '${userData.username}')">
-                            <div class="avatar">${initial}</div>
-                            <div class="details">
-                                <h4>${userData.fullName || userData.username}</h4>
-                                <p>${lastMsg || 'اضغط لبدء المحادثة'}</p>
-                            </div>
-                            <div class="time">${lastTime}</div>
-                        </div>
-                    `;
-                }
-                chatListDiv.innerHTML = html;
-            });
-        }
-
-        // تحميل الجهات (جميع المستخدمين عدا الحالي)
-        function loadContacts() {
-            const usersRef = ref(database, 'users');
-            onValue(usersRef, (snapshot) => {
-                let html = '';
+                // تجميع المحادثات التي تخص المستخدم الحالي
+                const userChats = [];
+                
                 snapshot.forEach((childSnapshot) => {
-                    const uid = childSnapshot.key;
-                    if (uid === currentUserId) return;
-                    const userData = childSnapshot.val();
-                    const initial = (userData.fullName || userData.username).charAt(0).toUpperCase();
-                    html += `
-                        <div class="contact-item" onclick="goToChat('${uid}', '${userData.fullName || userData.username}', '${userData.username}')">
-                            <div class="avatar">${initial}</div>
-                            <div class="details">
-                                <h4>${userData.fullName || userData.username}</h4>
-                                <p>@${userData.username}</p>
-                            </div>
-                        </div>
-                    `;
+                    const chatId = childSnapshot.key;
+                    console.log('🔍 معرف المحادثة:', chatId);
+                    
+                    // التحقق: هل معرف المحادثة يحتوي على UID الحالي؟
+                    if (chatId.includes(currentUserId)) {
+                        // استخراج معرف المستخدم الآخر (بإزالة UID الحالي والشرطة السفلية)
+                        let otherUserId = chatId.replace(currentUserId, '').replace('_', '');
+                        // إذا كان هناك شرطة زائدة في البداية أو النهاية
+                        otherUserId = otherUserId.replace(/^_+|_+$/g, '');
+                        
+                        console.log('👤 المستخدم الآخر المحتمل:', otherUserId);
+                        
+                        if (otherUserId && otherUserId.length > 0) {
+                            userChats.push({
+                                chatId: chatId,
+                                otherUserId: otherUserId
+                            });
+                        }
+                    }
                 });
-                if (html === '') {
-                    contactsListDiv.innerHTML = '<div style="text-align:center; padding:2rem;">لا يوجد جهات بعد</div>';
-                } else {
-                    contactsListDiv.innerHTML = html;
-                }
-            });
-        }
 
-        // تحميل الملف الشخصي
-        function loadProfile() {
-            if (!currentUserData) return;
-            const name = currentUserData.fullName || currentUserData.username || 'مستخدم';
-            const initials = name.length >= 2 ? name.substring(0, 2) : name.charAt(0);
-            profileCardDiv.innerHTML = `
-                <div class="profile-avatar">${initials}</div>
-                <div class="profile-name">${currentUserData.fullName || ''}</div>
-                <div class="profile-username">@${currentUserData.username || ''}</div>
-                <div class="profile-email">${currentUserData.email || ''}</div>
-                <button class="btn btn-danger" onclick="logout()">تسجيل خروج</button>
-            `;
+                console.log(`📊 عدد المحادثات التي تخص المستخدم: ${userChats.length}`);
+
+                if (userChats.length === 0) {
+                    chatListDiv.innerHTML = '<div style="text-align:center; padding:2rem;">لا توجد محادثات بعد</div>';
+                    return;
+                }
+
+                // بناء HTML لكل محادثة
+                let html = '';
+                for (const chat of userChats) {
+                    // جلب بيانات المستخدم الآخر
+                    try {
+                        const userSnap = await get(ref(database, 'users/' + chat.otherUserId));
+                        if (!userSnap.exists()) {
+                            console.log('⚠️ المستخدم الآخر غير موجود:', chat.otherUserId);
+                            continue;
+                        }
+                        
+                        const userData = userSnap.val();
+                        const displayName = userData.fullName || userData.username || 'مستخدم';
+                        const username = userData.username || '';
+                        
+                        // جلب آخر رسالة في المحادثة
+                        const messagesRef = ref(database, `chats/${chat.chatId}/messages`);
+                        const lastMsgQuery = query(messagesRef, orderByChild('timestamp'), limitToLast(1));
+                        const lastMsgSnap = await get(lastMsgQuery);
+                        
+                        let lastMsg = '';
+                        let lastTime = '';
+                        if (lastMsgSnap.exists()) {
+                            lastMsgSnap.forEach((msg) => {
+                                const msgData = msg.val();
+                                lastMsg = msgData.text || '';
+                                lastTime = msgData.timestamp ? new Date(msgData.timestamp).toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' }) : '';
+                            });
+                        }
+
+                        const initial = displayName.charAt(0).toUpperCase();
+                        html += `
+                            <div class="chat-item" onclick="goToChat('${chat.otherUserId}', '${displayName}', '${username}')">
+                                <div class="avatar">${initial}</div>
+                                <div class="details">
+                                    <h4>${displayName}</h4>
+                                    <p>${lastMsg || 'اضغط لبدء المحادثة'}</p>
+                                </div>
+                                <div class="time">${lastTime}</div>
+                            </div>
+                        `;
+                    } catch (error) {
+                        console.error('خطأ في جلب بيانات المستخدم:', error);
+                    }
+                }
+
+                if (html === '') {
+                    chatListDiv.innerHTML = '<div style="text-align:center; padding:2rem;">لا توجد محادثات بعد</div>';
+                } else {
+                    chatListDiv.innerHTML = html;
+                }
+            }, (error) => {
+                console.error('❌ خطأ في الاستماع للمحادثات:', error);
+                chatListDiv.innerHTML = '<div class="error">حدث خطأ في تحميل المحادثات</div>';
+            });
         }
 
         // دالة الذهاب إلى المحادثة
         window.goToChat = function(uid, name, username) {
-            if (!uid) {
-                alert('بيانات المستخدم غير صحيحة');
-                return;
-            }
+            if (!uid) return;
             window.location.href = `chat.html?uid=${uid}&name=${encodeURIComponent(name)}&username=${username}`;
         };
 
@@ -680,26 +444,6 @@
                 searchResultsDiv.classList.remove('show');
             }
         };
-
-        window.toggleMenu = function() {
-            alert('القائمة الجانبية - يمكن إضافتها لاحقاً');
-        };
-
-        window.logout = async function() {
-            await signOut(auth);
-        };
-
-        // تحديث عند العودة للصفحة
-        window.addEventListener('pageshow', function(event) {
-            if (event.persisted) {
-                console.log('تم العودة إلى الصفحة من الكاش');
-                if (currentUserId) {
-                    loadChats();
-                    loadContacts();
-                    loadProfile();
-                }
-            }
-        });
     </script>
 
     <script>
