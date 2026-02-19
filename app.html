@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>تواصل - الرئيسية</title>
     <style>
-        /* نفس التصميم مع تحسينات بسيطة */
+        /* نفس التصميم السابق - ثابت */
         * {
             margin: 0;
             padding: 0;
@@ -416,7 +416,6 @@
             endAt, 
             get, 
             onValue,
-            set,
             limitToLast,
             limitToFirst
         } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
@@ -446,7 +445,6 @@
         let currentUserId = null;
         let currentUserData = null;
         let currentTab = 1;
-        let unsubscribeChats = null;
 
         // دالة تبديل التبويبات
         window.switchTab = function(tabNumber) {
@@ -484,14 +482,10 @@
             }
         }
 
-        // تحميل المحادثات مع مستمع مباشر
+        // تحميل المحادثات
         function loadChats() {
-            if (unsubscribeChats) unsubscribeChats();
-
             const chatsRef = ref(database, 'chats');
-            unsubscribeChats = onValue(chatsRef, async (snapshot) => {
-                chatListDiv.innerHTML = '<div class="loading">جاري تحميل المحادثات...</div>';
-                
+            onValue(chatsRef, async (snapshot) => {
                 const chats = [];
                 if (snapshot.exists()) {
                     snapshot.forEach((childSnapshot) => {
@@ -542,11 +536,10 @@
             });
         }
 
-        // تحميل الجهات (جميع المستخدمين عدا الحالي)
+        // تحميل الجهات
         function loadContacts() {
             const usersRef = ref(database, 'users');
             onValue(usersRef, (snapshot) => {
-                contactsListDiv.innerHTML = '<div class="loading">جاري تحميل الجهات...</div>';
                 let html = '';
                 snapshot.forEach((childSnapshot) => {
                     const uid = childSnapshot.key;
@@ -585,38 +578,13 @@
             `;
         }
 
-        // دالة إنشاء المحادثة إذا لم تكن موجودة
-        async function ensureChatExists(otherUserId) {
-            const ids = [currentUserId, otherUserId].sort();
-            const chatId = `${ids[0]}_${ids[1]}`;
-            const chatRef = ref(database, `chats/${chatId}`);
-            const snapshot = await get(chatRef);
-            if (!snapshot.exists()) {
-                // إنشاء المحادثة مع بيانات أساسية
-                await set(chatRef, {
-                    participants: [currentUserId, otherUserId],
-                    createdAt: Date.now()
-                });
-                // إنشاء عقدة الرسائل (فارغة)
-                await set(ref(database, `chats/${chatId}/messages`), null);
-                console.log('تم إنشاء محادثة جديدة:', chatId);
-            }
-            return chatId;
-        }
-
-        // دالة الذهاب إلى المحادثة (مع إنشاء المحادثة أولاً)
-        window.goToChat = async function(uid, name, username) {
+        // دالة الذهاب إلى المحادثة (بدون إنشاء فوري)
+        window.goToChat = function(uid, name, username) {
             if (!uid) {
                 alert('بيانات المستخدم غير صحيحة');
                 return;
             }
-            try {
-                await ensureChatExists(uid);
-                window.location.href = `chat.html?uid=${uid}&name=${encodeURIComponent(name)}&username=${username}`;
-            } catch (error) {
-                console.error('خطأ في إنشاء المحادثة:', error);
-                alert('حدث خطأ في فتح المحادثة');
-            }
+            window.location.href = `chat.html?uid=${uid}&name=${encodeURIComponent(name)}&username=${username}`;
         };
 
         // دالة البحث عن المستخدمين (مُحسّنة)
