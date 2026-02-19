@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -173,7 +174,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { getDatabase, ref, get, push, onChildAdded, query, orderByChild, limitToLast } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { getDatabase, ref, get, push, onChildAdded, query, orderByChild } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
         // 🔥 استبدل بمفاتيح مشروعك
         const firebaseConfig = {
@@ -251,6 +252,7 @@
             // إنشاء chatId فريد للمحادثة بين المستخدمين (مرتب أبجديًا)
             const ids = [currentUserId, otherUserId].sort();
             chatId = `${ids[0]}_${ids[1]}`;
+            console.log('Chat ID:', chatId);
 
             // إظهار منطقة الإدخال
             inputArea.style.display = 'flex';
@@ -262,25 +264,23 @@
         // دالة تحميل الرسائل والاستماع للتحديثات
         function loadMessages() {
             const messagesRef = ref(database, `chats/${chatId}/messages`);
-            // ترتيب حسب الوقت تصاعديًا
             const messagesQuery = query(messagesRef, orderByChild('timestamp'));
             
             // إزالة رسالة التحميل
             loadingMessages.style.display = 'none';
             
-            // الاستماع للرسائل الجديدة (بما في ذلك القديمة عند التحميل الأول)
+            // الاستماع للرسائل الجديدة
             onChildAdded(messagesQuery, (snapshot) => {
                 const message = snapshot.val();
                 displayMessage(message);
             });
         }
 
-        // دالة عرض رسالة واحدة في الواجهة
+        // دالة عرض رسالة واحدة
         function displayMessage(message) {
             const messageDiv = document.createElement('div');
             messageDiv.className = `message ${message.senderId === currentUserId ? 'sent' : 'received'}`;
             
-            // تنسيق الوقت
             const time = new Date(message.timestamp).toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
             
             messageDiv.innerHTML = `
@@ -289,7 +289,6 @@
             `;
             
             messagesArea.appendChild(messageDiv);
-            // تمرير تلقائي إلى آخر رسالة
             messagesArea.scrollTop = messagesArea.scrollHeight;
         }
 
@@ -301,14 +300,19 @@
             const messagesRef = ref(database, `chats/${chatId}/messages`);
             const newMessageRef = push(messagesRef);
             
-            await newMessageRef.set({
-                senderId: currentUserId,
-                text: text,
-                timestamp: Date.now(),
-                type: 'text'
-            });
-
-            messageInput.value = '';
+            try {
+                await newMessageRef.set({
+                    senderId: currentUserId,
+                    text: text,
+                    timestamp: Date.now(),
+                    type: 'text'
+                });
+                console.log('تم إرسال الرسالة بنجاح');
+                messageInput.value = '';
+            } catch (error) {
+                console.error('خطأ في الإرسال:', error);
+                alert('فشل إرسال الرسالة: ' + error.message);
+            }
         };
 
         // العودة إلى الصفحة الرئيسية
