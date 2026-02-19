@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>تواصل - الرئيسية</title>
     <style>
-        /* نفس التصميم مع بعض الإضافات */
+        /* نفس التصميم السابق تماماً */
         * {
             margin: 0;
             padding: 0;
@@ -121,7 +121,6 @@
         .tab-content.active {
             display: block;
         }
-        /* قائمة المحادثات */
         .chat-list {
             display: flex;
             flex-direction: column;
@@ -168,7 +167,6 @@
             font-size: 0.75rem;
             color: #8899aa;
         }
-        /* قائمة الجهات */
         .contacts-list {
             display: flex;
             flex-direction: column;
@@ -206,7 +204,6 @@
             font-size: 0.85rem;
             color: #7f8fa4;
         }
-        /* الإعدادات */
         .settings-list {
             background: white;
             border-radius: 12px;
@@ -233,7 +230,6 @@
             font-size: 1rem;
             color: #1a2b3e;
         }
-        /* الملف الشخصي */
         .profile-card {
             background: white;
             border-radius: 16px;
@@ -321,9 +317,6 @@
             text-align: center;
             padding: 2rem;
             color: #dc3545;
-        }
-        .hidden {
-            display: none;
         }
     </style>
 </head>
@@ -417,7 +410,6 @@
             endAt, 
             get, 
             onValue,
-            onChildAdded,
             limitToLast
         } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
@@ -486,19 +478,17 @@
         // تحميل المحادثات الحقيقية
         function loadChats() {
             const chatsRef = ref(database, 'chats');
-            // نستمع لكل المحادثات ونفلتر التي تخص المستخدم الحالي
             onValue(chatsRef, async (snapshot) => {
                 const chats = [];
                 if (snapshot.exists()) {
                     snapshot.forEach((childSnapshot) => {
                         const chatId = childSnapshot.key;
-                        if (chatId.includes(currentUserId)) { // المحادثة تخص المستخدم
+                        if (chatId.includes(currentUserId)) {
                             const otherUserId = chatId.replace(currentUserId, '').replace('_', '');
                             chats.push({ chatId, otherUserId });
                         }
                     });
                 }
-                // الآن نعرض المحادثات مع آخر رسالة
                 if (chats.length === 0) {
                     chatListDiv.innerHTML = '<div style="text-align:center; padding:2rem;">لا توجد محادثات بعد</div>';
                     return;
@@ -506,11 +496,9 @@
 
                 let html = '';
                 for (const chat of chats) {
-                    // جلب بيانات المستخدم الآخر
                     const userSnap = await get(ref(database, 'users/' + chat.otherUserId));
                     const userData = userSnap.exists() ? userSnap.val() : { fullName: 'مستخدم', username: 'user' };
                     
-                    // جلب آخر رسالة في المحادثة
                     const messagesRef = ref(database, `chats/${chat.chatId}/messages`);
                     const lastMsgQuery = query(messagesRef, orderByChild('timestamp'), limitToLast(1));
                     const lastMsgSnap = await get(lastMsgQuery);
@@ -653,6 +641,18 @@
         window.logout = async function() {
             await signOut(auth);
         };
+
+        // --- التحديث عند العودة إلى الصفحة ---
+        window.addEventListener('pageshow', function(event) {
+            // إذا كانت الصفحة قد تم تحميلها من الكاش (bfcache)، نعيد تحميل البيانات
+            if (event.persisted || performance.getEntriesByType('navigation')[0].type === 'back_forward') {
+                if (currentUserId) {
+                    loadChats();
+                    loadContacts();
+                    loadProfile();
+                }
+            }
+        });
     </script>
 
     <script>
