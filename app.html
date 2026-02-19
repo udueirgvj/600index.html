@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>تواصل - الرئيسية</title>
     <style>
-        /* نفس التصميم السابق */
+        /* نفس التصميم السابق - ثابت */
         * {
             margin: 0;
             padding: 0;
@@ -578,23 +578,36 @@
             const chatRef = ref(database, `chats/${chatId}`);
             const snapshot = await get(chatRef);
             if (!snapshot.exists()) {
-                // إنشاء المحادثة مع معلومات أساسية
                 await set(chatRef, {
                     participants: [currentUserId, otherUserId],
                     createdAt: Date.now()
                 });
-                // إنشاء عقدة الرسائل فارغة (اختياري)
-                await set(ref(database, `chats/${chatId}/messages`), null); // أو set(null) يعني عدم وجود رسائل
-                console.log('تم إنشاء محادثة جديدة');
+                await set(ref(database, `chats/${chatId}/messages`), null);
+                console.log('تم إنشاء محادثة جديدة:', chatId);
             }
             return chatId;
         }
 
-        // دالة الذهاب إلى المحادثة مع إنشاء المحادثة أولاً
+        // دالة الذهاب إلى المحادثة - معرفة على window
         window.goToChat = async function(uid, name, username) {
-            if (!currentUserId) return;
-            await ensureChatExists(uid);
-            window.location.href = `chat.html?uid=${uid}&name=${encodeURIComponent(name)}&username=${username}`;
+            console.log('محاولة فتح محادثة مع:', uid, name, username);
+            if (!currentUserId) {
+                console.error('المستخدم الحالي غير معرف');
+                return;
+            }
+            if (!uid) {
+                console.error('uid المستهدف غير موجود');
+                return;
+            }
+            try {
+                await ensureChatExists(uid);
+                const url = `chat.html?uid=${uid}&name=${encodeURIComponent(name)}&username=${username}`;
+                console.log('التوجيه إلى:', url);
+                window.location.href = url;
+            } catch (error) {
+                console.error('خطأ في فتح المحادثة:', error);
+                alert('حدث خطأ في فتح المحادثة');
+            }
         };
 
         // البحث عن المستخدمين
@@ -667,7 +680,7 @@
 
         // تحديث عند العودة للصفحة
         window.addEventListener('pageshow', function(event) {
-            if (event.persisted || performance.getEntriesByType('navigation')[0].type === 'back_forward') {
+            if (event.persisted || (performance.getEntriesByType('navigation')[0]?.type === 'back_forward')) {
                 if (currentUserId) {
                     loadChats();
                     loadContacts();
@@ -689,6 +702,9 @@
                 searchResultsEl.classList.remove('show');
             }
         });
+
+        // اختبار بسيط للتأكد من أن دالة goToChat موجودة
+        console.log('تم تحميل الصفحة، goToChat موجودة:', typeof window.goToChat);
     </script>
 </body>
 </html>
