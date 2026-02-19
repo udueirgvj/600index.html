@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>تواصل - الرئيسية</title>
     <style>
+        /* نفس التصميم مع تحسينات بسيطة */
         * {
             margin: 0;
             padding: 0;
@@ -401,193 +402,221 @@
             <span>الملف الشخصي</span>
         </div>
     </div>
+
     <!-- Firebase SDK -->
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-    import { 
-        getDatabase, 
-        ref, 
-        query, 
-        orderByChild, 
-        startAt, 
-        endAt, 
-        get, 
-        onValue,
-        limitToLast,
-        limitToFirst
-    } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { 
+            getDatabase, 
+            ref, 
+            query, 
+            orderByChild, 
+            startAt, 
+            endAt, 
+            get, 
+            onValue,
+            set,
+            limitToLast,
+            limitToFirst
+        } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-    const firebaseConfig = {
-        apiKey: "AIzaSyDRCtfuYrEdnuKUsWu_79NC6G_xGLznBJc",
-        authDomain: "tttrt-b8c5a.firebaseapp.com",
-        databaseURL: "https://tttrt-b8c5a-default-rtdb.asia-southeast1.firebasedatabase.app",
-        projectId: "tttrt-b8c5a",
-        storageBucket: "tttrt-b8c5a.firebasestorage.app",
-        messagingSenderId: "975123752593",
-        appId: "1:975123752593:web:e591e930af3a3e29568130"
-    };
+        const firebaseConfig = {
+            apiKey: "AIzaSyDRCtfuYrEdnuKUsWu_79NC6G_xGLznBJc",
+            authDomain: "tttrt-b8c5a.firebaseapp.com",
+            databaseURL: "https://tttrt-b8c5a-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "tttrt-b8c5a",
+            storageBucket: "tttrt-b8c5a.firebasestorage.app",
+            messagingSenderId: "975123752593",
+            appId: "1:975123752593:web:e591e930af3a3e29568130"
+        };
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const database = getDatabase(app);
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const database = getDatabase(app);
 
-    // عناصر الصفحة
-    const searchBar = document.getElementById('searchBar');
-    const searchInput = document.getElementById('searchInput');
-    const searchResultsDiv = document.getElementById('searchResults');
-    const chatListDiv = document.getElementById('chatList');
-    const contactsListDiv = document.getElementById('contactsList');
-    const profileCardDiv = document.getElementById('profileCard');
+        // عناصر الصفحة
+        const searchBar = document.getElementById('searchBar');
+        const searchInput = document.getElementById('searchInput');
+        const searchResultsDiv = document.getElementById('searchResults');
+        const chatListDiv = document.getElementById('chatList');
+        const contactsListDiv = document.getElementById('contactsList');
+        const profileCardDiv = document.getElementById('profileCard');
 
-    let currentUserId = null;
-    let currentUserData = null;
-    let currentTab = 1;
+        let currentUserId = null;
+        let currentUserData = null;
+        let currentTab = 1;
+        let unsubscribeChats = null;
 
-    // دالة تبديل التبويبات
-    window.switchTab = function(tabNumber) {
-        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-        document.getElementById(`tab${tabNumber}`).classList.add('active');
-        
-        document.querySelectorAll('.nav-item').forEach((el, index) => {
-            if (index + 1 === tabNumber) el.classList.add('active');
-            else el.classList.remove('active');
+        // دالة تبديل التبويبات
+        window.switchTab = function(tabNumber) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.getElementById(`tab${tabNumber}`).classList.add('active');
+            
+            document.querySelectorAll('.nav-item').forEach((el, index) => {
+                if (index + 1 === tabNumber) el.classList.add('active');
+                else el.classList.remove('active');
+            });
+            
+            currentTab = tabNumber;
+            if (tabNumber === 4 && currentUserData) loadProfile();
+        };
+
+        // مراقبة المصادقة
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                window.location.href = 'index.html';
+                return;
+            }
+            currentUserId = user.uid;
+            await loadCurrentUserData();
+            loadChats();
+            loadContacts();
+            loadProfile();
         });
-        
-        currentTab = tabNumber;
-        if (tabNumber === 4 && currentUserData) loadProfile();
-    };
-    // مراقبة المصادقة
-onAuthStateChanged(auth, async (user) => {
-    if (!user) {
-        window.location.href = 'index.html';
-        return;
-    }
-    currentUserId = user.uid;
-    await loadCurrentUserData();
-    loadChats();
-    loadContacts();
-    loadProfile();
-});
 
-// تحميل بيانات المستخدم الحالي
-async function loadCurrentUserData() {
-    const userRef = ref(database, 'users/' + currentUserId);
-    const snapshot = await get(userRef);
-    if (snapshot.exists()) {
-        currentUserData = snapshot.val();
-    }
-}
+        // تحميل بيانات المستخدم الحالي
+        async function loadCurrentUserData() {
+            const userRef = ref(database, 'users/' + currentUserId);
+            const snapshot = await get(userRef);
+            if (snapshot.exists()) {
+                currentUserData = snapshot.val();
+            }
+        }
 
-// تحميل المحادثات
-function loadChats() {
-    const chatsRef = ref(database, 'chats');
-    onValue(chatsRef, async (snapshot) => {
-        const chats = [];
-        if (snapshot.exists()) {
-            snapshot.forEach((childSnapshot) => {
-                const chatId = childSnapshot.key;
-                if (chatId.includes(currentUserId)) {
-                    const otherUserId = chatId.replace(currentUserId, '').replace('_', '');
-                    chats.push({ chatId, otherUserId });
+        // تحميل المحادثات مع مستمع مباشر
+        function loadChats() {
+            if (unsubscribeChats) unsubscribeChats();
+
+            const chatsRef = ref(database, 'chats');
+            unsubscribeChats = onValue(chatsRef, async (snapshot) => {
+                chatListDiv.innerHTML = '<div class="loading">جاري تحميل المحادثات...</div>';
+                
+                const chats = [];
+                if (snapshot.exists()) {
+                    snapshot.forEach((childSnapshot) => {
+                        const chatId = childSnapshot.key;
+                        if (chatId.includes(currentUserId)) {
+                            const otherUserId = chatId.replace(currentUserId, '').replace('_', '');
+                            chats.push({ chatId, otherUserId });
+                        }
+                    });
+                }
+
+                if (chats.length === 0) {
+                    chatListDiv.innerHTML = '<div style="text-align:center; padding:2rem;">لا توجد محادثات بعد</div>';
+                    return;
+                }
+
+                let html = '';
+                for (const chat of chats) {
+                    const userSnap = await get(ref(database, 'users/' + chat.otherUserId));
+                    const userData = userSnap.exists() ? userSnap.val() : { fullName: 'مستخدم', username: 'user' };
+                    
+                    const messagesRef = ref(database, `chats/${chat.chatId}/messages`);
+                    const lastMsgQuery = query(messagesRef, orderByChild('timestamp'), limitToLast(1));
+                    const lastMsgSnap = await get(lastMsgQuery);
+                    let lastMsg = '';
+                    let lastTime = '';
+                    if (lastMsgSnap.exists()) {
+                        lastMsgSnap.forEach((msg) => {
+                            const msgData = msg.val();
+                            lastMsg = msgData.text;
+                            lastTime = new Date(msgData.timestamp).toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
+                        });
+                    }
+
+                    const initial = (userData.fullName || userData.username).charAt(0).toUpperCase();
+                    html += `
+                        <div class="chat-item" onclick="goToChat('${chat.otherUserId}', '${userData.fullName || userData.username}', '${userData.username}')">
+                            <div class="avatar">${initial}</div>
+                            <div class="details">
+                                <h4>${userData.fullName || userData.username}</h4>
+                                <p>${lastMsg || 'اضغط لبدء المحادثة'}</p>
+                            </div>
+                            <div class="time">${lastTime}</div>
+                        </div>
+                    `;
+                }
+                chatListDiv.innerHTML = html;
+            });
+        }
+
+        // تحميل الجهات (جميع المستخدمين عدا الحالي)
+        function loadContacts() {
+            const usersRef = ref(database, 'users');
+            onValue(usersRef, (snapshot) => {
+                contactsListDiv.innerHTML = '<div class="loading">جاري تحميل الجهات...</div>';
+                let html = '';
+                snapshot.forEach((childSnapshot) => {
+                    const uid = childSnapshot.key;
+                    if (uid === currentUserId) return;
+                    const userData = childSnapshot.val();
+                    const initial = (userData.fullName || userData.username).charAt(0).toUpperCase();
+                    html += `
+                        <div class="contact-item" onclick="goToChat('${uid}', '${userData.fullName || userData.username}', '${userData.username}')">
+                            <div class="avatar">${initial}</div>
+                            <div class="details">
+                                <h4>${userData.fullName || userData.username}</h4>
+                                <p>@${userData.username}</p>
+                            </div>
+                        </div>
+                    `;
+                });
+                if (html === '') {
+                    contactsListDiv.innerHTML = '<div style="text-align:center; padding:2rem;">لا يوجد جهات بعد</div>';
+                } else {
+                    contactsListDiv.innerHTML = html;
                 }
             });
         }
 
-        if (chats.length === 0) {
-            chatListDiv.innerHTML = '<div style="text-align:center; padding:2rem;">لا توجد محادثات بعد</div>';
-            return;
+        // تحميل الملف الشخصي
+        function loadProfile() {
+            if (!currentUserData) return;
+            const name = currentUserData.fullName || currentUserData.username || 'مستخدم';
+            const initials = name.length >= 2 ? name.substring(0, 2) : name.charAt(0);
+            profileCardDiv.innerHTML = `
+                <div class="profile-avatar">${initials}</div>
+                <div class="profile-name">${currentUserData.fullName || ''}</div>
+                <div class="profile-username">@${currentUserData.username || ''}</div>
+                <div class="profile-email">${currentUserData.email || ''}</div>
+                <button class="btn btn-danger" onclick="logout()">تسجيل خروج</button>
+            `;
         }
 
-        let html = '';
-        for (const chat of chats) {
-            const userSnap = await get(ref(database, 'users/' + chat.otherUserId));
-            const userData = userSnap.exists() ? userSnap.val() : { fullName: 'مستخدم', username: 'user' };
-            
-            const messagesRef = ref(database, `chats/${chat.chatId}/messages`);
-            const lastMsgQuery = query(messagesRef, orderByChild('timestamp'), limitToLast(1));
-            const lastMsgSnap = await get(lastMsgQuery);
-            let lastMsg = '';
-            let lastTime = '';
-            if (lastMsgSnap.exists()) {
-                lastMsgSnap.forEach((msg) => {
-                    const msgData = msg.val();
-                    lastMsg = msgData.text;
-                    lastTime = new Date(msgData.timestamp).toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
+        // دالة إنشاء المحادثة إذا لم تكن موجودة
+        async function ensureChatExists(otherUserId) {
+            const ids = [currentUserId, otherUserId].sort();
+            const chatId = `${ids[0]}_${ids[1]}`;
+            const chatRef = ref(database, `chats/${chatId}`);
+            const snapshot = await get(chatRef);
+            if (!snapshot.exists()) {
+                // إنشاء المحادثة مع بيانات أساسية
+                await set(chatRef, {
+                    participants: [currentUserId, otherUserId],
+                    createdAt: Date.now()
                 });
+                // إنشاء عقدة الرسائل (فارغة)
+                await set(ref(database, `chats/${chatId}/messages`), null);
+                console.log('تم إنشاء محادثة جديدة:', chatId);
             }
-
-            const initial = (userData.fullName || userData.username).charAt(0).toUpperCase();
-            html += `
-                <div class="chat-item" onclick="goToChat('${chat.otherUserId}', '${userData.fullName || userData.username}', '${userData.username}')">
-                    <div class="avatar">${initial}</div>
-                    <div class="details">
-                        <h4>${userData.fullName || userData.username}</h4>
-                        <p>${lastMsg || 'اضغط لبدء المحادثة'}</p>
-                    </div>
-                    <div class="time">${lastTime}</div>
-                </div>
-            `;
+            return chatId;
         }
-        chatListDiv.innerHTML = html;
-    });
-}
 
-// تحميل الجهات
-function loadContacts() {
-    const usersRef = ref(database, 'users');
-    onValue(usersRef, (snapshot) => {
-        let html = '';
-        snapshot.forEach((childSnapshot) => {
-            const uid = childSnapshot.key;
-            if (uid === currentUserId) return;
-            const userData = childSnapshot.val();
-            const initial = (userData.fullName || userData.username).charAt(0).toUpperCase();
-            html += `
-                <div class="contact-item" onclick="goToChat('${uid}', '${userData.fullName || userData.username}', '${userData.username}')">
-                    <div class="avatar">${initial}</div>
-                    <div class="details">
-                        <h4>${userData.fullName || userData.username}</h4>
-                        <p>@${userData.username}</p>
-                    </div>
-                </div>
-            `;
-        });
-        if (html === '') {
-            contactsListDiv.innerHTML = '<div style="text-align:center; padding:2rem;">لا يوجد جهات بعد</div>';
-        } else {
-            contactsListDiv.innerHTML = html;
-        }
-    });
-}
-
-// تحميل الملف الشخصي
-function loadProfile() {
-    if (!currentUserData) return;
-    const name = currentUserData.fullName || currentUserData.username || 'مستخدم';
-    const initials = name.length >= 2 ? name.substring(0, 2) : name.charAt(0);
-    profileCardDiv.innerHTML = `
-        <div class="profile-avatar">${initials}</div>
-        <div class="profile-name">${currentUserData.fullName || ''}</div>
-        <div class="profile-username">@${currentUserData.username || ''}</div>
-        <div class="profile-email">${currentUserData.email || ''}</div>
-        <button class="btn btn-danger" onclick="logout()">تسجيل خروج</button>
-    `;
-    }
-            // دالة الذهاب إلى المحادثة (مع تحسين)
-        window.goToChat = function(uid, name, username) {
-            console.log('محاولة فتح محادثة:', { uid, name, username });
+        // دالة الذهاب إلى المحادثة (مع إنشاء المحادثة أولاً)
+        window.goToChat = async function(uid, name, username) {
             if (!uid) {
-                console.error('uid غير موجود');
                 alert('بيانات المستخدم غير صحيحة');
                 return;
             }
-            // التأكد من أن name و username موجودان
-            const safeName = name || 'مستخدم';
-            const safeUsername = username || 'user';
-            const url = `chat.html?uid=${uid}&name=${encodeURIComponent(safeName)}&username=${encodeURIComponent(safeUsername)}`;
-            console.log('التوجيه إلى:', url);
-            window.location.href = url;
+            try {
+                await ensureChatExists(uid);
+                window.location.href = `chat.html?uid=${uid}&name=${encodeURIComponent(name)}&username=${username}`;
+            } catch (error) {
+                console.error('خطأ في إنشاء المحادثة:', error);
+                alert('حدث خطأ في فتح المحادثة');
+            }
         };
 
         // دالة البحث عن المستخدمين (مُحسّنة)
