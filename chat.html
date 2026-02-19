@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -18,7 +17,6 @@
             display: flex;
             flex-direction: column;
         }
-        /* الشريط العلوي */
         .header {
             background: #2A6B9C;
             color: white;
@@ -60,7 +58,6 @@
             font-size: 0.85rem;
             opacity: 0.9;
         }
-        /* منطقة الرسائل */
         .messages-area {
             flex: 1;
             padding: 1rem;
@@ -101,7 +98,6 @@
         .message.received .time {
             color: #7f8fa4;
         }
-        /* منطقة إدخال الرسالة */
         .input-area {
             background: white;
             padding: 1rem;
@@ -147,10 +143,9 @@
     </style>
 </head>
 <body>
-    <!-- الشريط العلوي -->
-    <div class="header" id="header">
+    <div class="header">
         <button class="back-btn" onclick="goBack()">←</button>
-        <div class="user-info" id="userInfo">
+        <div class="user-info">
             <div class="avatar" id="avatar">...</div>
             <div class="details">
                 <h3 id="userName">جاري التحميل...</h3>
@@ -159,24 +154,32 @@
         </div>
     </div>
 
-    <!-- منطقة الرسائل -->
     <div class="messages-area" id="messagesArea">
         <div class="loading" id="loadingMessages">جاري تحميل المحادثة...</div>
     </div>
 
-    <!-- منطقة إدخال الرسالة (تظهر فقط بعد تحميل البيانات) -->
     <div class="input-area" id="inputArea" style="display: none;">
         <input type="text" id="messageInput" placeholder="اكتب رسالة..." onkeypress="if(event.key==='Enter') sendMessage()">
         <button onclick="sendMessage()">إرسال</button>
     </div>
 
-    <!-- Firebase SDK -->
+    <!-- Firebase SDK (النسخة الحديثة) -->
     <script type="module">
+        // استيراد الدوال المطلوبة من Firebase
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { getDatabase, ref, get, push, onChildAdded, query, orderByChild } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { 
+            getDatabase, 
+            ref, 
+            get, 
+            push, 
+            set,           // <-- مهم: استيراد set
+            onChildAdded, 
+            query, 
+            orderByChild 
+        } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-        // 🔥 استبدل بمفاتيح مشروعك
+        // 🔥 إعدادات Firebase - استبدلها بمفاتيحك
         const firebaseConfig = {
             apiKey: "AIzaSyDRCtfuYrEdnuKUsWu_79NC6G_xGLznBJc",
             authDomain: "tttrt-b8c5a.firebaseapp.com",
@@ -191,7 +194,7 @@
         const auth = getAuth(app);
         const database = getDatabase(app);
 
-        // الحصول على userId من الرابط
+        // استخراج بيانات المستخدم الآخر من الرابط
         const urlParams = new URLSearchParams(window.location.search);
         const otherUserId = urlParams.get('uid');
         const otherUserName = urlParams.get('name');
@@ -209,14 +212,14 @@
         let currentUserId = null;
         let chatId = null;
 
-        // التحقق من المصادقة
+        // مراقبة حالة تسجيل الدخول
         onAuthStateChanged(auth, async (user) => {
             if (!user) {
                 window.location.href = 'index.html';
                 return;
             }
             currentUserId = user.uid;
-            
+
             if (!otherUserId) {
                 alert('لم يتم تحديد مستخدم للمحادثة');
                 window.location.href = 'app.html';
@@ -229,7 +232,6 @@
                 userUsernameEl.textContent = '@' + otherUserUsername;
                 avatarDiv.textContent = otherUserName.charAt(0).toUpperCase();
             } else {
-                // جلب البيانات من Firebase
                 try {
                     const userRef = ref(database, 'users/' + otherUserId);
                     const snapshot = await get(userRef);
@@ -249,7 +251,7 @@
                 }
             }
 
-            // إنشاء chatId فريد للمحادثة بين المستخدمين (مرتب أبجديًا)
+            // إنشاء معرف المحادثة (مرتب أبجديًا)
             const ids = [currentUserId, otherUserId].sort();
             chatId = `${ids[0]}_${ids[1]}`;
             console.log('Chat ID:', chatId);
@@ -257,26 +259,23 @@
             // إظهار منطقة الإدخال
             inputArea.style.display = 'flex';
             
-            // تحميل الرسائل السابقة والاستماع للرسائل الجديدة
+            // تحميل الرسائل
             loadMessages();
         });
 
-        // دالة تحميل الرسائل والاستماع للتحديثات
         function loadMessages() {
             const messagesRef = ref(database, `chats/${chatId}/messages`);
             const messagesQuery = query(messagesRef, orderByChild('timestamp'));
             
-            // إزالة رسالة التحميل
             loadingMessages.style.display = 'none';
             
-            // الاستماع للرسائل الجديدة
+            // الاستماع للرسائل الجديدة والقديمة
             onChildAdded(messagesQuery, (snapshot) => {
                 const message = snapshot.val();
                 displayMessage(message);
             });
         }
 
-        // دالة عرض رسالة واحدة
         function displayMessage(message) {
             const messageDiv = document.createElement('div');
             messageDiv.className = `message ${message.senderId === currentUserId ? 'sent' : 'received'}`;
@@ -292,16 +291,17 @@
             messagesArea.scrollTop = messagesArea.scrollHeight;
         }
 
-        // دالة إرسال رسالة
+        // دالة إرسال رسالة (مصححة)
         window.sendMessage = async function() {
             const text = messageInput.value.trim();
             if (text === '' || !chatId) return;
 
             const messagesRef = ref(database, `chats/${chatId}/messages`);
-            const newMessageRef = push(messagesRef);
+            const newMessageRef = push(messagesRef); // مرجع جديد للرسالة
             
             try {
-                await newMessageRef.set({
+                // ✅ الطريقة الصحيحة: استخدام set(المرجع, البيانات)
+                await set(newMessageRef, {
                     senderId: currentUserId,
                     text: text,
                     timestamp: Date.now(),
@@ -315,7 +315,6 @@
             }
         };
 
-        // العودة إلى الصفحة الرئيسية
         window.goBack = function() {
             window.location.href = 'app.html';
         };
