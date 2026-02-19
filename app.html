@@ -410,7 +410,6 @@
             endAt, 
             get, 
             onValue,
-            set,
             limitToLast
         } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
@@ -571,43 +570,14 @@
             `;
         }
 
-        // دالة إنشاء المحادثة إذا لم تكن موجودة
-        async function ensureChatExists(otherUserId) {
-            const ids = [currentUserId, otherUserId].sort();
-            const chatId = `${ids[0]}_${ids[1]}`;
-            const chatRef = ref(database, `chats/${chatId}`);
-            const snapshot = await get(chatRef);
-            if (!snapshot.exists()) {
-                await set(chatRef, {
-                    participants: [currentUserId, otherUserId],
-                    createdAt: Date.now()
-                });
-                await set(ref(database, `chats/${chatId}/messages`), null);
-                console.log('تم إنشاء محادثة جديدة:', chatId);
-            }
-            return chatId;
-        }
-
-        // دالة الذهاب إلى المحادثة - معرفة على window
-        window.goToChat = async function(uid, name, username) {
-            console.log('محاولة فتح محادثة مع:', uid, name, username);
-            if (!currentUserId) {
-                console.error('المستخدم الحالي غير معرف');
-                return;
-            }
+        // دالة الذهاب إلى المحادثة - مباشرة دون إنشاء
+        window.goToChat = function(uid, name, username) {
+            console.log('فتح محادثة مع:', uid, name, username);
             if (!uid) {
-                console.error('uid المستهدف غير موجود');
+                alert('بيانات المستخدم غير صحيحة');
                 return;
             }
-            try {
-                await ensureChatExists(uid);
-                const url = `chat.html?uid=${uid}&name=${encodeURIComponent(name)}&username=${username}`;
-                console.log('التوجيه إلى:', url);
-                window.location.href = url;
-            } catch (error) {
-                console.error('خطأ في فتح المحادثة:', error);
-                alert('حدث خطأ في فتح المحادثة');
-            }
+            window.location.href = `chat.html?uid=${uid}&name=${encodeURIComponent(name)}&username=${username}`;
         };
 
         // البحث عن المستخدمين
@@ -702,9 +672,6 @@
                 searchResultsEl.classList.remove('show');
             }
         });
-
-        // اختبار بسيط للتأكد من أن دالة goToChat موجودة
-        console.log('تم تحميل الصفحة، goToChat موجودة:', typeof window.goToChat);
     </script>
 </body>
 </html>
