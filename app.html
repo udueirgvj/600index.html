@@ -17,6 +17,7 @@
             display: flex;
             flex-direction: column;
         }
+        /* الشريط العلوي */
         .header {
             background: #2A6B9C;
             color: white;
@@ -36,12 +37,19 @@
             font-size: 1.5rem;
             font-weight: 600;
         }
-        .header .search-icon {
+        .header .add-icon {
+            font-size: 1.8rem;
+            cursor: pointer;
+            width: 40px;
+            text-align: center;
+        }
+        .search-icon {
             font-size: 1.5rem;
             cursor: pointer;
             width: 40px;
             text-align: center;
         }
+        /* شريط البحث */
         .search-bar {
             background: white;
             padding: 0.8rem 1rem;
@@ -64,6 +72,7 @@
             border-color: #2A6B9C;
             box-shadow: 0 0 0 3px rgba(42,107,156,0.1);
         }
+        /* نتائج البحث */
         .search-results {
             background: white;
             max-height: 300px;
@@ -98,6 +107,9 @@
             font-weight: bold;
             font-size: 1.2rem;
         }
+        .bot-avatar {
+            background: #28a745; /* لون أخضر للبوتات */
+        }
         .user-info {
             flex: 1;
         }
@@ -109,6 +121,15 @@
             font-size: 0.85rem;
             color: #7f8fa4;
         }
+        .badge {
+            background: #28a745;
+            color: white;
+            font-size: 0.7rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: 30px;
+            margin-right: 0.5rem;
+        }
+        /* المحتوى الرئيسي */
         .main-content {
             flex: 1;
             overflow-y: auto;
@@ -120,6 +141,7 @@
         .tab-content.active {
             display: block;
         }
+        /* قائمة المحادثات */
         .chat-list {
             display: flex;
             flex-direction: column;
@@ -166,6 +188,7 @@
             font-size: 0.75rem;
             color: #8899aa;
         }
+        /* قائمة الجهات */
         .contacts-list {
             display: flex;
             flex-direction: column;
@@ -203,6 +226,53 @@
             font-size: 0.85rem;
             color: #7f8fa4;
         }
+        /* قائمة البوتات */
+        .bots-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        .bot-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            background: white;
+            padding: 0.8rem 1rem;
+            border-radius: 12px;
+            cursor: pointer;
+            border-right: 4px solid #28a745;
+        }
+        .bot-item .avatar {
+            width: 50px;
+            height: 50px;
+            background: #28a745;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        .bot-item .details {
+            flex: 1;
+        }
+        .bot-item .details h4 {
+            font-size: 1rem;
+            color: #1a2b3e;
+        }
+        .bot-item .details p {
+            font-size: 0.85rem;
+            color: #7f8fa4;
+        }
+        .bot-badge {
+            background: #28a745;
+            color: white;
+            font-size: 0.7rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: 30px;
+        }
+        /* الإعدادات */
         .settings-list {
             background: white;
             border-radius: 12px;
@@ -229,6 +299,7 @@
             font-size: 1rem;
             color: #1a2b3e;
         }
+        /* الملف الشخصي */
         .profile-card {
             background: white;
             border-radius: 16px;
@@ -266,12 +337,15 @@
             border-radius: 30px;
             border: 1px solid #d9e1ec;
         }
+        /* الشريط السفلي - مثبت في الأسفل */
         .bottom-nav {
             background: white;
             display: flex;
             justify-content: space-around;
             padding: 0.5rem 0;
             border-top: 1px solid #eef2f7;
+            width: 100%;
+            flex-shrink: 0; /* يمنع انكماش الشريط */
         }
         .nav-item {
             flex: 1;
@@ -331,12 +405,15 @@
     <div class="header">
         <div class="menu-icon" onclick="toggleMenu()">☰</div>
         <div class="app-title">تواصل</div>
-        <div class="search-icon" onclick="toggleSearch()">🔍</div>
+        <div style="display: flex; gap: 0.5rem;">
+            <div class="add-icon" onclick="createBot()">➕</div>
+            <div class="search-icon" onclick="toggleSearch()">🔍</div>
+        </div>
     </div>
 
     <!-- شريط البحث -->
     <div id="searchBar" class="search-bar">
-        <input type="text" id="searchInput" placeholder="ابحث باسم المستخدم..." oninput="searchUsers()">
+        <input type="text" id="searchInput" placeholder="ابحث عن مستخدم أو بوت..." oninput="searchUsers()">
     </div>
     <div id="searchResults" class="search-results"></div>
 
@@ -352,6 +429,12 @@
         <div id="tab2" class="tab-content">
             <div class="contacts-list" id="contactsList">
                 <div class="loading">جاري تحميل الجهات...</div>
+            </div>
+        </div>
+        <!-- تبويب البوتات -->
+        <div id="tabBots" class="tab-content">
+            <div class="bots-list" id="botsList">
+                <div class="loading">جاري تحميل البوتات...</div>
             </div>
         </div>
         <!-- تبويب الإعدادات -->
@@ -383,28 +466,28 @@
         </div>
     </div>
 
-    <!-- الشريط السفلي مع زر + -->
+    <!-- الشريط السفلي -->
     <div class="bottom-nav">
-        <div class="nav-item" onclick="openCreatePage()">
-            <span>➕</span>
-            <span>إنشاء</span>
-        </div>
-        <div class="nav-item" onclick="switchTab(1)">
+        <a class="nav-item" href="#chats" onclick="switchTabByHash('chats'); return false;">
             <span>💬</span>
             <span>المحادثات</span>
-        </div>
-        <div class="nav-item" onclick="switchTab(2)">
+        </a>
+        <a class="nav-item" href="#contacts" onclick="switchTabByHash('contacts'); return false;">
             <span>📞</span>
-            <span>جهات الاتصال</span>
-        </div>
-        <div class="nav-item" onclick="switchTab(3)">
+            <span>جهات</span>
+        </a>
+        <a class="nav-item" href="#bots" onclick="switchTabByHash('bots'); return false;">
+            <span>🤖</span>
+            <span>البوتات</span>
+        </a>
+        <a class="nav-item" href="#settings" onclick="switchTabByHash('settings'); return false;">
             <span>⚙️</span>
             <span>الإعدادات</span>
-        </div>
-        <div class="nav-item" onclick="switchTab(4)">
+        </a>
+        <a class="nav-item" href="#profile" onclick="switchTabByHash('profile'); return false;">
             <span>👤</span>
-            <span>الملف الشخصي</span>
-        </div>
+            <span>حسابي</span>
+        </a>
     </div>
 
     <!-- Firebase SDK -->
@@ -420,8 +503,11 @@
             endAt, 
             get, 
             onValue,
+            set,
+            push,
             limitToLast,
-            limitToFirst
+            limitToFirst,
+            equalTo
         } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
         const firebaseConfig = {
@@ -444,28 +530,48 @@
         const searchResultsDiv = document.getElementById('searchResults');
         const chatListDiv = document.getElementById('chatList');
         const contactsListDiv = document.getElementById('contactsList');
+        const botsListDiv = document.getElementById('botsList');
         const profileCardDiv = document.getElementById('profileCard');
 
         let currentUserId = null;
         let currentUserData = null;
 
-        // دالة تبديل التبويبات
-        window.switchTab = function(tabNumber) {
+        // دالة تبديل التبويبات بناءً على التجزئة
+        window.switchTabByHash = function(hash) {
+            const tabName = hash.replace('#', '');
+            let tabId = 'tab1'; // افتراضي المحادثات
+            if (tabName === 'contacts') tabId = 'tab2';
+            else if (tabName === 'bots') tabId = 'tabBots';
+            else if (tabName === 'settings') tabId = 'tab3';
+            else if (tabName === 'profile') tabId = 'tab4';
+            
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-            document.getElementById(`tab${tabNumber}`).classList.add('active');
+            document.getElementById(tabId).classList.add('active');
             
             document.querySelectorAll('.nav-item').forEach((el, index) => {
-                if (index + 1 === tabNumber) el.classList.add('active');
-                else el.classList.remove('active');
+                if ((tabName === 'chats' && index === 0) ||
+                    (tabName === 'contacts' && index === 1) ||
+                    (tabName === 'bots' && index === 2) ||
+                    (tabName === 'settings' && index === 3) ||
+                    (tabName === 'profile' && index === 4)) {
+                    el.classList.add('active');
+                } else {
+                    el.classList.remove('active');
+                }
             });
             
-            if (tabNumber === 4 && currentUserData) loadProfile();
+            window.location.hash = tabName;
         };
 
-        // دالة فتح صفحة الإنشاء
-        window.openCreatePage = function() {
-            window.location.href = 'create.html';
-        };
+        // قراءة التجزئة عند تحميل الصفحة
+        function loadTabFromHash() {
+            const hash = window.location.hash.substring(1);
+            if (hash) {
+                switchTabByHash(hash);
+            } else {
+                switchTabByHash('chats');
+            }
+        }
 
         // مراقبة المصادقة
         onAuthStateChanged(auth, async (user) => {
@@ -477,13 +583,9 @@
             await loadCurrentUserData();
             loadChats();
             loadContacts();
+            loadBots();
             loadProfile();
-            // تحديد التبويب الافتراضي من الهاش (إن وجد)
-            const hash = window.location.hash.substring(1);
-            if (hash === 'contacts') switchTab(2);
-            else if (hash === 'settings') switchTab(3);
-            else if (hash === 'profile') switchTab(4);
-            else switchTab(1);
+            loadTabFromHash();
         });
 
         // تحميل بيانات المستخدم الحالي
@@ -549,15 +651,16 @@
             });
         }
 
-        // تحميل الجهات
+        // تحميل الجهات (جميع المستخدمين عدا الحالي)
         function loadContacts() {
             const usersRef = ref(database, 'users');
             onValue(usersRef, (snapshot) => {
                 let html = '';
                 snapshot.forEach((childSnapshot) => {
                     const uid = childSnapshot.key;
-                    if (uid === currentUserId) return;
                     const userData = childSnapshot.val();
+                    if (uid === currentUserId || userData.isBot) return; // استبعاد البوتات والمستخدم الحالي
+                    
                     const initial = (userData.fullName || userData.username).charAt(0).toUpperCase();
                     html += `
                         <div class="contact-item" onclick="goToChat('${uid}', '${userData.fullName || userData.username}', '${userData.username}')">
@@ -577,6 +680,36 @@
             });
         }
 
+        // تحميل البوتات
+        function loadBots() {
+            const usersRef = ref(database, 'users');
+            const botsQuery = query(usersRef, orderByChild('isBot'), equalTo(true));
+            onValue(botsQuery, (snapshot) => {
+                let html = '';
+                snapshot.forEach((childSnapshot) => {
+                    const uid = childSnapshot.key;
+                    const userData = childSnapshot.val();
+                    if (uid === currentUserId) return;
+                    
+                    const initial = (userData.fullName || userData.username).charAt(0).toUpperCase();
+                    html += `
+                        <div class="bot-item" onclick="goToChat('${uid}', '${userData.fullName || userData.username}', '${userData.username}')">
+                            <div class="avatar">${initial}</div>
+                            <div class="details">
+                                <h4>${userData.fullName || userData.username} <span class="bot-badge">بوت</span></h4>
+                                <p>@${userData.username}</p>
+                            </div>
+                        </div>
+                    `;
+                });
+                if (html === '') {
+                    botsListDiv.innerHTML = '<div style="text-align:center; padding:2rem;">لا توجد بوتات بعد</div>';
+                } else {
+                    botsListDiv.innerHTML = html;
+                }
+            });
+        }
+
         // تحميل الملف الشخصي
         function loadProfile() {
             if (!currentUserData) return;
@@ -591,6 +724,41 @@
             `;
         }
 
+        // دالة إنشاء بوت جديد
+        window.createBot = async function() {
+            const botName = prompt('أدخل اسم البوت:');
+            if (!botName) return;
+            
+            const botUsername = prompt('أدخل اسم المستخدم للبوت (يجب أن يكون فريداً):');
+            if (!botUsername) return;
+            
+            try {
+                // التحقق من أن اسم المستخدم غير مستخدم
+                const usersRef = ref(database, 'users');
+                const usernameQuery = query(usersRef, orderByChild('username'), equalTo(botUsername));
+                const snapshot = await get(usernameQuery);
+                if (snapshot.exists()) {
+                    alert('اسم المستخدم موجود بالفعل، اختر اسماً آخر');
+                    return;
+                }
+                
+                // إنشاء البوت في قاعدة البيانات
+                const newBotRef = push(ref(database, 'users'));
+                await set(newBotRef, {
+                    fullName: botName,
+                    username: botUsername,
+                    isBot: true,
+                    createdAt: Date.now(),
+                    createdBy: currentUserId
+                });
+                
+                alert('تم إنشاء البوت بنجاح!');
+            } catch (error) {
+                console.error(error);
+                alert('حدث خطأ في إنشاء البوت');
+            }
+        };
+
         // دالة الذهاب إلى المحادثة
         window.goToChat = function(uid, name, username) {
             if (!uid) {
@@ -600,7 +768,7 @@
             window.location.href = `chat.html?uid=${uid}&name=${encodeURIComponent(name)}&username=${username}`;
         };
 
-        // دالة البحث عن المستخدمين
+        // دالة البحث عن المستخدمين (مع دعم البوتات)
         window.searchUsers = async function() {
             const searchText = searchInput.value.trim();
             if (searchText.length < 1) {
@@ -625,12 +793,14 @@
                         if (uid === currentUserId) return;
                         
                         const initial = (userData.fullName || userData.username).charAt(0).toUpperCase();
+                        const isBot = userData.isBot ? '<span class="badge">بوت</span>' : '';
+                        const avatarClass = isBot ? 'user-avatar bot-avatar' : 'user-avatar';
                         
                         results += `
                             <div class="user-item" onclick="goToChat('${uid}', '${userData.fullName || userData.username}', '${userData.username}')">
-                                <div class="user-avatar">${initial}</div>
+                                <div class="${avatarClass}">${initial}</div>
                                 <div class="user-info">
-                                    <h4>${userData.fullName || userData.username}</h4>
+                                    <h4>${userData.fullName || userData.username} ${isBot}</h4>
                                     <p>@${userData.username}</p>
                                 </div>
                             </div>
@@ -671,10 +841,10 @@
         // تحديث عند العودة للصفحة
         window.addEventListener('pageshow', function(event) {
             if (event.persisted) {
-                console.log('تم العودة إلى الصفحة من الكاش');
                 if (currentUserId) {
                     loadChats();
                     loadContacts();
+                    loadBots();
                     loadProfile();
                 }
             }
