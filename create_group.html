@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تواصل - إنشاء مجموعة</title>
+    <style>
+        /* نفس التصميم السابق */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        body {
+            background: #f0f2f5;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .header {
+            background: #2A6B9C;
+            color: white;
+            padding: 0.8rem 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .back-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.8rem;
+            cursor: pointer;
+            line-height: 1;
+        }
+        .header h2 {
+            font-size: 1.3rem;
+        }
+        .content {
+            flex: 1;
+            padding: 1rem;
+        }
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        label {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #4b5f73;
+            margin-bottom: 0.3rem;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border: 1px solid #d9e1ec;
+            border-radius: 12px;
+            background: #f9fcff;
+            font-size: 1rem;
+            outline: none;
+        }
+        input:focus, select:focus, textarea:focus {
+            border-color: #2A6B9C;
+            box-shadow: 0 0 0 3px rgba(42,107,156,0.1);
+        }
+        .radio-group {
+            display: flex;
+            gap: 2rem;
+            margin-top: 0.5rem;
+        }
+        .radio-group label {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: normal;
+            color: #1a2b3e;
+        }
+        .btn {
+            background: #2A6B9C;
+            color: white;
+            border: none;
+            border-radius: 30px;
+            padding: 0.8rem 2rem;
+            font-size: 1rem;
+            cursor: pointer;
+            width: 100%;
+        }
+        .btn:hover {
+            background: #1f4e7a;
+        }
+        .message {
+            padding: 0.8rem;
+            border-radius: 10px;
+            margin-top: 1rem;
+            text-align: center;
+            display: none;
+        }
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            display: block;
+        }
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <button class="back-btn" onclick="goBack()">←</button>
+        <h2>إنشاء مجموعة جديدة</h2>
+    </div>
+
+    <div class="content">
+        <form id="groupForm">
+            <div class="form-group">
+                <label>اسم المجموعة</label>
+                <input type="text" id="groupName" placeholder="أدخل اسم المجموعة" required>
+            </div>
+            <div class="form-group">
+                <label>الوصف (اختياري)</label>
+                <textarea id="groupDescription" rows="3" placeholder="وصف المجموعة"></textarea>
+            </div>
+            <div class="form-group">
+                <label>نوع المجموعة</label>
+                <div class="radio-group">
+                    <label>
+                        <input type="radio" name="groupType" value="public" checked> عامة (أي شخص يمكنه الانضمام)
+                    </label>
+                    <label>
+                        <input type="radio" name="groupType" value="private"> خاصة (باستخدام رابط الدعوة)
+                    </label>
+                </div>
+            </div>
+            <button type="submit" class="btn">إنشاء المجموعة</button>
+            <div id="message" class="message"></div>
+        </form>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getDatabase, ref, push, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDRCtfuYrEdnuKUsWu_79NC6G_xGLznBJc",
+            authDomain: "tttrt-b8c5a.firebaseapp.com",
+            databaseURL: "https://tttrt-b8c5a-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "tttrt-b8c5a",
+            storageBucket: "tttrt-b8c5a.firebasestorage.app",
+            messagingSenderId: "975123752593",
+            appId: "1:975123752593:web:e591e930af3a3e29568130"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const database = getDatabase(app);
+
+        let currentUserId = null;
+
+        onAuthStateChanged(auth, (user) => {
+            if (!user) {
+                window.location.href = 'index.html';
+                return;
+            }
+            currentUserId = user.uid;
+        });
+
+        window.goBack = function() {
+            window.location.href = 'create.html';
+        };
+
+        document.getElementById('groupForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('groupName').value.trim();
+            const description = document.getElementById('groupDescription').value.trim();
+            const type = document.querySelector('input[name="groupType"]:checked').value;
+
+            if (!name) {
+                showMessage('الرجاء إدخال اسم المجموعة', false);
+                return;
+            }
+
+            try {
+                const groupsRef = ref(database, 'groups');
+                const newGroupRef = push(groupsRef);
+                // إنشاء رابط دعوة للمجموعات الخاصة
+                const inviteLink = type === 'private' ? generateInviteCode() : null;
+                await set(newGroupRef, {
+                    name: name,
+                    description: description,
+                    type: type,
+                    createdBy: currentUserId,
+                    createdAt: Date.now(),
+                    members: [currentUserId],
+                    inviteLink: inviteLink
+                });
+                showMessage('تم إنشاء المجموعة بنجاح!', true);
+                setTimeout(() => {
+                    window.location.href = 'app.html#chats';
+                }, 1500);
+            } catch (error) {
+                showMessage('خطأ: ' + error.message, false);
+            }
+        });
+
+        function generateInviteCode() {
+            return 'group_' + Math.random().toString(36).substring(2, 10);
+        }
+
+        function showMessage(msg, isSuccess) {
+            const msgDiv = document.getElementById('message');
+            msgDiv.textContent = msg;
+            msgDiv.className = isSuccess ? 'message success' : 'message error';
+        }
+    </script>
+</body>
+</html>
