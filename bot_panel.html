@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تواصل - لوحة البوت</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        body {
+            background: #f0f2f5;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .header {
+            background: #2A6B9C;
+            color: white;
+            padding: 0.8rem 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .back-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.8rem;
+            cursor: pointer;
+            line-height: 1;
+        }
+        .header h2 {
+            font-size: 1.3rem;
+        }
+        .content {
+            flex: 1;
+            padding: 1rem;
+        }
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .card h3 {
+            color: #1a2b3e;
+            margin-bottom: 1rem;
+        }
+        .info-item {
+            margin-bottom: 0.5rem;
+        }
+        .info-item strong {
+            color: #2A6B9C;
+            width: 100px;
+            display: inline-block;
+        }
+        .token-box {
+            background: #f9fcff;
+            border: 1px solid #d9e1ec;
+            border-radius: 12px;
+            padding: 0.8rem;
+            direction: ltr;
+            font-family: monospace;
+            word-break: break-all;
+            margin: 1rem 0;
+        }
+        .btn {
+            background: #2A6B9C;
+            color: white;
+            border: none;
+            border-radius: 30px;
+            padding: 0.8rem 2rem;
+            font-size: 1rem;
+            cursor: pointer;
+            width: 100%;
+        }
+        .btn:hover {
+            background: #1f4e7a;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <button class="back-btn" onclick="goBack()">←</button>
+        <h2>لوحة البوت</h2>
+    </div>
+
+    <div class="content">
+        <div class="card">
+            <h3>معلومات البوت</h3>
+            <div class="info-item"><strong>الاسم:</strong> <span id="botName"></span></div>
+            <div class="info-item"><strong>اسم المستخدم:</strong> <span id="botUsername"></span></div>
+            <div class="info-item"><strong>النوع:</strong> <span id="botType"></span></div>
+            <div class="info-item"><strong>التاريخ:</strong> <span id="botDate"></span></div>
+        </div>
+
+        <div class="card">
+            <h3>التوكن</h3>
+            <div class="token-box" id="botToken"></div>
+            <p style="font-size: 0.85rem; color: #dc3545;">⚠️ احتفظ بهذا التوكن ولا تشاركه مع أحد.</p>
+        </div>
+
+        <button class="btn" onclick="startBot()">بدء البوت</button>
+        <button class="btn" onclick="location.href='app.html'" style="margin-top: 0.5rem; background: #6c757d;">العودة للرئيسية</button>
+    </div>
+
+    <script>
+        // عرض البيانات المخزنة
+        document.getElementById('botName').textContent = sessionStorage.getItem('botName') || 'غير محدد';
+        document.getElementById('botUsername').textContent = sessionStorage.getItem('botUsername') || 'غير محدد';
+        document.getElementById('botType').textContent = sessionStorage.getItem('botType') || 'غير محدد';
+        document.getElementById('botToken').textContent = sessionStorage.getItem('botToken') || 'غير محدد';
+        document.getElementById('botDate').textContent = new Date().toLocaleDateString('ar-EG');
+
+        window.goBack = function() {
+            window.location.href = 'bot_verification.html';
+        };
+
+        window.startBot = function() {
+            alert('تم بدء البوت! يمكنك الآن التفاعل معه عبر البحث عن @' + sessionStorage.getItem('botUsername'));
+            // يمكن توجيه المستخدم إلى صفحة محادثة مع البوت
+            // window.location.href = 'chat.html?uid=' + botId;
+        };
+    </script>
+</body>
+</html>
