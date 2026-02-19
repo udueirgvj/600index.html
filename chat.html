@@ -75,6 +75,7 @@
             border-radius: 18px;
             margin-bottom: 0.3rem;
             word-wrap: break-word;
+            position: relative;
         }
         .message.received {
             background: white;
@@ -86,6 +87,18 @@
             color: white;
             align-self: flex-end;
             border-top-left-radius: 5px;
+        }
+        .message .time {
+            font-size: 0.65rem;
+            opacity: 0.7;
+            margin-top: 0.2rem;
+            text-align: left;
+        }
+        .message.sent .time {
+            color: rgba(255,255,255,0.8);
+        }
+        .message.received .time {
+            color: #7f8fa4;
         }
         /* منطقة إدخال الرسالة */
         .input-area {
@@ -147,7 +160,6 @@
 
     <!-- منطقة الرسائل -->
     <div class="messages-area" id="messagesArea">
-        <!-- الرسائل ستظهر هنا ديناميكياً -->
         <div class="loading" id="loadingMessages">جاري تحميل المحادثة...</div>
     </div>
 
@@ -161,7 +173,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { getDatabase, ref, get, push, onChildAdded, query, orderByChild, limitToLast } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
         // 🔥 استبدل بمفاتيح مشروعك
         const firebaseConfig = {
@@ -178,7 +190,7 @@
         const auth = getAuth(app);
         const database = getDatabase(app);
 
-        // الحصول على userId من الرابط (query parameter)
+        // الحصول على userId من الرابط
         const urlParams = new URLSearchParams(window.location.search);
         const otherUserId = urlParams.get('uid');
         const otherUserName = urlParams.get('name');
@@ -191,9 +203,10 @@
         const messagesArea = document.getElementById('messagesArea');
         const inputArea = document.getElementById('inputArea');
         const loadingMessages = document.getElementById('loadingMessages');
+        const messageInput = document.getElementById('messageInput');
 
         let currentUserId = null;
-        let currentUserData = null;
+        let chatId = null;
 
         // التحقق من المصادقة
         onAuthStateChanged(auth, async (user) => {
@@ -203,24 +216,19 @@
             }
             currentUserId = user.uid;
             
-            // إذا لم يتم تمرير userId في الرابط، نعود للصفحة الرئيسية
             if (!otherUserId) {
                 alert('لم يتم تحديد مستخدم للمحادثة');
                 window.location.href = 'app.html';
                 return;
             }
 
-            // تحميل بيانات المستخدم الآخر (إذا لم تكن موجودة في الرابط)
+            // عرض بيانات المستخدم الآخر
             if (otherUserName && otherUserUsername) {
-                // استخدم البيانات المرسلة عبر الرابط
                 userNameEl.textContent = otherUserName;
                 userUsernameEl.textContent = '@' + otherUserUsername;
                 avatarDiv.textContent = otherUserName.charAt(0).toUpperCase();
-                inputArea.style.display = 'flex';
-                loadingMessages.style.display = 'none';
-                // يمكنك هنا تحميل الرسائل من قاعدة البيانات
             } else {
-                // جلب البيانات من Firebase باستخدام otherUserId
+                // جلب البيانات من Firebase
                 try {
                     const userRef = ref(database, 'users/' + otherUserId);
                     const snapshot = await get(userRef);
@@ -229,41 +237,84 @@
                         userNameEl.textContent = userData.fullName || userData.username;
                         userUsernameEl.textContent = '@' + userData.username;
                         avatarDiv.textContent = (userData.fullName || userData.username).charAt(0).toUpperCase();
-                        inputArea.style.display = 'flex';
-                        loadingMessages.style.display = 'none';
                     } else {
                         messagesArea.innerHTML = '<div class="error">المستخدم غير موجود</div>';
+                        return;
                     }
                 } catch (error) {
                     console.error(error);
                     messagesArea.innerHTML = '<div class="error">حدث خطأ في تحميل البيانات</div>';
+                    return;
                 }
             }
+
+            // إنشاء chatId فريد للمحادثة بين المستخدمين (مرتب أبجديًا)
+            const ids = [currentUserId, otherUserId].sort();
+            chatId = `${ids[0]}_${ids[1]}`;
+
+            // إظهار منطقة الإدخال
+            inputArea.style.display = 'flex';
+            
+            // تحميل الرسائل السابقة والاستماع للرسائل الجديدة
+            loadMessages();
         });
 
-        // العودة إلى الصفحة السابقة
+        // دالة تحميل الرسائل والاستماع للتحديثات
+        function loadMessages() {
+            const messagesRef = ref(database, `chats/${chatId}/messages`);
+            // ترتيب حسب الوقت تصاعديًا
+            const messagesQuery = query(messagesRef, orderByChild('timestamp'));
+            
+            // إزالة رسالة التحميل
+            loadingMessages.style.display = 'none';
+            
+            // الاستماع للرسائل الجديدة (بما في ذلك القديمة عند التحميل الأول)
+            onChildAdded(messagesQuery, (snapshot) => {
+                const message = snapshot.val();
+                displayMessage(message);
+            });
+        }
+
+        // دالة عرض رسالة واحدة في الواجهة
+        function displayMessage(message) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${message.senderId === currentUserId ? 'sent' : 'received'}`;
+            
+            // تنسيق الوقت
+            const time = new Date(message.timestamp).toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
+            
+            messageDiv.innerHTML = `
+                <div class="text">${message.text}</div>
+                <div class="time">${time}</div>
+            `;
+            
+            messagesArea.appendChild(messageDiv);
+            // تمرير تلقائي إلى آخر رسالة
+            messagesArea.scrollTop = messagesArea.scrollHeight;
+        }
+
+        // دالة إرسال رسالة
+        window.sendMessage = async function() {
+            const text = messageInput.value.trim();
+            if (text === '' || !chatId) return;
+
+            const messagesRef = ref(database, `chats/${chatId}/messages`);
+            const newMessageRef = push(messagesRef);
+            
+            await newMessageRef.set({
+                senderId: currentUserId,
+                text: text,
+                timestamp: Date.now(),
+                type: 'text'
+            });
+
+            messageInput.value = '';
+        };
+
+        // العودة إلى الصفحة الرئيسية
         window.goBack = function() {
             window.location.href = 'app.html';
         };
-
-        // إرسال رسالة (وهمية حالياً)
-        window.sendMessage = function() {
-            const input = document.getElementById('messageInput');
-            const text = input.value.trim();
-            if (text === '') return;
-
-            // إضافة الرسالة إلى منطقة الرسائل
-            const messageDiv = document.createElement('div');
-            messageDiv.className = 'message sent';
-            messageDiv.textContent = text;
-            messagesArea.appendChild(messageDiv);
-            input.value = '';
-            messagesArea.scrollTop = messagesArea.scrollHeight;
-
-            // هنا يمكنك حفظ الرسالة في قاعدة البيانات لاحقاً
-        };
-
-        // يمكن إضافة وظيفة لاستقبال الرسائل الحقيقية لاحقاً
     </script>
 </body>
 </html>
