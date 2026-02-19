@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>تواصل - الرئيسية</title>
     <style>
-        /* نفس التصميم السابق - ثابت */
         * {
             margin: 0;
             padding: 0;
@@ -283,6 +282,7 @@
             cursor: pointer;
             color: #8899aa;
             transition: color 0.2s;
+            text-decoration: none;
         }
         .nav-item.active {
             color: #2A6B9C;
@@ -343,7 +343,7 @@
     <!-- المحتوى الرئيسي -->
     <div class="main-content" id="mainContent">
         <!-- تبويب المحادثات -->
-        <div id="tab1" class="tab-content active">
+        <div id="tab1" class="tab-content">
             <div class="chat-list" id="chatList">
                 <div class="loading">جاري تحميل المحادثات...</div>
             </div>
@@ -383,9 +383,13 @@
         </div>
     </div>
 
-    <!-- الشريط السفلي -->
+    <!-- الشريط السفلي مع زر + -->
     <div class="bottom-nav">
-        <div class="nav-item active" onclick="switchTab(1)">
+        <div class="nav-item" onclick="openCreatePage()">
+            <span>➕</span>
+            <span>إنشاء</span>
+        </div>
+        <div class="nav-item" onclick="switchTab(1)">
             <span>💬</span>
             <span>المحادثات</span>
         </div>
@@ -444,7 +448,6 @@
 
         let currentUserId = null;
         let currentUserData = null;
-        let currentTab = 1;
 
         // دالة تبديل التبويبات
         window.switchTab = function(tabNumber) {
@@ -456,8 +459,12 @@
                 else el.classList.remove('active');
             });
             
-            currentTab = tabNumber;
             if (tabNumber === 4 && currentUserData) loadProfile();
+        };
+
+        // دالة فتح صفحة الإنشاء
+        window.openCreatePage = function() {
+            window.location.href = 'create.html';
         };
 
         // مراقبة المصادقة
@@ -471,6 +478,12 @@
             loadChats();
             loadContacts();
             loadProfile();
+            // تحديد التبويب الافتراضي من الهاش (إن وجد)
+            const hash = window.location.hash.substring(1);
+            if (hash === 'contacts') switchTab(2);
+            else if (hash === 'settings') switchTab(3);
+            else if (hash === 'profile') switchTab(4);
+            else switchTab(1);
         });
 
         // تحميل بيانات المستخدم الحالي
@@ -578,7 +591,7 @@
             `;
         }
 
-        // دالة الذهاب إلى المحادثة (بدون إنشاء فوري)
+        // دالة الذهاب إلى المحادثة
         window.goToChat = function(uid, name, username) {
             if (!uid) {
                 alert('بيانات المستخدم غير صحيحة');
@@ -587,7 +600,7 @@
             window.location.href = `chat.html?uid=${uid}&name=${encodeURIComponent(name)}&username=${username}`;
         };
 
-        // دالة البحث عن المستخدمين (مُحسّنة)
+        // دالة البحث عن المستخدمين
         window.searchUsers = async function() {
             const searchText = searchInput.value.trim();
             if (searchText.length < 1) {
