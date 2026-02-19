@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>تواصل - إنشاء جديد</title>
     <style>
+        /* نفس التصميم السابق مع تحسينات */
         * {
             margin: 0;
             padding: 0;
@@ -89,7 +90,7 @@
     </div>
 
     <div class="content">
-        <div class="option-card" onclick="createChannel()">
+        <div class="option-card" onclick="location.href='create_channel.html'">
             <div class="icon">📢</div>
             <div class="text">
                 <h3>قناة</h3>
@@ -97,7 +98,7 @@
             </div>
         </div>
 
-        <div class="option-card" onclick="createGroup()">
+        <div class="option-card" onclick="location.href='create_group.html'">
             <div class="icon">👥</div>
             <div class="text">
                 <h3>مجموعة</h3>
@@ -105,7 +106,7 @@
             </div>
         </div>
 
-        <div class="option-card" onclick="createBot()">
+        <div class="option-card" onclick="location.href='create_bot.html'">
             <div class="icon">🤖</div>
             <div class="text">
                 <h3>بوت</h3>
@@ -116,7 +117,7 @@
         <div class="info">
             <p>🔹 القناة: يمكنك نشر المحتوى والمشتركين يرونه فقط.</p>
             <p>🔹 المجموعة: يمكن للأعضاء المشاركة بالكتابة (خاص أو عام).</p>
-            <p>🔹 البوت: يتطلب توثيقاً عبر بوت الموثق @MSMBOT (قيد التطوير).</p>
+            <p>🔹 البوت: يتطلب توثيقاً عبر بوت الموثق (محاكاة).</p>
         </div>
     </div>
 
@@ -146,19 +147,6 @@
 
         window.goBack = function() {
             window.location.href = 'app.html';
-        };
-
-        // هذه الدوال يمكن تطويرها لاحقاً
-        window.createChannel = function() {
-            alert('إنشاء قناة - قيد التطوير');
-        };
-        window.createGroup = function() {
-            alert('إنشاء مجموعة - قيد التطوير');
-        };
-        window.createBot = function() {
-            alert('إنشاء بوت - يتطلب التواصل مع @MSMBOT');
-            // يمكن فتح صفحة بوت الموثق
-            window.location.href = 'https://t.me/MSMBOT'; // رابط وهمي
         };
     </script>
 </body>
