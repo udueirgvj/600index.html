@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>تواصل - الرئيسية</title>
     <style>
-        /* نفس التصميم السابق - ثابت */
+        /* نفس التصميم السابق مع بعض الإضافات */
         * {
             margin: 0;
             padding: 0;
@@ -318,6 +318,12 @@
             padding: 2rem;
             color: #dc3545;
         }
+        .small-loading {
+            text-align: center;
+            padding: 0.5rem;
+            color: #8899aa;
+            font-size: 0.85rem;
+        }
     </style>
 </head>
 <body>
@@ -410,7 +416,8 @@
             endAt, 
             get, 
             onValue,
-            limitToLast
+            limitToLast,
+            limitToFirst
         } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
         const firebaseConfig = {
@@ -438,6 +445,7 @@
         let currentUserId = null;
         let currentUserData = null;
         let currentTab = 1;
+        let unsubscribeChats = null; // لإلغاء الاستماع عند الحاجة
 
         // دالة تبديل التبويبات
         window.switchTab = function(tabNumber) {
@@ -461,9 +469,9 @@
             }
             currentUserId = user.uid;
             await loadCurrentUserData();
-            loadChats();
-            loadContacts();
-            loadProfile();
+            loadChats(); // تحميل المحادثات
+            loadContacts(); // تحميل الجهات
+            loadProfile(); // تحميل الملف الشخصي
         });
 
         // تحميل بيانات المستخدم الحالي
@@ -475,30 +483,43 @@
             }
         }
 
-        // تحميل المحادثات
+        // تحميل المحادثات مع مستمع مباشر
         function loadChats() {
+            // إلغاء الاستماع السابق إن وجد
+            if (unsubscribeChats) unsubscribeChats();
+
             const chatsRef = ref(database, 'chats');
-            onValue(chatsRef, async (snapshot) => {
+            // استماع دائم للتغييرات في المحادثات
+            unsubscribeChats = onValue(chatsRef, async (snapshot) => {
+                // عرض مؤشر تحميل
+                chatListDiv.innerHTML = '<div class="loading">جاري تحميل المحادثات...</div>';
+                
                 const chats = [];
                 if (snapshot.exists()) {
                     snapshot.forEach((childSnapshot) => {
                         const chatId = childSnapshot.key;
+                        // التحقق إذا كان المستخدم الحالي مشاركاً في المحادثة
                         if (chatId.includes(currentUserId)) {
+                            // استخراج معرف المستخدم الآخر
                             const otherUserId = chatId.replace(currentUserId, '').replace('_', '');
                             chats.push({ chatId, otherUserId });
                         }
                     });
                 }
+
                 if (chats.length === 0) {
                     chatListDiv.innerHTML = '<div style="text-align:center; padding:2rem;">لا توجد محادثات بعد</div>';
                     return;
                 }
 
+                // بناء HTML للمحادثات
                 let html = '';
                 for (const chat of chats) {
+                    // جلب بيانات المستخدم الآخر
                     const userSnap = await get(ref(database, 'users/' + chat.otherUserId));
                     const userData = userSnap.exists() ? userSnap.val() : { fullName: 'مستخدم', username: 'user' };
                     
+                    // جلب آخر رسالة في المحادثة
                     const messagesRef = ref(database, `chats/${chat.chatId}/messages`);
                     const lastMsgQuery = query(messagesRef, orderByChild('timestamp'), limitToLast(1));
                     const lastMsgSnap = await get(lastMsgQuery);
@@ -528,10 +549,11 @@
             });
         }
 
-        // تحميل الجهات
+        // تحميل الجهات (جميع المستخدمين عدا الحالي)
         function loadContacts() {
             const usersRef = ref(database, 'users');
             onValue(usersRef, (snapshot) => {
+                contactsListDiv.innerHTML = '<div class="loading">جاري تحميل الجهات...</div>';
                 let html = '';
                 snapshot.forEach((childSnapshot) => {
                     const uid = childSnapshot.key;
@@ -570,9 +592,8 @@
             `;
         }
 
-        // دالة الذهاب إلى المحادثة - مباشرة دون إنشاء
+        // دالة الذهاب إلى المحادثة
         window.goToChat = function(uid, name, username) {
-            console.log('فتح محادثة مع:', uid, name, username);
             if (!uid) {
                 alert('بيانات المستخدم غير صحيحة');
                 return;
@@ -580,7 +601,7 @@
             window.location.href = `chat.html?uid=${uid}&name=${encodeURIComponent(name)}&username=${username}`;
         };
 
-        // البحث عن المستخدمين
+        // دالة البحث عن المستخدمين (مُحسّنة)
         window.searchUsers = async function() {
             const searchText = searchInput.value.trim();
             if (searchText.length < 1) {
@@ -590,11 +611,12 @@
             }
 
             searchResultsDiv.classList.add('show');
-            searchResultsDiv.innerHTML = '<div class="loading">جاري البحث...</div>';
+            searchResultsDiv.innerHTML = '<div class="small-loading">جاري البحث...</div>';
 
             try {
                 const usersRef = ref(database, 'users');
-                const userQuery = query(usersRef, orderByChild('username'), startAt(searchText), endAt(searchText + '\uf8ff'));
+                // استخدام limitToFirst(20) لتحسين الأداء
+                const userQuery = query(usersRef, orderByChild('username'), startAt(searchText), endAt(searchText + '\uf8ff'), limitToFirst(20));
                 const snapshot = await get(userQuery);
                 
                 if (snapshot.exists()) {
@@ -626,7 +648,7 @@
                     searchResultsDiv.innerHTML = '<div style="padding:1rem; text-align:center;">لا توجد نتائج</div>';
                 }
             } catch (error) {
-                console.error(error);
+                console.error('خطأ في البحث:', error);
                 searchResultsDiv.innerHTML = '<div style="padding:1rem; text-align:center;">حدث خطأ في البحث</div>';
             }
         };
@@ -648,11 +670,12 @@
             await signOut(auth);
         };
 
-        // تحديث عند العودة للصفحة
+        // تحديث عند العودة للصفحة (لضمان ظهور المحادثات الجديدة)
         window.addEventListener('pageshow', function(event) {
-            if (event.persisted || (performance.getEntriesByType('navigation')[0]?.type === 'back_forward')) {
+            if (event.persisted) {
+                console.log('تم العودة إلى الصفحة من الكاش');
                 if (currentUserId) {
-                    loadChats();
+                    loadChats(); // إعادة تحميل المحادثات
                     loadContacts();
                     loadProfile();
                 }
@@ -672,6 +695,9 @@
                 searchResultsEl.classList.remove('show');
             }
         });
+
+        // التأكد من أن دالة goToChat معرفة
+        console.log('تم تحميل الصفحة، goToChat موجودة:', typeof window.goToChat);
     </script>
 </body>
 </html>
