@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>تواصل - المحادثة</title>
     <style>
+        /* نفس التصميم السابق - ثابت */
         * {
             margin: 0;
             padding: 0;
@@ -163,9 +164,7 @@
         <button onclick="sendMessage()">إرسال</button>
     </div>
 
-    <!-- Firebase SDK (النسخة الحديثة) -->
     <script type="module">
-        // استيراد الدوال المطلوبة من Firebase
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         import { 
@@ -173,13 +172,13 @@
             ref, 
             get, 
             push, 
-            set,           // <-- مهم: استيراد set
-            onChildAdded, 
-            query, 
-            orderByChild 
+            set,
+            onChildAdded,
+            query,
+            orderByChild,
+            onValue // نضيف onValue للاستماع لأي تغيير
         } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-        // 🔥 إعدادات Firebase - استبدلها بمفاتيحك
         const firebaseConfig = {
             apiKey: "AIzaSyDRCtfuYrEdnuKUsWu_79NC6G_xGLznBJc",
             authDomain: "tttrt-b8c5a.firebaseapp.com",
@@ -194,13 +193,11 @@
         const auth = getAuth(app);
         const database = getDatabase(app);
 
-        // استخراج بيانات المستخدم الآخر من الرابط
         const urlParams = new URLSearchParams(window.location.search);
         const otherUserId = urlParams.get('uid');
         const otherUserName = urlParams.get('name');
         const otherUserUsername = urlParams.get('username');
 
-        // عناصر الصفحة
         const avatarDiv = document.getElementById('avatar');
         const userNameEl = document.getElementById('userName');
         const userUsernameEl = document.getElementById('userUsername');
@@ -212,7 +209,6 @@
         let currentUserId = null;
         let chatId = null;
 
-        // مراقبة حالة تسجيل الدخول
         onAuthStateChanged(auth, async (user) => {
             if (!user) {
                 window.location.href = 'index.html';
@@ -251,7 +247,7 @@
                 }
             }
 
-            // إنشاء معرف المحادثة (مرتب أبجديًا)
+            // إنشاء chatId فريد
             const ids = [currentUserId, otherUserId].sort();
             chatId = `${ids[0]}_${ids[1]}`;
             console.log('Chat ID:', chatId);
@@ -265,15 +261,16 @@
 
         function loadMessages() {
             const messagesRef = ref(database, `chats/${chatId}/messages`);
-            const messagesQuery = query(messagesRef, orderByChild('timestamp'));
-            
-            loadingMessages.style.display = 'none';
-            
-            // الاستماع للرسائل الجديدة والقديمة
-            onChildAdded(messagesQuery, (snapshot) => {
+            // نستخدم onChildAdded للرسائل الجديدة
+            // ولتحميل الرسائل القديمة أيضاً
+            onChildAdded(messagesRef, (snapshot) => {
                 const message = snapshot.val();
+                console.log('رسالة جديدة:', message); // للتأكد من وصولها
                 displayMessage(message);
             });
+
+            // إخفاء التحميل بعد بدء الاستماع
+            loadingMessages.style.display = 'none';
         }
 
         function displayMessage(message) {
@@ -291,16 +288,14 @@
             messagesArea.scrollTop = messagesArea.scrollHeight;
         }
 
-        // دالة إرسال رسالة (مصححة)
         window.sendMessage = async function() {
             const text = messageInput.value.trim();
             if (text === '' || !chatId) return;
 
             const messagesRef = ref(database, `chats/${chatId}/messages`);
-            const newMessageRef = push(messagesRef); // مرجع جديد للرسالة
+            const newMessageRef = push(messagesRef);
             
             try {
-                // ✅ الطريقة الصحيحة: استخدام set(المرجع, البيانات)
                 await set(newMessageRef, {
                     senderId: currentUserId,
                     text: text,
