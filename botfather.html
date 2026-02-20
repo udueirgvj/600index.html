@@ -32,7 +32,6 @@
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
 
-        /* header */
         .chat-header {
             background: #202c33;
             padding: 10px 16px;
@@ -85,7 +84,6 @@
             cursor: pointer;
         }
 
-        /* messages area */
         .messages-area {
             flex: 1;
             overflow-y: auto;
@@ -140,7 +138,6 @@
             align-self: flex-end;
         }
 
-        /* typing indicator */
         .typing {
             display: flex;
             gap: 4px;
@@ -168,7 +165,6 @@
             30% { opacity: 1; transform: translateY(-5px); }
         }
 
-        /* input area */
         .input-area {
             background: #202c33;
             padding: 12px 16px;
@@ -216,7 +212,6 @@
             cursor: not-allowed;
         }
 
-        /* start button */
         .start-btn {
             background: #005c4b;
             color: white;
@@ -253,7 +248,6 @@
 </head>
 <body>
     <div class="chat-container">
-        <!-- Header -->
         <div class="chat-header">
             <div class="avatar">FF</div>
             <div class="header-info">
@@ -266,18 +260,11 @@
             <div class="header-icon">⋮</div>
         </div>
 
-        <!-- Messages area -->
         <div class="messages-area" id="messagesArea"></div>
-
-        <!-- Typing indicator (hidden by default) -->
         <div id="typingIndicator" class="typing" style="display: none; margin-right: auto; margin-left: 16px;">
             <span></span><span></span><span></span>
         </div>
-
-        <!-- Start button (initially visible if not started) -->
         <button id="startBtn" class="start-btn">بدء</button>
-
-        <!-- Input area (hidden until start) -->
         <div class="input-area" id="inputArea" style="display: none;">
             <input type="text" id="messageInput" placeholder="اكتب رسالة..." autocomplete="off">
             <button id="sendBtn">➤</button>
@@ -286,11 +273,23 @@
 
     <script>
         (function() {
-            // ---------- بيانات البوتات المخزنة ----------
             const BOTS_KEY = 'telegram_bots';
             let botsDatabase = JSON.parse(localStorage.getItem(BOTS_KEY)) || {};
 
-            // عناصر الصفحة
+            // إضافة البوت الافتراضي FFNBLP إذا لم يكن موجوداً
+            const defaultBotUsername = 'ffnblp';
+            if (!botsDatabase[defaultBotUsername]) {
+                botsDatabase[defaultBotUsername] = {
+                    name: 'FFNBLP',
+                    username: defaultBotUsername,
+                    token: '8539663633:AAFfbj12JC1OAqkQWRRWiHBvGE8Wa2N-9tM',
+                    description: '',
+                    about: '',
+                    commands: []
+                };
+                localStorage.setItem(BOTS_KEY, JSON.stringify(botsDatabase));
+            }
+
             const messagesArea = document.getElementById('messagesArea');
             const messageInput = document.getElementById('messageInput');
             const sendBtn = document.getElementById('sendBtn');
@@ -298,13 +297,11 @@
             const inputArea = document.getElementById('inputArea');
             const typingIndicator = document.getElementById('typingIndicator');
 
-            // حالة الدردشة
-            let isStarted = false;          // هل تم الضغط على /start
-            let currentStep = null;          // null, 'awaiting_bot_name', 'awaiting_bot_username'
-            let tempBot = {};                // تخزين بيانات البوت أثناء الإنشاء
-            let waitingForDelete = false;    // هل ننتظر تأكيد حذف بوت
+            let isStarted = false;
+            let currentStep = null;
+            let tempBot = {};
+            let waitingForDelete = false;
 
-            // دالة لإضافة رسالة (بوت أو مستخدم)
             function addMessage(text, sender = 'bot', isHTML = false) {
                 const messageDiv = document.createElement('div');
                 messageDiv.className = `message ${sender === 'bot' ? 'bot-message' : 'user-message'}`;
@@ -328,43 +325,29 @@
                 messagesArea.scrollTop = messagesArea.scrollHeight;
             }
 
-            // دالة إظهار/إخفاء مؤشر الكتابة
             function setTyping(show) {
                 typingIndicator.style.display = show ? 'flex' : 'none';
                 messagesArea.scrollTop = messagesArea.scrollHeight;
             }
 
-            // دالة معالجة إرسال الرسالة من المستخدم
             async function handleUserMessage(userText) {
-                if (!isStarted) return; // لا يمكن الإرسال قبل /start
-
-                // تجاهل الرسائل الفارغة
+                if (!isStarted) return;
                 if (!userText.trim()) return;
 
-                // عرض رسالة المستخدم
                 addMessage(userText, 'user');
                 messageInput.value = '';
 
-                // إظهار مؤشر الكتابة
                 setTyping(true);
-
-                // محاكاة تأخير الرد
                 await new Promise(resolve => setTimeout(resolve, 700 + Math.random() * 600));
-
-                // إخفاء المؤشر
                 setTyping(false);
 
-                // معالجة الأوامر
                 processCommand(userText.trim());
             }
 
-            // معالجة الأوامر
             function processCommand(text) {
                 const lower = text.toLowerCase();
 
-                // إذا كان هناك خطوة قيد الانتظار (إنشاء بوت)
                 if (currentStep === 'awaiting_bot_name') {
-                    // المستخدم أدخل اسم البوت
                     tempBot.name = text;
                     addMessage(`جيد. الآن اختر اسم مستخدم لبوتك. يجب أن ينتهي بـ \`bot\`. مثال: FFNBLPbot أو my_awesome_bot.`);
                     currentStep = 'awaiting_bot_username';
@@ -377,12 +360,10 @@
                         addMessage(`عذرًا، اسم المستخدم يجب أن ينتهي بـ "bot". حاول مرة أخرى.`);
                         return;
                     }
-                    // التحقق من أن اسم المستخدم غير موجود مسبقاً
                     if (botsDatabase[username]) {
                         addMessage(`عذرًا، اسم المستخدم ${username} مستخدم بالفعل. جرب اسماً آخر.`);
                         return;
                     }
-                    // إنشاء البوت
                     const token = generateToken();
                     botsDatabase[username] = {
                         name: tempBot.name,
@@ -409,7 +390,6 @@
                     return;
                 }
 
-                // معالجة أوامر الحذف
                 if (waitingForDelete) {
                     const username = text.replace('@', '').trim();
                     if (botsDatabase[username]) {
@@ -423,10 +403,8 @@
                     return;
                 }
 
-                // الأوامر المعروفة
                 if (lower === '/start') {
                     addMessage(`مرحبًا بك. هو البوت الوحيد الذي يحكمهم جميعًا. استخدمه لإنشاء حسابات بوت جديدة وإدارة البوتات.`);
-                    // عرض أزرار الأوامر (كـ chips)
                     showCommandChips();
                 }
                 else if (lower === '/newbot') {
@@ -465,23 +443,21 @@
                 }
             }
 
-            // عرض أزرار الأوامر كـ chips
             function showCommandChips() {
                 const chipsDiv = document.createElement('div');
                 chipsDiv.style.margin = '8px 0';
                 chipsDiv.innerHTML = `
-                    <span class="command-chip" onclick="insertCommand('/newbot')">/newbot</span>
-                    <span class="command-chip" onclick="insertCommand('/mybots')">/mybots</span>
-                    <span class="command-chip" onclick="insertCommand('/deletebot')">/deletebot</span>
-                    <span class="command-chip" onclick="insertCommand('/help')">/help</span>
+                    <span class="command-chip" onclick="window.insertCommand('/newbot')">/newbot</span>
+                    <span class="command-chip" onclick="window.insertCommand('/mybots')">/mybots</span>
+                    <span class="command-chip" onclick="window.insertCommand('/deletebot')">/deletebot</span>
+                    <span class="command-chip" onclick="window.insertCommand('/help')">/help</span>
                 `;
                 messagesArea.appendChild(chipsDiv);
                 messagesArea.scrollTop = messagesArea.scrollHeight;
             }
 
-            // دالة توليد توكن عشوائي (يحاكي تنسيق التوكن الحقيقي)
             function generateToken() {
-                const part1 = Math.floor(Math.random() * 9000000000) + 1000000000; // 10 أرقام
+                const part1 = Math.floor(Math.random() * 9000000000) + 1000000000;
                 const part2 = 'AA' + randomString(30);
                 return `${part1}:${part2}`;
             }
@@ -495,13 +471,10 @@
                 return result;
             }
 
-            // حدث إرسال الرسالة
             sendBtn.addEventListener('click', () => {
                 if (!isStarted) return;
                 const text = messageInput.value.trim();
-                if (text) {
-                    handleUserMessage(text);
-                }
+                if (text) handleUserMessage(text);
             });
 
             messageInput.addEventListener('keypress', (e) => {
@@ -511,14 +484,11 @@
                 }
             });
 
-            // زر بدء
             startBtn.addEventListener('click', () => {
                 startBtn.style.display = 'none';
                 inputArea.style.display = 'flex';
                 isStarted = true;
-                // إرسال /start تلقائياً
                 addMessage('/start', 'user');
-                // محاكاة رد البوت
                 setTyping(true);
                 setTimeout(() => {
                     setTyping(false);
@@ -527,18 +497,16 @@
                 }, 1000);
             });
 
-            // دالة لإدراج أمر في حقل الإدخال (من الـ chips)
             window.insertCommand = function(cmd) {
                 if (!isStarted) return;
                 messageInput.value = cmd;
                 messageInput.focus();
             };
 
-            // إذا تم فتح الصفحة مع وسيط username (للبحث المباشر)، يمكننا عرض اسم البوت
             const urlParams = new URLSearchParams(window.location.search);
             const botUsername = urlParams.get('username');
-            if (botUsername) {
-                // يمكن عرض رسالة ترحيب خاصة إذا أردنا
+            if (botUsername && botsDatabase[botUsername]) {
+                // يمكن عرض رسالة ترحيب خاصة عند فتح البوت من البحث
                 console.log('تم فتح البوت:', botUsername);
             }
         })();
