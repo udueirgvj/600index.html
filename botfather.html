@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BotFather - بوت تلجرام الرسمي</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background: #0b141a;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .chat-container {
+            width: 100%;
+            max-width: 500px;
+            height: 90vh;
+            background: #1e2a32;
+            border-radius: 20px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        /* header */
+        .chat-header {
+            background: #202c33;
+            padding: 10px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid #2a3942;
+        }
+
+        .avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: #2a6b9c;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
+            text-transform: uppercase;
+        }
+
+        .header-info {
+            flex: 1;
+        }
+
+        .header-info h3 {
+            color: #e9edef;
+            font-size: 16px;
+            margin-bottom: 2px;
+        }
+
+        .header-info p {
+            color: #8696a0;
+            font-size: 13px;
+        }
+
+        .header-icon {
+            color: #8696a0;
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        /* messages area */
+        .messages-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+            background: #0b141a;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .message {
+            display: flex;
+            flex-direction: column;
+            max-width: 85%;
+            width: fit-content;
+        }
+
+        .bot-message {
+            align-self: flex-start;
+        }
+
+        .user-message {
+            align-self: flex-end;
+        }
+
+        .bubble {
+            padding: 8px 12px;
+            border-radius: 16px;
+            font-size: 14px;
+            line-height: 1.5;
+            word-wrap: break-word;
+            white-space: pre-wrap;
+        }
+
+        .bot-message .bubble {
+            background: #202c33;
+            color: #e9edef;
+            border-top-left-radius: 4px;
+        }
+
+        .user-message .bubble {
+            background: #005c4b;
+            color: #e9edef;
+            border-top-right-radius: 4px;
+        }
+
+        .time {
+            font-size: 11px;
+            color: #8696a0;
+            margin-top: 4px;
+            margin-right: 8px;
+            align-self: flex-end;
+        }
+
+        /* typing indicator */
+        .typing {
+            display: flex;
+            gap: 4px;
+            padding: 12px 16px;
+            background: #202c33;
+            width: fit-content;
+            border-radius: 20px;
+            border-top-left-radius: 4px;
+            margin-top: 4px;
+        }
+
+        .typing span {
+            width: 8px;
+            height: 8px;
+            background: #8696a0;
+            border-radius: 50%;
+            animation: typing 1.4s infinite;
+        }
+
+        .typing span:nth-child(2) { animation-delay: 0.2s; }
+        .typing span:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes typing {
+            0%, 60%, 100% { opacity: 0.4; transform: translateY(0); }
+            30% { opacity: 1; transform: translateY(-5px); }
+        }
+
+        /* input area */
+        .input-area {
+            background: #202c33;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-top: 1px solid #2a3942;
+        }
+
+        .input-area input {
+            flex: 1;
+            background: #2a3942;
+            border: none;
+            border-radius: 24px;
+            padding: 10px 16px;
+            color: #e9edef;
+            font-size: 15px;
+            outline: none;
+        }
+
+        .input-area input::placeholder {
+            color: #8696a0;
+        }
+
+        .input-area button {
+            background: #005c4b;
+            border: none;
+            border-radius: 50%;
+            width: 45px;
+            height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: white;
+            font-size: 20px;
+        }
+
+        .input-area button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* command hint */
+        .command-hint {
+            color: #8696a0;
+            font-size: 12px;
+            padding: 4px 16px 8px;
+            border-top: 1px solid #2a3942;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .command-hint span {
+            color: #00a884;
+            cursor: pointer;
+        }
+
+        .command-hint span:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <!-- Header -->
+        <div class="chat-header">
+            <div class="avatar">🤖</div>
+            <div class="header-info">
+                <h3>BotFather</h3>
+                <p>آخر ظهور اليوم 4:44 م · 0,092,473 مستخدمًا شهريًا</p>
+            </div>
+            <div class="header-icon">⋮</div>
+        </div>
+
+        <!-- Messages area -->
+        <div class="messages-area" id="messagesArea"></div>
+
+        <!-- Typing indicator (hidden by default) -->
+        <div id="typingIndicator" class="typing" style="display: none; margin-right: auto; margin-left: 16px;">
+            <span></span><span></span><span></span>
+        </div>
+
+        <!-- Input area -->
+        <div class="input-area">
+            <input type="text" id="messageInput" placeholder="اكتب رسالة..." autocomplete="off">
+            <button id="sendBtn">➤</button>
+        </div>
+        <div class="command-hint">
+            <span onclick="insertCommand('/newbot')">/newbot</span>
+            <span onclick="insertCommand('/mybots')">/mybots</span>
+            <span onclick="insertCommand('/search')">/search</span>
+            <span onclick="insertCommand('/setname')">/setname</span>
+            <span onclick="insertCommand('/setdescription')">/setdescription</span>
+            <span onclick="insertCommand('/setabouttext')">/setabouttext</span>
+            <span onclick="insertCommand('/token')">/token</span>
+            <span onclick="insertCommand('/deletebot')">/deletebot</span>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            // ---------- بيانات محاكاة ----------
+            const BOTS_KEY = 'telegram_bots';
+            let botsDatabase = JSON.parse(localStorage.getItem(BOTS_KEY)) || {};
+
+            // عناصر الصفحة
+            const messagesArea = document.getElementById('messagesArea');
+            const messageInput = document.getElementById('messageInput');
+            const sendBtn = document.getElementById('sendBtn');
+            const typingIndicator = document.getElementById('typingIndicator');
+
+            // حالة الدردشة
+            let currentStep = null; // null, 'awaiting_bot_name', 'awaiting_bot_username'
+            let tempBot = {}; // تخزين بيانات البوت أثناء الإنشاء
+
+            // دالة لإضافة رسالة (بوت أو مستخدم)
+            function addMessage(text, sender = 'bot', isHTML = false) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message ${sender === 'bot' ? 'bot-message' : 'user-message'}`;
+
+                const bubble = document.createElement('div');
+                bubble.className = 'bubble';
+                if (isHTML) {
+                    bubble.innerHTML = text;
+                } else {
+                    bubble.textContent = text;
+                }
+
+                const timeSpan = document.createElement('div');
+                timeSpan.className = 'time';
+                const now = new Date();
+                timeSpan.textContent = now.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
+
+                messageDiv.appendChild(bubble);
+                messageDiv.appendChild(timeSpan);
+                messagesArea.appendChild(messageDiv);
+                messagesArea.scrollTop = messagesArea.scrollHeight;
+            }
+
+            // دالة إظهار/إخفاء مؤشر الكتابة
+            function setTyping(show) {
+                typingIndicator.style.display = show ? 'flex' : 'none';
+                messagesArea.scrollTop = messagesArea.scrollHeight;
+            }
+
+            // دالة معالجة إرسال الرسالة من المستخدم
+            async function handleUserMessage(userText) {
+                // تجاهل الرسائل الفارغة
+                if (!userText.trim()) return;
+
+                // عرض رسالة المستخدم
+                addMessage(userText, 'user');
+                messageInput.value = '';
+
+                // إظهار مؤشر الكتابة
+                setTyping(true);
+
+                // محاكاة تأخير الرد (500-1500 مللي)
+                await new Promise(resolve => setTimeout(resolve, 800 + Math.random() * 700));
+
+                // إخفاء المؤشر
+                setTyping(false);
+
+                // معالجة الأوامر
+                processCommand(userText.trim());
+            }
+
+            // دالة البحث عن البوتات
+            function searchBots(term) {
+                term = term.toLowerCase();
+                const results = [];
+                for (const [username, bot] of Object.entries(botsDatabase)) {
+                    if (username.includes(term) || (bot.name && bot.name.toLowerCase().includes(term))) {
+                        results.push(bot);
+                    }
+                }
+                return results;
+            }
+
+            // معالجة الأوامر
+            function processCommand(text) {
+                const lower = text.toLowerCase();
+
+                // إذا كان هناك خطوة قيد الانتظار (أثناء إنشاء بوت)
+                if (currentStep === 'awaiting_bot_name') {
+                    // المستخدم أدخل اسم البوت
+                    tempBot.name = text;
+                    addMessage(`Good. Now let's choose a username for your bot. It must end in \`bot\`. Like this, for example: TetrisBot or tetris_bot.`);
+                    currentStep = 'awaiting_bot_username';
+                    return;
+                }
+
+                if (currentStep === 'awaiting_bot_username') {
+                    const username = text.toLowerCase();
+                    if (!username.endsWith('bot')) {
+                        addMessage(`Sorry, the username must end with "bot". Please try again.`);
+                        return;
+                    }
+                    // التحقق من أن اسم المستخدم غير موجود مسبقاً
+                    if (botsDatabase[username]) {
+                        addMessage(`Sorry, this username is already taken. Please try something different.`);
+                        return;
+                    }
+                    // إنشاء البوت
+                    const token = generateToken();
+                    botsDatabase[username] = {
+                        name: tempBot.name,
+                        username: username,
+                        token: token,
+                        description: '',
+                        about: '',
+                        commands: []
+                    };
+                    localStorage.setItem(BOTS_KEY, JSON.stringify(botsDatabase));
+
+                    addMessage(`Done! Congratulations on your new bot. You will find it at <a href="https://t.me/${username}" target="_blank">t.me/${username}</a>.\n\nYou can now add a description, about section and profile picture for your bot, see /help for a list of commands.\n\nUse this token to access the HTTP API:\n<code>${token}</code>\n\nKeep your token secure and store it securely.`, 'bot', true);
+                    currentStep = null;
+                    tempBot = {};
+                    return;
+                }
+
+                // معالجة الأوامر المعروفة
+                if (lower === '/start') {
+                    addMessage(`I can help you create and manage Telegram bots. If you're new to the Bot API, please see the manual.\n\nYou can control me by sending these commands:\n\n/newbot - create a new bot\n/mybots - edit your bots\n\nEdit Bots\n/setname - change a bot's name\n/setdescription - change bot description\n/setabouttext - change bot about info\n/setuserpic - change bot profile photo\n/setcommands - change the list of commands\n/deletebot - delete a bot\n\nBot Settings\n/token - get authorization token\n/revoke - revoke bot access token\n/setinline - toggle inline mode\n/setinlinegeo - toggle inline location requests\n/setinlinefeedback - change inline feedback settings\n/setjoingroups - can your bot be added to groups?\n/setprivacy - toggle privacy mode in groups`);
+                }
+                else if (lower === '/newbot') {
+                    addMessage(`Alright, a new bot. How are we going to call it? Please choose a name for your bot.`);
+                    currentStep = 'awaiting_bot_name';
+                    tempBot = {};
+                }
+                else if (lower.startsWith('/search ')) {
+                    const term = text.substring(8).trim();
+                    if (!term) {
+                        addMessage(`Please provide a search term. Example: /search game`);
+                        return;
+                    }
+                    const results = searchBots(term);
+                    if (results.length === 0) {
+                        addMessage(`No bots found matching "${term}".`);
+                    } else {
+                        let reply = `Found ${results.length} bot(s) matching "${term}":\n\n`;
+                        results.forEach(bot => {
+                            reply += `• ${bot.name} (@${bot.username})\n`;
+                        });
+                        addMessage(reply);
+                    }
+                }
+                else if (lower === '/search') {
+                    addMessage(`Please provide a search term. Example: /search game`);
+                }
+                else if (lower === '/mybots') {
+                    const botList = Object.values(botsDatabase);
+                    if (botList.length === 0) {
+                        addMessage(`You have no bots yet. Use /newbot to create one.`);
+                    } else {
+                        let reply = `Your bots:\n\n`;
+                        botList.forEach((bot, index) => {
+                            reply += `${index+1}. ${bot.name} (@${bot.username})\n`;
+                        });
+                        reply += `\nChoose a bot to edit by sending its username. (Not fully implemented)`;
+                        addMessage(reply);
+                    }
+                }
+                else if (lower.startsWith('/token')) {
+                    const parts = text.split(' ');
+                    if (parts.length === 1) {
+                        addMessage(`Please specify the bot username. Example: /token @mybot`);
+                    } else {
+                        const username = parts[1].replace('@', '');
+                        const bot = botsDatabase[username];
+                        if (bot) {
+                            addMessage(`Token for @${username}: <code>${bot.token}</code>\nKeep it secure.`, 'bot', true);
+                        } else {
+                            addMessage(`Bot @${username} not found.`);
+                        }
+                    }
+                }
+                else if (lower.startsWith('/setname')) {
+                    const parts = text.split(' ');
+                    if (parts.length < 3) {
+                        addMessage(`Usage: /setname @botusername New Name`);
+                    } else {
+                        const username = parts[1].replace('@', '');
+                        const newName = parts.slice(2).join(' ');
+                        if (botsDatabase[username]) {
+                            botsDatabase[username].name = newName;
+                            localStorage.setItem(BOTS_KEY, JSON.stringify(botsDatabase));
+                            addMessage(`Name changed. Bot @${username} now has the name '${newName}'.`);
+                        } else {
+                            addMessage(`Bot @${username} not found.`);
+                        }
+                    }
+                }
+                else if (lower.startsWith('/setdescription')) {
+                    const parts = text.split(' ');
+                    if (parts.length < 3) {
+                        addMessage(`Usage: /setdescription @botusername New description`);
+                    } else {
+                        const username = parts[1].replace('@', '');
+                        const desc = parts.slice(2).join(' ');
+                        if (botsDatabase[username]) {
+                            botsDatabase[username].description = desc;
+                            localStorage.setItem(BOTS_KEY, JSON.stringify(botsDatabase));
+                            addMessage(`Description changed. Bot @${username} now has the description: ${desc}`);
+                        } else {
+                            addMessage(`Bot @${username} not found.`);
+                        }
+                    }
+                }
+                else if (lower.startsWith('/setabouttext')) {
+                    const parts = text.split(' ');
+                    if (parts.length < 3) {
+                        addMessage(`Usage: /setabouttext @botusername About text`);
+                    } else {
+                        const username = parts[1].replace('@', '');
+                        const about = parts.slice(2).join(' ');
+                        if (botsDatabase[username]) {
+                            botsDatabase[username].about = about;
+                            localStorage.setItem(BOTS_KEY, JSON.stringify(botsDatabase));
+                            addMessage(`About text changed. Bot @${username} now has about text: ${about}`);
+                        } else {
+                            addMessage(`Bot @${username} not found.`);
+                        }
+                    }
+                }
+                else if (lower.startsWith('/setuserpic')) {
+                    const parts = text.split(' ');
+                    if (parts.length < 2) {
+                        addMessage(`Usage: /setuserpic @botusername\n(Simulated: would upload a photo)`);
+                    } else {
+                        const username = parts[1].replace('@', '');
+                        if (botsDatabase[username]) {
+                            // محاكاة رفع صورة
+                            addMessage(`Profile photo changed for bot @${username} (simulated).`);
+                        } else {
+                            addMessage(`Bot @${username} not found.`);
+                        }
+                    }
+                }
+                else if (lower.startsWith('/deletebot')) {
+                    const parts = text.split(' ');
+                    if (parts.length < 2) {
+                        addMessage(`Usage: /deletebot @botusername`);
+                    } else {
+                        const username = parts[1].replace('@', '');
+                        if (botsDatabase[username]) {
+                            delete botsDatabase[username];
+                            localStorage.setItem(BOTS_KEY, JSON.stringify(botsDatabase));
+                            addMessage(`Bot @${username} deleted.`);
+                        } else {
+                            addMessage(`Bot @${username} not found.`);
+                        }
+                    }
+                }
+                else if (lower === '/help') {
+                    addMessage(`Available commands: /newbot, /mybots, /search, /setname, /setdescription, /setabouttext, /setuserpic, /setcommands, /deletebot, /token, /revoke, /setinline, /setjoingroups, /setprivacy. For more info, visit Telegram Bot API manual.`);
+                }
+                else if (lower.startsWith('/')) {
+                    addMessage(`Unknown command. Type /help for list of commands.`);
+                }
+                else {
+                    // أي رسالة عادية لا تبدأ بـ / -> يرد بوت فيذر بأنه لا يفهم
+                    addMessage(`I'm sorry, I didn't understand that. Please use a command from the list.`);
+                }
+            }
+
+            // دالة توليد توكن عشوائي (محاكاة)
+            function generateToken() {
+                const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+                let token = '8539663633:AAFfbj12JC1OAqkQWRRWiHBvGE8Wa2N';
+                for (let i = 0; i < 10; i++) {
+                    token += chars[Math.floor(Math.random() * chars.length)];
+                }
+                return token;
+            }
+
+            // حدث إرسال الرسالة
+            sendBtn.addEventListener('click', () => {
+                const text = messageInput.value.trim();
+                if (text) {
+                    handleUserMessage(text);
+                }
+            });
+
+            messageInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    sendBtn.click();
+                }
+            });
+
+            // دالة إدراج أمر في حقل الإدخال (من الشريط السفلي)
+            window.insertCommand = function(cmd) {
+                messageInput.value = cmd + ' ';
+                messageInput.focus();
+            };
+
+            // رسالة ترحيب عند تحميل الصفحة
+            window.addEventListener('load', () => {
+                addMessage(`I can help you create and manage Telegram bots. If you're new to the Bot API, please see the manual.\n\nYou can control me by sending these commands:\n\n/newbot - create a new bot\n/mybots - edit your bots\n/search - search bots by name\n\nEdit Bots\n/setname - change a bot's name\n/setdescription - change bot description\n/setabouttext - change bot about info\n/setuserpic - change bot profile photo\n/setcommands - change the list of commands\n/deletebot - delete a bot\n\nBot Settings\n/token - get authorization token\n/revoke - revoke bot access token\n/setinline - toggle inline mode\n/setinlinegeo - toggle inline location requests\n/setinlinefeedback - change inline feedback settings\n/setjoingroups - can your bot be added to groups?\n/setprivacy - toggle privacy mode in groups`);
+            });
+        })();
+    </script>
+</body>
+</html>
