@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تواصل - الدعم</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        body {
+            background: #f0f2f5;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .header {
+            background: #2A6B9C;
+            color: white;
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .back-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.8rem;
+            cursor: pointer;
+        }
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+        .container {
+            flex: 1;
+            padding: 2rem;
+            max-width: 600px;
+            margin: 0 auto;
+            width: 100%;
+        }
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+        h2 {
+            color: #1a2b3e;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+        .input-group {
+            margin-bottom: 1.2rem;
+        }
+        .input-group label {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #4b5f73;
+            margin-bottom: 0.3rem;
+        }
+        .input-group input, .input-group textarea {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border: 1px solid #d9e1ec;
+            border-radius: 12px;
+            background: #f9fcff;
+            font-size: 1rem;
+            outline: none;
+        }
+        .input-group input:focus, .input-group textarea:focus {
+            border-color: #2A6B9C;
+            box-shadow: 0 0 0 3px rgba(42,107,156,0.1);
+        }
+        .input-group textarea {
+            min-height: 150px;
+            resize: vertical;
+        }
+        .btn {
+            width: 100%;
+            padding: 1rem;
+            font-size: 1rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 30px;
+            background: #2A6B9C;
+            color: white;
+            cursor: pointer;
+        }
+        .btn:hover {
+            background: #1f4e7a;
+        }
+        .message {
+            padding: 0.8rem;
+            border-radius: 10px;
+            margin-top: 1rem;
+            text-align: center;
+            display: none;
+        }
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            display: block;
+        }
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <button class="back-btn" onclick="goBack()">←</button>
+        <h1>الدعم الفني</h1>
+        <div style="width: 40px;"></div>
+    </div>
+
+    <div class="container">
+        <div class="card">
+            <h2>تواصل معنا</h2>
+            <p style="margin-bottom: 1.5rem; color: #7f8fa4; text-align: center;">أرسل استفسارك وسنرد عليك في أقرب وقت</p>
+            <div class="input-group">
+                <label>الاسم</label>
+                <input type="text" id="supportName" placeholder="اسمك">
+            </div>
+            <div class="input-group">
+                <label>البريد الإلكتروني</label>
+                <input type="email" id="supportEmail" placeholder="بريدك الإلكتروني">
+            </div>
+            <div class="input-group">
+                <label>الرسالة</label>
+                <textarea id="supportMessage" placeholder="اكتب رسالتك هنا..."></textarea>
+            </div>
+            <button class="btn" onclick="sendSupport()">إرسال</button>
+            <div id="supportMessageDiv" class="message"></div>
+        </div>
+    </div>
+
+    <script>
+        function sendSupport() {
+            const name = document.getElementById('supportName').value.trim();
+            const email = document.getElementById('supportEmail').value.trim();
+            const message = document.getElementById('supportMessage').value.trim();
+            const msgDiv = document.getElementById('supportMessageDiv');
+
+            if (!name || !email || !message) {
+                msgDiv.className = 'message error';
+                msgDiv.textContent = 'جميع الحقول مطلوبة';
+                return;
+            }
+
+            // هنا يمكن إرسال البيانات إلى Firebase أو خدمة بريد إلكتروني
+            // للتبسيط، سنعرض رسالة نجاح
+            msgDiv.className = 'message success';
+            msgDiv.textContent = 'تم إرسال رسالتك بنجاح. سنتواصل معك قريباً.';
+            document.getElementById('supportName').value = '';
+            document.getElementById('supportEmail').value = '';
+            document.getElementById('supportMessage').value = '';
+        }
+
+        function goBack() {
+            window.location.href = 'settings.html';
+        }
+    </script>
+</body>
+</html>
