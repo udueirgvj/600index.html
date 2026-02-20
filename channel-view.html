@@ -93,6 +93,11 @@ padding:25px;
 width:120px;height:120px;border-radius:50%;
 background:#4aa3d8;margin:auto;
 background-size:cover;background-position:center;
+display:flex;
+align-items:center;
+justify-content:center;
+color:white;
+font-size:40px;
 }
 .editBtn{
 position:absolute;
@@ -119,6 +124,7 @@ margin-top:10px;
 font-size:16px;
 border:1px solid #ccc;
 border-radius:6px;
+box-sizing:border-box;
 }
 .save{
 background:#2d8cd3;
@@ -128,6 +134,10 @@ border-radius:8px;
 text-align:center;
 margin-top:15px;
 cursor:pointer;
+}
+.loading{
+opacity:0.5;
+pointer-events:none;
 }
 </style>
 </head>
@@ -191,7 +201,7 @@ cursor:pointer;
 <label>صورة القناة</label>
 <input type="file" id="editImg" accept="image/*">
 
-<div class="save" onclick="saveChannel()">حفظ</div>
+<div class="save" id="saveBtn" onclick="saveChannel()">حفظ</div>
 <div class="save" style="background:#aaa;" onclick="cancelEdit()">إلغاء</div>
 
 </div>
@@ -248,16 +258,17 @@ cursor:pointer;
     const editName = document.getElementById('editName');
     const editDesc = document.getElementById('editDesc');
     const editImg = document.getElementById('editImg');
+    const saveBtn = document.getElementById('saveBtn');
 
     // ================= متغيرات الحالة =================
     const urlParams = new URLSearchParams(window.location.search);
-    const channelId = urlParams.get('id'); // معرف القناة من الرابط
+    const channelId = urlParams.get('id');
 
     let currentUserId = null;
     let currentChannelData = null;
     let isOwner = false;
     let isMember = false;
-    let isMuted = false; // سنخزنها في localStorage
+    let isMuted = false;
 
     // ================= التحقق من تسجيل الدخول =================
     onAuthStateChanged(auth, (user) => {
@@ -287,14 +298,10 @@ cursor:pointer;
             isOwner = currentChannelData.createdBy === currentUserId;
             isMember = currentChannelData.members?.includes(currentUserId) || false;
 
-            // حالة الكتم من localStorage
             const muteKey = `muted_${channelId}_${currentUserId}`;
             isMuted = localStorage.getItem(muteKey) === 'true';
 
-            // تحديث الواجهة
             updateUI();
-
-            // تحميل الرسائل
             loadMessages();
         });
     }
@@ -306,7 +313,6 @@ cursor:pointer;
         const desc = currentChannelData.description || 'لا يوجد وصف';
         const avatar = currentChannelData.avatar || '';
 
-        // الشاشة الرئيسية
         cnameEl.textContent = name;
         subsEl.textContent = memberCount + ' مشتركين';
         if (avatar) {
@@ -317,7 +323,6 @@ cursor:pointer;
             avatarEl.textContent = name.charAt(0).toUpperCase();
         }
 
-        // شاشة المعلومات
         infoNameEl.textContent = name;
         infoDescEl.textContent = desc;
         infoSubsEl.textContent = memberCount;
@@ -329,7 +334,6 @@ cursor:pointer;
             bigAvatarEl.textContent = name.charAt(0).toUpperCase();
         }
 
-        // أزرار الانضمام / الكتم
         if (isMember) {
             joinBtn.style.display = 'none';
             muteBtn.style.display = 'block';
@@ -339,7 +343,6 @@ cursor:pointer;
             muteBtn.style.display = 'none';
         }
 
-        // أيقونة التعديل (تظهر للمالك فقط)
         editIcon.style.display = isOwner ? 'block' : 'none';
     }
 
@@ -349,12 +352,9 @@ cursor:pointer;
         const messagesQuery = query(messagesRef, orderByChild('timestamp'));
         const snapshot = await get(messagesQuery);
 
-        chatContainer.innerHTML = ''; // تفريغ المحتوى
+        chatContainer.innerHTML = '';
 
-        if (!isMember || isMuted) {
-            // إذا كان غير مشترك أو مكتوم، لا نعرض الرسائل
-            return;
-        }
+        if (!isMember || isMuted) return;
 
         if (snapshot.exists()) {
             const messages = [];
@@ -362,7 +362,6 @@ cursor:pointer;
             messages.sort((a,b) => (a.timestamp || 0) - (b.timestamp || 0));
 
             for (const msg of messages) {
-                // جلب اسم المرسل
                 let senderName = 'مستخدم';
                 if (msg.senderId) {
                     const userSnap = await get(ref(database, 'users/' + msg.senderId));
@@ -373,7 +372,6 @@ cursor:pointer;
                 }
                 const time = msg.timestamp ? new Date(msg.timestamp).toLocaleTimeString('ar-EG', { hour:'2-digit', minute:'2-digit' }) : '';
 
-                // زيادة المشاهدات تلقائياً (مرة واحدة لكل مستخدم)
                 if (!localStorage.getItem(`viewed_${msg.id}_${currentUserId}`)) {
                     await update(ref(database, `channels/${channelId}/messages/${msg.id}`), {
                         views: (msg.views || 0) + 1
@@ -381,7 +379,6 @@ cursor:pointer;
                     localStorage.setItem(`viewed_${msg.id}_${currentUserId}`, 'yes');
                 }
 
-                // إنشاء عنصر الرسالة
                 const msgDiv = document.createElement('div');
                 msgDiv.className = 'message';
                 msgDiv.innerHTML = `
@@ -400,7 +397,6 @@ cursor:pointer;
                 chatContainer.appendChild(msgDiv);
             }
         } else {
-            // لا توجد رسائل، نعرض رسالة ترحيب افتراضية (لكن لا نخزنها)
             const defaultMsg = document.createElement('div');
             defaultMsg.className = 'message';
             defaultMsg.innerHTML = `
@@ -420,13 +416,12 @@ cursor:pointer;
         }
     }
 
-    // ================= دوال التفاعل (مع Firebase) =================
+    // ================= دوال التفاعل =================
     window.react = async function(messageId, type) {
         const userKey = `reacted_${messageId}_${type}_${currentUserId}`;
-        if (localStorage.getItem(userKey)) return; // منع التكرار
+        if (localStorage.getItem(userKey)) return;
 
         if (messageId === 'default') {
-            // التعامل مع الرسالة الافتراضية (غير المخزنة) - نكتفي بتحديث localStorage فقط
             const span = document.getElementById(`${type}_default`);
             if (span) {
                 span.textContent = parseInt(span.textContent) + 1;
@@ -441,13 +436,11 @@ cursor:pointer;
             const current = snapshot.val()[type] || 0;
             await update(msgRef, { [type]: current + 1 });
             localStorage.setItem(userKey, 'yes');
-            // تحديث العرض
             const span = document.getElementById(`${type}_${messageId}`);
             if (span) span.textContent = current + 1;
         }
     };
 
-    // ================= الانضمام للقناة =================
     window.joinChannel = async function() {
         if (!currentChannelData) return;
         const members = currentChannelData.members || [];
@@ -457,17 +450,15 @@ cursor:pointer;
         }
     };
 
-    // ================= كتم / إلغاء كتم =================
     window.toggleMute = function() {
         const muteKey = `muted_${channelId}_${currentUserId}`;
         isMuted = !isMuted;
         localStorage.setItem(muteKey, isMuted);
         muteBtn.textContent = isMuted ? 'إلغاء كتم الإشعارات' : 'كتم الإشعارات';
-        // إعادة تحميل الرسائل (إخفاؤها إذا كان مكتوماً)
         loadMessages();
     };
 
-    // ================= التنقل بين الشاشات =================
+    // ================= التنقل =================
     window.openInfo = function() {
         chatPage.style.display = 'none';
         infoPage.style.display = 'block';
@@ -494,6 +485,7 @@ cursor:pointer;
         infoPage.style.display = 'block';
     };
 
+    // ================= حفظ التعديلات مع الصورة (محدث) =================
     window.saveChannel = async function() {
         const newName = editName.value.trim();
         const newDesc = editDesc.value.trim();
@@ -502,33 +494,50 @@ cursor:pointer;
             return;
         }
 
-        const updates = {
-            name: newName,
-            description: newDesc
-        };
-
-        // رفع الصورة إذا اختارها المستخدم
-        const file = editImg.files[0];
-        if (file) {
-            try {
-                const fileRef = storageRef(storage, `channel_avatars/${channelId}/${Date.now()}_${file.name}`);
-                await uploadBytes(fileRef, file);
-                const url = await getDownloadURL(fileRef);
-                updates.avatar = url;
-            } catch (error) {
-                console.error(error);
-                alert('فشل رفع الصورة');
-                return;
-            }
-        }
+        // تعطيل زر الحفظ مؤقتاً لمنع النقر المتكرر
+        saveBtn.classList.add('loading');
+        saveBtn.textContent = 'جاري الحفظ...';
 
         try {
+            const updates = {
+                name: newName,
+                description: newDesc
+            };
+
+            // رفع الصورة إذا تم اختيارها
+            const file = editImg.files[0];
+            if (file) {
+                // التحقق من حجم الصورة (اختياري)
+                if (file.size > 5 * 1024 * 1024) { // 5 ميجابايت كحد أقصى
+                    alert('الصورة كبيرة جداً، الحد الأقصى 5 ميجابايت');
+                    saveBtn.classList.remove('loading');
+                    saveBtn.textContent = 'حفظ';
+                    return;
+                }
+
+                // إنشاء مسار فريد للصورة
+                const timestamp = Date.now();
+                const fileRef = storageRef(storage, `channel_avatars/${channelId}/${timestamp}_${file.name}`);
+
+                // رفع الصورة
+                const snapshot = await uploadBytes(fileRef, file);
+                const downloadURL = await getDownloadURL(fileRef);
+                updates.avatar = downloadURL;
+            }
+
+            // تحديث بيانات القناة في قاعدة البيانات
             await update(ref(database, 'channels/' + channelId), updates);
-            alert('تم الحفظ');
+
+            alert('تم الحفظ بنجاح');
             editPage.style.display = 'none';
             infoPage.style.display = 'block';
         } catch (error) {
-            alert('خطأ: ' + error.message);
+            console.error('خطأ في الحفظ:', error);
+            alert('حدث خطأ أثناء الحفظ: ' + error.message);
+        } finally {
+            // إعادة زر الحفظ إلى حالته الطبيعية
+            saveBtn.classList.remove('loading');
+            saveBtn.textContent = 'حفظ';
         }
     };
 
@@ -536,12 +545,11 @@ cursor:pointer;
         window.location.href = 'app.html';
     };
 
-    // عند تحميل الصفحة، نظهر شاشة المحادثة
-    goToChat();
-
-    // إضافة دالة لفتح المعلومات (الموجودة في onclick على الهيدر)
-    // نربط الهيدر بـ openInfo
+    // ربط الهيدر بفتح صفحة المعلومات
     document.querySelector('.header').onclick = openInfo;
+
+    // بدء بعرض صفحة المحادثة
+    goToChat();
 </script>
 </body>
 </html>
