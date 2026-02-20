@@ -61,7 +61,7 @@
             overflow-y: auto;
             padding: 1rem;
         }
-        /* صورة القناة */
+        /* العناصر المشتركة */
         .channel-avatar {
             width: 100px;
             height: 100px;
@@ -92,15 +92,31 @@
             text-align: center;
             color: #7f8fa4;
             font-size: 0.9rem;
-            margin: 0.2rem 0;
+            margin: 0.2rem 0 1.5rem;
         }
-        .channel-date {
+        .btn {
+            display: block;
+            width: 200px;
+            margin: 1rem auto;
+            padding: 0.8rem;
+            background: #2A6B9C;
+            color: white;
+            border: none;
+            border-radius: 30px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
             text-align: center;
-            color: #8899aa;
-            font-size: 0.8rem;
-            margin: 0.5rem 0 1rem;
         }
-        /* بطاقة الرسالة */
+        .btn.joined {
+            background: #eef2f7;
+            color: #1a2b3e;
+        }
+        .btn-secondary {
+            background: #eef2f7;
+            color: #1a2b3e;
+        }
+        /* واجهة عادية (لغير المكتوم) */
         .message-card {
             background: white;
             border-radius: 20px;
@@ -123,11 +139,6 @@
             color: #8899aa;
             margin-bottom: 0.5rem;
         }
-        .message-reactions span {
-            display: flex;
-            align-items: center;
-            gap: 0.3rem;
-        }
         .message-footer {
             display: flex;
             justify-content: space-between;
@@ -142,88 +153,28 @@
             font-size: 0.9rem;
             margin: 1rem 0;
         }
-        .btn {
-            display: block;
-            width: 200px;
-            margin: 1rem auto;
-            padding: 0.8rem;
-            background: #2A6B9C;
-            color: white;
-            border: none;
-            border-radius: 30px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            text-align: center;
+        .buttons-row {
+            display: flex;
+            gap: 0.8rem;
+            justify-content: center;
+            margin: 1rem 0;
         }
-        .btn.joined {
-            background: #eef2f7;
-            color: #1a2b3e;
+        /* واجهة مبسطة (للمكتوم) */
+        .simple-view {
+            text-align: center;
+            padding: 2rem;
         }
         .loading {
             text-align: center;
             padding: 2rem;
             color: #8899aa;
         }
-        /* نافذة الإعدادات مخفية افتراضياً */
-        #settingsModal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.5);
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-        }
-        .modal-content {
-            background: white;
-            border-radius: 20px;
-            padding: 2rem;
-            max-width: 400px;
-            width: 90%;
-        }
-        .modal-content h3 {
-            margin-bottom: 1rem;
-            color: #1a2b3e;
-        }
-        .modal-content .input-group {
-            margin-bottom: 1rem;
-        }
-        .modal-content label {
-            display: block;
-            margin-bottom: 0.3rem;
-            color: #4b5f73;
-        }
-        .modal-content input,
-        .modal-content select,
-        .modal-content textarea {
-            width: 100%;
-            padding: 0.8rem;
-            border: 1px solid #d9e1ec;
-            border-radius: 12px;
-        }
-        .modal-content .btn {
-            width: 100%;
-            padding: 0.8rem;
-            background: #2A6B9C;
-            color: white;
-            border: none;
-            border-radius: 30px;
-            margin-top: 1rem;
-        }
-        .modal-content .btn-secondary {
-            background: #6c757d;
-            margin-top: 0.5rem;
-        }
     </style>
 </head>
 <body>
     <div class="header">
         <button class="back-btn" onclick="goBack()">←</button>
-        <h1 id="headerTitle">المطور التطبيقي</h1>
+        <h1 id="headerTitle">القناة</h1>
         <div class="header-actions">
             <button id="editBtn" onclick="openSettings()" style="display: none;">⚙️</button>
         </div>
@@ -234,30 +185,30 @@
     </div>
 
     <!-- نافذة الإعدادات (للمالك فقط) -->
-    <div id="settingsModal">
-        <div class="modal-content">
-            <h3>إعدادات القناة</h3>
-            <div class="input-group">
-                <label>الاسم</label>
-                <input type="text" id="editName" placeholder="الاسم">
+    <div id="settingsModal" style="display: none; position: fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); align-items:center; justify-content:center; z-index:1000;">
+        <div style="background:white; border-radius:20px; padding:2rem; max-width:400px; width:90%;">
+            <h3 style="margin-bottom:1rem; color:#1a2b3e;">إعدادات القناة</h3>
+            <div style="margin-bottom:1rem;">
+                <label style="display:block; margin-bottom:0.3rem; color:#4b5f73;">الاسم</label>
+                <input type="text" id="editName" style="width:100%; padding:0.8rem; border:1px solid #d9e1ec; border-radius:12px;">
             </div>
-            <div class="input-group">
-                <label>الوصف</label>
-                <textarea id="editDesc" rows="3" placeholder="الوصف"></textarea>
+            <div style="margin-bottom:1rem;">
+                <label style="display:block; margin-bottom:0.3rem; color:#4b5f73;">الوصف</label>
+                <textarea id="editDesc" rows="3" style="width:100%; padding:0.8rem; border:1px solid #d9e1ec; border-radius:12px;"></textarea>
             </div>
-            <div class="input-group">
-                <label>اسم المستخدم</label>
-                <input type="text" id="editUsername" placeholder="@username">
+            <div style="margin-bottom:1rem;">
+                <label style="display:block; margin-bottom:0.3rem; color:#4b5f73;">اسم المستخدم</label>
+                <input type="text" id="editUsername" style="width:100%; padding:0.8rem; border:1px solid #d9e1ec; border-radius:12px;">
             </div>
-            <div class="input-group">
-                <label>الخصوصية</label>
-                <select id="editPrivacy">
+            <div style="margin-bottom:1rem;">
+                <label style="display:block; margin-bottom:0.3rem; color:#4b5f73;">الخصوصية</label>
+                <select id="editPrivacy" style="width:100%; padding:0.8rem; border:1px solid #d9e1ec; border-radius:12px;">
                     <option value="public">عامة</option>
                     <option value="private">خاصة</option>
                 </select>
             </div>
-            <button class="btn" onclick="saveSettings()">حفظ</button>
-            <button class="btn btn-secondary" onclick="closeSettings()">إلغاء</button>
+            <button onclick="saveSettings()" style="width:100%; padding:0.8rem; background:#2A6B9C; color:white; border:none; border-radius:30px; margin-top:1rem;">حفظ</button>
+            <button onclick="closeSettings()" style="width:100%; padding:0.8rem; background:#6c757d; color:white; border:none; border-radius:30px; margin-top:0.5rem;">إلغاء</button>
         </div>
     </div>
 
@@ -296,6 +247,8 @@
         let currentChannelData = null;
         let isOwner = false;
         let isMember = false;
+        // حالة الكتم مخزنة في localStorage لكل قناة ولكل مستخدم
+        let isMuted = false;
 
         onAuthStateChanged(auth, (user) => {
             if (!user) {
@@ -321,11 +274,14 @@
                 isOwner = currentChannelData.createdBy === currentUserId;
                 isMember = currentChannelData.members?.includes(currentUserId) || false;
 
+                // قراءة حالة الكتم من localStorage
+                const muteKey = `muted_${channelId}_${currentUserId}`;
+                isMuted = localStorage.getItem(muteKey) === 'true';
+
                 // إخفاء زر الإعدادات إذا لم يكن المالك
                 editBtn.style.display = isOwner ? 'inline-block' : 'none';
 
                 renderChannel();
-                loadLatestMessage();
             });
         }
 
@@ -342,10 +298,36 @@
                 </div>
                 <div class="channel-name">${data.name}</div>
                 <div class="channel-stats">مشتركان ${membersCount}</div>
-                <div class="channel-date">${createdDate}<br>تم إنشاء القناة</div>
             `;
 
-            container.innerHTML = html;
+            // إذا كان المستخدم مالكاً أو مشتركاً غير مكتوم → نعرض الواجهة العادية (مع الرسائل)
+            if (isOwner || (isMember && !isMuted)) {
+                container.innerHTML = html;
+                // نعرض التاريخ فقط للمالك أو المشترك العادي
+                const dateDiv = document.createElement('div');
+                dateDiv.className = 'channel-date';
+                dateDiv.textContent = createdDate + '\nتم إنشاء القناة';
+                container.appendChild(dateDiv);
+
+                // تحميل وعرض آخر رسالة (للعرض العادي)
+                loadLatestMessage();
+            } 
+            // إذا كان مشتركاً ومكتوماً → نعرض الواجهة المبسطة (بدون رسائل، فقط زر إلغاء الكتم)
+            else if (isMember && isMuted) {
+                html += `<div class="simple-view">`;
+                html += `<button class="btn" onclick="toggleMute()">إلغاء كتم الصوت</button>`;
+                html += `</div>`;
+                container.innerHTML = html;
+            }
+            // إذا كان زائراً (غير مشترك) → نعرض واجهة الزائر (زر انضمام)
+            else {
+                container.innerHTML = html;
+                const joinBtn = document.createElement('button');
+                joinBtn.className = 'btn';
+                joinBtn.textContent = 'انضمام';
+                joinBtn.onclick = toggleJoin;
+                container.appendChild(joinBtn);
+            }
         }
 
         async function loadLatestMessage() {
@@ -358,7 +340,6 @@
                 snapshot.forEach((child) => {
                     messages.push({ id: child.key, ...child.val() });
                 });
-                // ترتيب تنازلي للحصول على آخر رسالة
                 messages.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
                 const latest = messages[0];
                 
@@ -386,7 +367,6 @@
 
                 container.innerHTML += messageHtml;
             } else {
-                // لا توجد رسائل، نعرض رسالة افتراضية كما في الصورة
                 container.innerHTML += `
                     <div class="message-card">
                         <div class="message-sender">المطور التطبيقي</div>
@@ -405,14 +385,19 @@
                 `;
             }
 
-            // إضافة زر الانضمام
-            const joinButton = document.createElement('button');
-            joinButton.className = isMember ? 'btn joined' : 'btn';
-            joinButton.textContent = isMember ? 'مشترك ✓' : 'انضمام';
-            joinButton.onclick = toggleJoin;
-            container.appendChild(joinButton);
+            // إضافة أزرار التفاعل (للمشترك العادي)
+            if (isMember && !isOwner) {
+                const buttonsDiv = document.createElement('div');
+                buttonsDiv.className = 'buttons-row';
+                buttonsDiv.innerHTML = `
+                    <button class="btn joined" onclick="toggleJoin()">مشترك ✓</button>
+                    <button class="btn btn-secondary" onclick="toggleMute()">${isMuted ? 'إلغاء كتم الصوت' : 'كتم'}</button>
+                `;
+                container.appendChild(buttonsDiv);
+            }
         }
 
+        // دوال التفاعل
         window.toggleJoin = async function() {
             if (isOwner) return;
             const channelRef = ref(database, 'channels/' + channelId);
@@ -426,6 +411,14 @@
                 members.push(currentUserId);
                 await update(channelRef, { members: members });
             }
+        };
+
+        window.toggleMute = function() {
+            const muteKey = `muted_${channelId}_${currentUserId}`;
+            isMuted = !isMuted;
+            localStorage.setItem(muteKey, isMuted);
+            // تحديث الواجهة
+            renderChannel();
         };
 
         window.openSettings = function() {
