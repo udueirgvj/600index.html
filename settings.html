@@ -20,7 +20,7 @@
         .header {
             background: #2A6B9C;
             color: white;
-            padding: 0.8rem 1rem;
+            padding: 1rem;
             display: flex;
             align-items: center;
             gap: 1rem;
@@ -36,25 +36,69 @@
         .header h1 {
             font-size: 1.5rem;
             font-weight: 600;
+            margin: 0;
         }
         .container {
+            display: flex;
             flex: 1;
-            padding: 1rem;
-            max-width: 500px;
-            margin: 0 auto;
-            width: 100%;
+            overflow: hidden;
         }
-        .card {
+        /* القائمة الجانبية */
+        .sidebar {
+            width: 280px;
+            background: white;
+            border-left: 1px solid #eef2f7;
+            overflow-y: auto;
+            padding: 1rem 0;
+        }
+        .sidebar-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 1.5rem;
+            cursor: pointer;
+            transition: background 0.2s;
+            color: #1a2b3e;
+            border-right: 3px solid transparent;
+        }
+        .sidebar-item:hover {
+            background: #f0f2f5;
+        }
+        .sidebar-item.active {
+            background: #e8f0fe;
+            border-right-color: #2A6B9C;
+            color: #2A6B9C;
+            font-weight: 500;
+        }
+        .sidebar-item .icon {
+            font-size: 1.3rem;
+            width: 24px;
+            text-align: center;
+        }
+        .sidebar-item .text {
+            flex: 1;
+        }
+        /* المحتوى الرئيسي */
+        .content {
+            flex: 1;
+            padding: 2rem;
+            overflow-y: auto;
+            background: #f9fcff;
+        }
+        .content-card {
             background: white;
             border-radius: 20px;
             padding: 2rem;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            margin-bottom: 1rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            max-width: 600px;
+            margin: 0 auto;
         }
-        h2 {
+        .content-card h2 {
             color: #1a2b3e;
             margin-bottom: 1.5rem;
-            text-align: center;
+            font-size: 1.5rem;
+            border-bottom: 1px solid #eef2f7;
+            padding-bottom: 0.8rem;
         }
         .input-group {
             margin-bottom: 1.2rem;
@@ -81,7 +125,7 @@
         }
         .btn {
             width: 100%;
-            padding: 1rem;
+            padding: 0.8rem;
             font-size: 1rem;
             font-weight: 600;
             border: none;
@@ -95,17 +139,17 @@
         .btn:hover {
             background: #1f4e7a;
         }
-        .btn-danger {
-            background: #dc3545;
-        }
-        .btn-danger:hover {
-            background: #bb2d3b;
-        }
         .btn-secondary {
             background: #6c757d;
         }
         .btn-secondary:hover {
             background: #5a6268;
+        }
+        .btn-danger {
+            background: #dc3545;
+        }
+        .btn-danger:hover {
+            background: #bb2d3b;
         }
         .message {
             padding: 0.8rem;
@@ -131,10 +175,61 @@
             font-size: 0.9rem;
             margin-top: 0.5rem;
         }
-        .divider {
-            height: 1px;
+        .user-info {
+            background: #f9fcff;
+            padding: 1.5rem;
+            border-radius: 16px;
+            margin-bottom: 1.5rem;
+        }
+        .user-info p {
+            margin-bottom: 0.5rem;
+            color: #1a2b3e;
+        }
+        .user-info strong {
+            color: #2A6B9C;
+            min-width: 100px;
+            display: inline-block;
+        }
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #8899aa;
+        }
+        /* تنسيقات إضافية */
+        .section-placeholder {
+            text-align: center;
+            padding: 3rem;
+            color: #8899aa;
+        }
+        .section-placeholder h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: #1a2b3e;
+        }
+        .faq-item {
+            background: #f9fcff;
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .faq-item:hover {
             background: #eef2f7;
-            margin: 2rem 0;
+        }
+        .faq-item h4 {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #1a2b3e;
+        }
+        .faq-item p {
+            margin-top: 0.5rem;
+            color: #4b5f73;
+            display: none;
+        }
+        .faq-item.active p {
+            display: block;
         }
     </style>
 </head>
@@ -146,48 +241,54 @@
     </div>
 
     <div class="container">
-        <!-- معلومات الحساب -->
-        <div class="card">
-            <h2>معلومات الحساب</h2>
-            <div id="userInfo">
-                <p style="text-align: center;" class="loading">جاري تحميل المعلومات...</p>
+        <!-- القائمة الجانبية -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-item active" data-section="account">
+                <span class="icon">👤</span>
+                <span class="text">الحساب</span>
+            </div>
+            <div class="sidebar-item" data-section="chats">
+                <span class="icon">💬</span>
+                <span class="text">إعدادات المحادثات</span>
+            </div>
+            <div class="sidebar-item" data-section="privacy">
+                <span class="icon">🔒</span>
+                <span class="text">الخصوصية والأمان</span>
+            </div>
+            <div class="sidebar-item" data-section="notifications">
+                <span class="icon">🔔</span>
+                <span class="text">الإشعارات</span>
+            </div>
+            <div class="sidebar-item" data-section="storage">
+                <span class="icon">📁</span>
+                <span class="text">البيانات والتخزين</span>
+            </div>
+            <div class="sidebar-item" data-section="folders">
+                <span class="icon">📂</span>
+                <span class="text">مجلدات المحادثات</span>
+            </div>
+            <div class="sidebar-item" data-section="devices">
+                <span class="icon">📱</span>
+                <span class="text">الأجهزة</span>
+            </div>
+            <div class="sidebar-item" data-section="power">
+                <span class="icon">🔋</span>
+                <span class="text">توفير الطاقة</span>
+            </div>
+            <div class="sidebar-item" data-section="language">
+                <span class="icon">🌐</span>
+                <span class="text">اللغة</span>
+            </div>
+            <div class="sidebar-item" data-section="faq">
+                <span class="icon">❓</span>
+                <span class="text">الأسئلة الشائعة</span>
             </div>
         </div>
 
-        <!-- تعديل الاسم الشخصي -->
-        <div class="card">
-            <h2>تعديل الاسم الشخصي</h2>
-            <div class="input-group">
-                <label>الاسم الجديد</label>
-                <input type="text" id="newFullName" placeholder="أدخل الاسم الجديد">
-            </div>
-            <button class="btn" onclick="updateFullName()">تحديث الاسم</button>
-            <div id="nameMessage" class="message"></div>
-        </div>
-
-        <!-- تغيير كلمة المرور -->
-        <div class="card">
-            <h2>تغيير كلمة المرور</h2>
-            <div class="input-group">
-                <label>كلمة المرور الحالية</label>
-                <input type="password" id="currentPassword" placeholder="أدخل كلمة المرور الحالية">
-            </div>
-            <div class="input-group">
-                <label>كلمة المرور الجديدة</label>
-                <input type="password" id="newPassword" placeholder="أدخل كلمة المرور الجديدة (6 أحرف على الأقل)">
-            </div>
-            <div class="input-group">
-                <label>تأكيد كلمة المرور الجديدة</label>
-                <input type="password" id="confirmPassword" placeholder="أعد كتابة كلمة المرور الجديدة">
-            </div>
-            <button class="btn" onclick="changePassword()">تغيير كلمة المرور</button>
-            <div id="passwordMessage" class="message"></div>
-        </div>
-
-        <!-- خيارات إضافية -->
-        <div class="card">
-            <h2>خيارات أخرى</h2>
-            <button class="btn btn-secondary" onclick="logout()">تسجيل الخروج</button>
+        <!-- المحتوى الرئيسي -->
+        <div class="content" id="content">
+            <!-- سيتم تحميل المحتوى ديناميكياً عبر JavaScript -->
+            <div class="loading">جاري التحميل...</div>
         </div>
     </div>
 
@@ -211,115 +312,312 @@
         const auth = getAuth(app);
         const database = getDatabase(app);
 
-        const userInfoDiv = document.getElementById('userInfo');
-        const newFullNameInput = document.getElementById('newFullName');
-        const nameMessageDiv = document.getElementById('nameMessage');
-        const currentPasswordInput = document.getElementById('currentPassword');
-        const newPasswordInput = document.getElementById('newPassword');
-        const confirmPasswordInput = document.getElementById('confirmPassword');
-        const passwordMessageDiv = document.getElementById('passwordMessage');
-
+        // عناصر الصفحة
+        const sidebarItems = document.querySelectorAll('.sidebar-item');
+        const contentDiv = document.getElementById('content');
         let currentUser = null;
 
-        // مراقبة حالة المصادقة
+        // التحقق من المصادقة
         onAuthStateChanged(auth, async (user) => {
             if (!user) {
                 window.location.href = 'index.html';
                 return;
             }
             currentUser = user;
-            await loadUserInfo();
+            await loadUserData();
+            showSection('account'); // عرض قسم الحساب افتراضياً
         });
 
-        async function loadUserInfo() {
+        // تحميل بيانات المستخدم (للاستخدام في قسم الحساب)
+        async function loadUserData() {
             try {
                 const userRef = ref(database, 'users/' + currentUser.uid);
                 const snapshot = await get(userRef);
                 if (snapshot.exists()) {
-                    const userData = snapshot.val();
-                    userInfoDiv.innerHTML = `
-                        <p><strong>الاسم:</strong> ${userData.fullName || 'غير محدد'}</p>
-                        <p><strong>اسم المستخدم:</strong> ${userData.username || 'غير محدد'}</p>
-                        <p><strong>البريد الإلكتروني:</strong> ${userData.email || currentUser.email}</p>
-                    `;
-                    newFullNameInput.value = userData.fullName || '';
+                    window.userData = snapshot.val();
                 } else {
-                    userInfoDiv.innerHTML = `<p><strong>البريد الإلكتروني:</strong> ${currentUser.email}</p>`;
+                    window.userData = { email: currentUser.email };
                 }
             } catch (error) {
                 console.error(error);
-                userInfoDiv.innerHTML = '<p style="color: #dc3545;">حدث خطأ في تحميل المعلومات</p>';
+                window.userData = { email: currentUser.email };
             }
         }
 
-        // تحديث الاسم الشخصي
+        // التبديل بين الأقسام
+        sidebarItems.forEach(item => {
+            item.addEventListener('click', () => {
+                sidebarItems.forEach(i => i.classList.remove('active'));
+                item.classList.add('active');
+                const section = item.dataset.section;
+                showSection(section);
+            });
+        });
+
+        function showSection(section) {
+            let html = '';
+            switch (section) {
+                case 'account':
+                    html = renderAccount();
+                    break;
+                case 'chats':
+                    html = renderChats();
+                    break;
+                case 'privacy':
+                    html = renderPrivacy();
+                    break;
+                case 'notifications':
+                    html = renderNotifications();
+                    break;
+                case 'storage':
+                    html = renderStorage();
+                    break;
+                case 'folders':
+                    html = renderFolders();
+                    break;
+                case 'devices':
+                    html = renderDevices();
+                    break;
+                case 'power':
+                    html = renderPower();
+                    break;
+                case 'language':
+                    html = renderLanguage();
+                    break;
+                case 'faq':
+                    html = renderFaq();
+                    break;
+                default:
+                    html = '<div class="loading">قريباً...</div>';
+            }
+            contentDiv.innerHTML = html;
+            attachEvents(section);
+        }
+
+        // دوال عرض كل قسم
+        function renderAccount() {
+            const user = window.userData || {};
+            return `
+                <div class="content-card">
+                    <h2>الحساب</h2>
+                    <div class="user-info">
+                        <p><strong>الاسم:</strong> ${user.fullName || 'غير محدد'}</p>
+                        <p><strong>اسم المستخدم:</strong> ${user.username || 'غير محدد'}</p>
+                        <p><strong>البريد:</strong> ${user.email || currentUser?.email}</p>
+                    </div>
+                    <h3>تعديل الاسم الشخصي</h3>
+                    <div class="input-group">
+                        <label>الاسم الجديد</label>
+                        <input type="text" id="newFullName" placeholder="أدخل الاسم الجديد" value="${user.fullName || ''}">
+                    </div>
+                    <button class="btn" onclick="updateFullName()">تحديث الاسم</button>
+                    <div id="nameMessage" class="message"></div>
+
+                    <h3 style="margin-top: 2rem;">تغيير كلمة المرور</h3>
+                    <div class="input-group">
+                        <label>كلمة المرور الحالية</label>
+                        <input type="password" id="currentPassword" placeholder="أدخل كلمة المرور الحالية">
+                    </div>
+                    <div class="input-group">
+                        <label>كلمة المرور الجديدة</label>
+                        <input type="password" id="newPassword" placeholder="6 أحرف على الأقل">
+                    </div>
+                    <div class="input-group">
+                        <label>تأكيد كلمة المرور</label>
+                        <input type="password" id="confirmPassword" placeholder="أعد كتابة كلمة المرور">
+                    </div>
+                    <button class="btn" onclick="changePassword()">تغيير كلمة المرور</button>
+                    <div id="passwordMessage" class="message"></div>
+
+                    <button class="btn btn-danger" onclick="logout()" style="margin-top: 2rem;">تسجيل الخروج</button>
+                </div>
+            `;
+        }
+
+        function renderChats() {
+            return `
+                <div class="content-card">
+                    <h2>إعدادات المحادثات</h2>
+                    <p class="info-text">خلفية الشاشة، الوضع الليلي، المؤثرات الحركية</p>
+                    <div style="margin-top: 1rem;">
+                        <p>🔧 قيد التطوير...</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderPrivacy() {
+            return `
+                <div class="content-card">
+                    <h2>الخصوصية والأمان</h2>
+                    <p class="info-text">آخر ظهور، الأجهزة، مفاتيح المرور</p>
+                    <div style="margin-top: 1rem;">
+                        <p>🔧 قيد التطوير...</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderNotifications() {
+            return `
+                <div class="content-card">
+                    <h2>الإشعارات</h2>
+                    <p class="info-text">الأصوات، المكالمات، الشارات</p>
+                    <div style="margin-top: 1rem;">
+                        <p>🔧 قيد التطوير...</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderStorage() {
+            return `
+                <div class="content-card">
+                    <h2>البيانات والتخزين</h2>
+                    <p class="info-text">إعدادات تنزيل الوسائط</p>
+                    <div style="margin-top: 1rem;">
+                        <p>🔧 قيد التطوير...</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderFolders() {
+            return `
+                <div class="content-card">
+                    <h2>مجلدات المحادثات</h2>
+                    <p class="info-text">فرز المحادثات في مجلدات</p>
+                    <div style="margin-top: 1rem;">
+                        <p>🔧 قيد التطوير...</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderDevices() {
+            return `
+                <div class="content-card">
+                    <h2>الأجهزة</h2>
+                    <p class="info-text">إدارة الأجهزة المتصلة</p>
+                    <div style="margin-top: 1rem;">
+                        <p>🔧 قيد التطوير...</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderPower() {
+            return `
+                <div class="content-card">
+                    <h2>توفير الطاقة</h2>
+                    <p class="info-text">تقليل استهلاك الطاقة عند انخفاض الشحن</p>
+                    <div style="margin-top: 1rem;">
+                        <p>🔧 قيد التطوير...</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderLanguage() {
+            return `
+                <div class="content-card">
+                    <h2>اللغة</h2>
+                    <p class="info-text">العربية (محددة حالياً)</p>
+                    <div style="margin-top: 1rem;">
+                        <p>🔧 يمكن تغيير اللغة لاحقاً...</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderFaq() {
+            return `
+                <div class="content-card">
+                    <h2>الأسئلة الشائعة</h2>
+                    <div class="faq-item">
+                        <h4 onclick="toggleFaq(this)">كيف يمكنني تغيير اسمي؟ <span>▼</span></h4>
+                        <p>يمكنك تغيير اسمك من قسم "الحساب" في الإعدادات، ثم إدخال الاسم الجديد والضغط على تحديث.</p>
+                    </div>
+                    <div class="faq-item">
+                        <h4 onclick="toggleFaq(this)">كيف أغير كلمة المرور؟ <span>▼</span></h4>
+                        <p>اذهب إلى قسم "الحساب"، ثم أدخل كلمة المرور الحالية والجديدة ثم اضغط على تغيير كلمة المرور.</p>
+                    </div>
+                    <div class="faq-item">
+                        <h4 onclick="toggleFaq(this)">كيف أبحث عن مستخدمين؟ <span>▼</span></h4>
+                        <p>في الصفحة الرئيسية، اضغط على أيقونة البحث في الأعلى واكتب اسم المستخدم الذي تريده.</p>
+                    </div>
+                    <div class="faq-item">
+                        <h4 onclick="toggleFaq(this)">هل تطبيقنا مجاني؟ <span>▼</span></h4>
+                        <p>نعم، التطبيق مجاني بالكامل ولا توجد أي رسوم.</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        // دوال إضافية لربط الأحداث
+        window.toggleFaq = function(header) {
+            const item = header.closest('.faq-item');
+            item.classList.toggle('active');
+            const span = header.querySelector('span');
+            span.textContent = item.classList.contains('active') ? '▲' : '▼';
+        };
+
+        // دوال تحديث الاسم وتغيير كلمة المرور (ستُستدعى من HTML)
         window.updateFullName = async function() {
-            const newName = newFullNameInput.value.trim();
+            const newName = document.getElementById('newFullName')?.value.trim();
+            const msgDiv = document.getElementById('nameMessage');
             if (!newName) {
-                showMessage(nameMessageDiv, 'الاسم لا يمكن أن يكون فارغاً', false);
+                showMessage(msgDiv, 'الاسم لا يمكن أن يكون فارغاً', false);
                 return;
             }
-
             try {
                 const userRef = ref(database, 'users/' + currentUser.uid);
                 await update(userRef, { fullName: newName });
-                showMessage(nameMessageDiv, 'تم تحديث الاسم بنجاح', true);
-                await loadUserInfo(); // إعادة تحميل المعلومات
+                showMessage(msgDiv, 'تم تحديث الاسم بنجاح', true);
+                window.userData.fullName = newName;
             } catch (error) {
-                console.error(error);
-                showMessage(nameMessageDiv, 'حدث خطأ: ' + error.message, false);
+                showMessage(msgDiv, 'خطأ: ' + error.message, false);
             }
         };
 
-        // تغيير كلمة المرور
         window.changePassword = async function() {
-            const currentPassword = currentPasswordInput.value;
-            const newPassword = newPasswordInput.value;
-            const confirmPassword = confirmPasswordInput.value;
-
-            if (!currentPassword || !newPassword || !confirmPassword) {
-                showMessage(passwordMessageDiv, 'جميع الحقول مطلوبة', false);
+            const current = document.getElementById('currentPassword')?.value;
+            const newPass = document.getElementById('newPassword')?.value;
+            const confirm = document.getElementById('confirmPassword')?.value;
+            const msgDiv = document.getElementById('passwordMessage');
+            if (!current || !newPass || !confirm) {
+                showMessage(msgDiv, 'جميع الحقول مطلوبة', false);
                 return;
             }
-            if (newPassword.length < 6) {
-                showMessage(passwordMessageDiv, 'كلمة المرور الجديدة يجب أن تكون 6 أحرف على الأقل', false);
+            if (newPass.length < 6) {
+                showMessage(msgDiv, 'كلمة المرور الجديدة يجب أن تكون 6 أحرف على الأقل', false);
                 return;
             }
-            if (newPassword !== confirmPassword) {
-                showMessage(passwordMessageDiv, 'كلمة المرور الجديدة غير متطابقة', false);
+            if (newPass !== confirm) {
+                showMessage(msgDiv, 'كلمة المرور غير متطابقة', false);
                 return;
             }
-
             try {
-                // إعادة المصادقة
-                const credential = EmailAuthProvider.credential(currentUser.email, currentPassword);
+                const credential = EmailAuthProvider.credential(currentUser.email, current);
                 await reauthenticateWithCredential(currentUser, credential);
-                
-                // تغيير كلمة المرور
-                await updatePassword(currentUser, newPassword);
-                showMessage(passwordMessageDiv, 'تم تغيير كلمة المرور بنجاح', true);
-                
-                // تفريغ الحقول
-                currentPasswordInput.value = '';
-                newPasswordInput.value = '';
-                confirmPasswordInput.value = '';
+                await updatePassword(currentUser, newPass);
+                showMessage(msgDiv, 'تم تغيير كلمة المرور بنجاح', true);
+                document.getElementById('currentPassword').value = '';
+                document.getElementById('newPassword').value = '';
+                document.getElementById('confirmPassword').value = '';
             } catch (error) {
-                console.error(error);
                 if (error.code === 'auth/wrong-password') {
-                    showMessage(passwordMessageDiv, 'كلمة المرور الحالية غير صحيحة', false);
+                    showMessage(msgDiv, 'كلمة المرور الحالية غير صحيحة', false);
                 } else {
-                    showMessage(passwordMessageDiv, 'حدث خطأ: ' + error.message, false);
+                    showMessage(msgDiv, 'خطأ: ' + error.message, false);
                 }
             }
         };
 
-        // تسجيل الخروج
         window.logout = async function() {
             await signOut(auth);
-            // سيتم التوجيه تلقائياً عبر onAuthStateChanged
         };
 
-        // العودة إلى الصفحة الرئيسية
         window.goBack = function() {
             window.location.href = 'app.html';
         };
@@ -328,6 +626,9 @@
             element.textContent = text;
             element.className = isSuccess ? 'message success' : 'message error';
         }
+
+        // إضافة دوال إلى النافذة لاستخدامها من HTML
+        window.showMessage = showMessage;
     </script>
 </body>
 </html>
