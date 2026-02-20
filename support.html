@@ -1,9 +1,10 @@
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تواصل - الدعم</title>
+    <title>تواصل - الدعم الفني</title>
     <style>
         * {
             margin: 0;
@@ -32,70 +33,151 @@
             color: white;
             font-size: 1.8rem;
             cursor: pointer;
+            line-height: 1;
         }
         .header h1 {
             font-size: 1.5rem;
             font-weight: 600;
+            margin: 0;
+            flex: 1;
         }
         .container {
             flex: 1;
-            padding: 2rem;
+            display: flex;
+            flex-direction: column;
             max-width: 600px;
             margin: 0 auto;
             width: 100%;
+            padding: 1rem;
         }
-        .card {
+        /* بطاقة الدعم */
+        .support-card {
             background: white;
             border-radius: 20px;
             padding: 2rem;
             box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-        }
-        h2 {
-            color: #1a2b3e;
             margin-bottom: 1.5rem;
             text-align: center;
         }
-        .input-group {
-            margin-bottom: 1.2rem;
+        .support-avatar {
+            width: 80px;
+            height: 80px;
+            background: #2A6B9C;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            margin: 0 auto 1rem;
+            box-shadow: 0 5px 10px rgba(42,107,156,0.3);
         }
-        .input-group label {
-            display: block;
+        .support-card h2 {
+            color: #1a2b3e;
+            margin-bottom: 0.5rem;
+            font-size: 1.5rem;
+        }
+        .support-card p {
+            color: #7f8fa4;
+            margin-bottom: 1.5rem;
+        }
+        .support-card .date {
+            color: #8899aa;
             font-size: 0.9rem;
-            font-weight: 500;
-            color: #4b5f73;
-            margin-bottom: 0.3rem;
+            margin-bottom: 1rem;
         }
-        .input-group input, .input-group textarea {
-            width: 100%;
-            padding: 0.8rem 1rem;
-            border: 1px solid #d9e1ec;
-            border-radius: 12px;
-            background: #f9fcff;
+        .start-btn {
+            background: #2A6B9C;
+            color: white;
+            border: none;
+            border-radius: 30px;
+            padding: 0.8rem 2rem;
             font-size: 1rem;
-            outline: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-bottom: 1rem;
         }
-        .input-group input:focus, .input-group textarea:focus {
+        .start-btn:hover {
+            background: #1f4e7a;
+        }
+        /* قائمة الأسئلة */
+        .questions-section {
+            background: white;
+            border-radius: 20px;
+            padding: 1.5rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            margin-bottom: 1.5rem;
+        }
+        .questions-section h3 {
+            color: #1a2b3e;
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+        .question-item {
+            background: #f9fcff;
+            border: 1px solid #eef2f7;
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .question-item:hover {
+            background: #e8f0fe;
             border-color: #2A6B9C;
-            box-shadow: 0 0 0 3px rgba(42,107,156,0.1);
         }
-        .input-group textarea {
-            min-height: 150px;
-            resize: vertical;
+        .question-item .text {
+            color: #1a2b3e;
+            font-weight: 500;
         }
-        .btn {
-            width: 100%;
+        .question-item .arrow {
+            color: #8899aa;
+            font-size: 1.2rem;
+        }
+        /* منطقة الإجابة */
+        .answer-box {
+            background: #f0f2f5;
+            border-radius: 12px;
+            padding: 1rem;
+            margin-top: 0.5rem;
+            margin-bottom: 1rem;
+            display: none;
+            border-right: 4px solid #2A6B9C;
+        }
+        .answer-box.show {
+            display: block;
+        }
+        .answer-box p {
+            color: #1a2b3e;
+        }
+        /* زر التخطي */
+        .skip-btn {
+            background: #eef2f7;
+            color: #1a2b3e;
+            border: none;
+            border-radius: 30px;
             padding: 1rem;
             font-size: 1rem;
             font-weight: 600;
-            border: none;
-            border-radius: 30px;
-            background: #2A6B9C;
-            color: white;
             cursor: pointer;
+            transition: background 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            width: 100%;
         }
-        .btn:hover {
-            background: #1f4e7a;
+        .skip-btn:hover {
+            background: #d9e1ec;
         }
+        .skip-btn span {
+            font-size: 1.2rem;
+        }
+        /* رسالة نجاح */
         .message {
             padding: 0.8rem;
             border-radius: 10px;
@@ -123,51 +205,127 @@
     </div>
 
     <div class="container">
-        <div class="card">
-            <h2>تواصل معنا</h2>
-            <p style="margin-bottom: 1.5rem; color: #7f8fa4; text-align: center;">أرسل استفسارك وسنرد عليك في أقرب وقت</p>
-            <div class="input-group">
-                <label>الاسم</label>
-                <input type="text" id="supportName" placeholder="اسمك">
-            </div>
-            <div class="input-group">
-                <label>البريد الإلكتروني</label>
-                <input type="email" id="supportEmail" placeholder="بريدك الإلكتروني">
-            </div>
-            <div class="input-group">
-                <label>الرسالة</label>
-                <textarea id="supportMessage" placeholder="اكتب رسالتك هنا..."></textarea>
-            </div>
-            <button class="btn" onclick="sendSupport()">إرسال</button>
-            <div id="supportMessageDiv" class="message"></div>
+        <!-- بطاقة الدعم -->
+        <div class="support-card">
+            <div class="support-avatar">🛟</div>
+            <h2>دعم المتطوعين</h2>
+            <p class="date">20 فبراير 2026</p>
+            <button class="start-btn" onclick="startChat()">ابدأ المحادثة</button>
+            <p style="color: #7f8fa4; font-size: 0.9rem;">اختر سؤالاً من الأسئلة الشائعة أو تواصل مع متطوع</p>
         </div>
+
+        <!-- الأسئلة الشائعة -->
+        <div class="questions-section">
+            <h3>الأسئلة الشائعة</h3>
+            
+            <div class="question-item" onclick="toggleAnswer('q1')">
+                <span class="text">أريد أن أعرف كيف يمكنني إنشاء حساب؟</span>
+                <span class="arrow">▼</span>
+            </div>
+            <div id="q1" class="answer-box">
+                <p>لإنشاء حساب جديد، افتح صفحة تسجيل الدخول واضغط على "إنشاء حساب"، ثم أدخل اسمك واسم المستخدم والبريد الإلكتروني وكلمة المرور. بعد ذلك اضغط على "إنشاء الحساب". ستتلقى رسالة تأكيد على بريدك الإلكتروني.</p>
+            </div>
+
+            <div class="question-item" onclick="toggleAnswer('q2')">
+                <span class="text">أريد التبليغ عن مشكلة في التطبيق</span>
+                <span class="arrow">▼</span>
+            </div>
+            <div id="q2" class="answer-box">
+                <p>يمكنك التبليغ عن المشكلة من خلال مراسلتنا مباشرة عبر زر "ابدأ المحادثة" في الأعلى، أو إرسال بريد إلكتروني إلى support@tawasul.com مع وصف المشكلة.</p>
+            </div>
+
+            <div class="question-item" onclick="toggleAnswer('q3')">
+                <span class="text">كيف أرى وقت آخر ظهور للمستخدمين؟</span>
+                <span class="arrow">▼</span>
+            </div>
+            <div id="q3" class="answer-box">
+                <p>وقت آخر ظهور يظهر تلقائياً في قائمة المحادثات بجانب اسم المستخدم. إذا كان المستخدم قد أخفى آخر ظهور، فلن تتمكن من رؤيته. يمكنك التحكم في إعدادات الخصوصية الخاصة بك من صفحة الإعدادات.</p>
+            </div>
+
+            <div class="question-item" onclick="toggleAnswer('q4')">
+                <span class="text">كيف أنشر قصة؟</span>
+                <span class="arrow">▼</span>
+            </div>
+            <div id="q4" class="answer-box">
+                <p>ميزة القصص قيد التطوير حالياً وستتوفر قريباً في التحديث القادم. تابع إعلاناتنا لمعرفة المزيد.</p>
+            </div>
+
+            <div class="question-item" onclick="toggleAnswer('q5')">
+                <span class="text">كيف أحدث التطبيق إلى آخر إصدار؟</span>
+                <span class="arrow">▼</span>
+            </div>
+            <div id="q5" class="answer-box">
+                <p>إذا كنت تستخدم التطبيق على متصفح الويب، فسيتم التحديث تلقائياً عند إعادة تحميل الصفحة. إذا كنت تستخدم تطبيق الجوال، قم بزيارة متجر التطبيقات (Google Play أو App Store) وتحقق من وجود تحديثات.</p>
+            </div>
+        </div>
+
+        <!-- زر التخطي إلى متطوع -->
+        <button class="skip-btn" onclick="skipToVolunteer()">
+            <span>⏭️</span> تخط وانتقال إلى المتطوعين
+        </button>
+
+        <!-- رسالة إعلامية -->
+        <div id="message" class="message"></div>
     </div>
 
     <script>
-        function sendSupport() {
-            const name = document.getElementById('supportName').value.trim();
-            const email = document.getElementById('supportEmail').value.trim();
-            const message = document.getElementById('supportMessage').value.trim();
-            const msgDiv = document.getElementById('supportMessageDiv');
-
-            if (!name || !email || !message) {
-                msgDiv.className = 'message error';
-                msgDiv.textContent = 'جميع الحقول مطلوبة';
-                return;
-            }
-
-            // هنا يمكن إرسال البيانات إلى Firebase أو خدمة بريد إلكتروني
-            // للتبسيط، سنعرض رسالة نجاح
-            msgDiv.className = 'message success';
-            msgDiv.textContent = 'تم إرسال رسالتك بنجاح. سنتواصل معك قريباً.';
-            document.getElementById('supportName').value = '';
-            document.getElementById('supportEmail').value = '';
-            document.getElementById('supportMessage').value = '';
-        }
-
+        // دالة العودة إلى صفحة الإعدادات
         function goBack() {
             window.location.href = 'settings.html';
         }
+
+        // دالة بدء المحادثة مع الدعم (محاكاة)
+        function startChat() {
+            // يمكن توجيه المستخدم إلى صفحة محادثة مع بوت الدعم
+            // حالياً سنعرض رسالة
+            showMessage('تم تحويلك إلى دعم المتطوعين...', 'success');
+            setTimeout(() => {
+                window.location.href = 'chat.html?uid=support_bot&name=الدعم الفني&username=support';
+            }, 1500);
+        }
+
+        // دالة التخطي إلى متطوع
+        function skipToVolunteer() {
+            showMessage('جاري البحث عن متطوع متاح...', 'success');
+            setTimeout(() => {
+                window.location.href = 'chat.html?uid=volunteer_bot&name=متطوع&username=volunteer';
+            }, 1500);
+        }
+
+        // دالة إظهار وإخفاء الإجابات
+        function toggleAnswer(id) {
+            const answer = document.getElementById(id);
+            const questionItem = answer.previousElementSibling;
+            const arrow = questionItem.querySelector('.arrow');
+            
+            if (answer.classList.contains('show')) {
+                answer.classList.remove('show');
+                arrow.textContent = '▼';
+            } else {
+                // إخفاء أي إجابة مفتوحة أخرى (اختياري)
+                document.querySelectorAll('.answer-box').forEach(box => {
+                    box.classList.remove('show');
+                });
+                document.querySelectorAll('.question-item .arrow').forEach(ar => {
+                    ar.textContent = '▼';
+                });
+                answer.classList.add('show');
+                arrow.textContent = '▲';
+            }
+        }
+
+        // دالة عرض الرسائل
+        function showMessage(text, type) {
+            const msgDiv = document.getElementById('message');
+            msgDiv.textContent = text;
+            msgDiv.className = 'message ' + type;
+            setTimeout(() => {
+                msgDiv.className = 'message';
+            }, 3000);
+        }
+
+        // إضافة مستمعات لروابط الأسئلة (إذا أردت فتح صفحة محادثة معينة)
+        // يمكنك توسيع الوظائف حسب الحاجة
     </script>
 </body>
 </html>
