@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>تواصل - الرئيسية</title>
     <style>
+        /* نفس التصميم السابق مع إضافة الزر العائم */
         * {
             margin: 0;
             padding: 0;
@@ -17,7 +18,6 @@
             display: flex;
             flex-direction: column;
         }
-        /* الشريط العلوي */
         .header {
             background: #2A6B9C;
             color: white;
@@ -43,7 +43,6 @@
             width: 40px;
             text-align: center;
         }
-        /* شريط البحث */
         .search-bar {
             background: white;
             padding: 0.8rem 1rem;
@@ -66,7 +65,6 @@
             border-color: #2A6B9C;
             box-shadow: 0 0 0 3px rgba(42,107,156,0.1);
         }
-        /* نتائج البحث */
         .search-results {
             background: white;
             max-height: 300px;
@@ -112,7 +110,6 @@
             font-size: 0.85rem;
             color: #7f8fa4;
         }
-        /* المحتوى الرئيسي */
         .main-content {
             flex: 1;
             overflow-y: auto;
@@ -124,7 +121,6 @@
         .tab-content.active {
             display: block;
         }
-        /* قائمة المحادثات */
         .chat-list {
             display: flex;
             flex-direction: column;
@@ -171,7 +167,6 @@
             font-size: 0.75rem;
             color: #8899aa;
         }
-        /* قائمة الجهات */
         .contacts-list {
             display: flex;
             flex-direction: column;
@@ -209,7 +204,6 @@
             font-size: 0.85rem;
             color: #7f8fa4;
         }
-        /* الإعدادات */
         .settings-list {
             background: white;
             border-radius: 12px;
@@ -236,7 +230,6 @@
             font-size: 1rem;
             color: #1a2b3e;
         }
-        /* الملف الشخصي */
         .profile-card {
             background: white;
             border-radius: 16px;
@@ -274,7 +267,6 @@
             border-radius: 30px;
             border: 1px solid #d9e1ec;
         }
-        /* الشريط السفلي */
         .bottom-nav {
             background: white;
             display: flex;
@@ -302,6 +294,33 @@
         }
         .nav-item span:last-child {
             font-size: 0.7rem;
+        }
+        /* الزر العائم الأزرق */
+        .fab {
+            position: fixed;
+            bottom: 80px; /* فوق الشريط السفلي مباشرة */
+            left: 20px;
+            width: 60px;
+            height: 60px;
+            background: #2A6B9C;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2rem;
+            box-shadow: 0 4px 10px rgba(42,107,156,0.3);
+            cursor: pointer;
+            transition: background 0.2s, transform 0.2s;
+            z-index: 100;
+            border: none;
+        }
+        .fab:hover {
+            background: #1f4e7a;
+            transform: scale(1.05);
+        }
+        .fab:active {
+            transform: scale(0.95);
         }
         .btn {
             background: #2A6B9C;
@@ -403,14 +422,17 @@
             <span>جهات الاتصال</span>
         </a>
         <a class="nav-item" href="settings.html" onclick="window.location.href='settings.html'; return false;">
-    <span>⚙️</span>
-    <span>الإعدادات</span>
+            <span>⚙️</span>
+            <span>الإعدادات</span>
         </a>
         <a class="nav-item" href="#profile" onclick="switchTab('profile'); return false;">
             <span>👤</span>
             <span>الملف الشخصي</span>
         </a>
     </div>
+
+    <!-- الزر العائم الأزرق (إنشاء قناة/مجموعة) -->
+    <button class="fab" onclick="openCreateChannel()" title="إنشاء قناة أو مجموعة">➕</button>
 
     <!-- Firebase SDK -->
     <script type="module">
@@ -456,16 +478,12 @@
 
         // دالة تبديل التبويبات
         window.switchTab = function(tabName) {
-            // إخفاء كل التبويبات
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-            
-            // إظهار التبويب المطلوب
             if (tabName === 'chats') document.getElementById('tab1').classList.add('active');
             else if (tabName === 'contacts') document.getElementById('tab2').classList.add('active');
             else if (tabName === 'settings') document.getElementById('tab3').classList.add('active');
             else if (tabName === 'profile') document.getElementById('tab4').classList.add('active');
             
-            // تحديث الشريط السفلي
             document.querySelectorAll('.nav-item').forEach((el, index) => {
                 const navTab = index === 0 ? 'chats' : index === 1 ? 'contacts' : index === 2 ? 'settings' : 'profile';
                 if (navTab === tabName) el.classList.add('active');
@@ -499,7 +517,6 @@
             loadTabFromHash();
         });
 
-        // تحميل بيانات المستخدم الحالي
         async function loadCurrentUserData() {
             const userRef = ref(database, 'users/' + currentUserId);
             const snapshot = await get(userRef);
@@ -508,15 +525,11 @@
             }
         }
 
-        // تحميل المحادثات
         function loadChats() {
             const chatsRef = ref(database, 'chats');
-            
             onValue(chatsRef, async (snapshot) => {
                 chatListDiv.innerHTML = '<div class="loading">جاري تحميل المحادثات...</div>';
-                
                 const userChats = [];
-                
                 if (snapshot.exists()) {
                     snapshot.forEach((childSnapshot) => {
                         const chatId = childSnapshot.key;
@@ -529,62 +542,50 @@
                         }
                     });
                 }
-
                 if (userChats.length === 0) {
                     chatListDiv.innerHTML = '<div style="text-align:center; padding:2rem;">لا توجد محادثات بعد</div>';
                     return;
                 }
-
                 let html = '';
                 for (const chat of userChats) {
-                    try {
-                        const userSnap = await get(ref(database, 'users/' + chat.otherUserId));
-                        if (!userSnap.exists()) continue;
-                        
-                        const userData = userSnap.val();
-                        const displayName = userData.fullName || userData.username || 'مستخدم';
-                        
-                        const messagesRef = ref(database, `chats/${chat.chatId}/messages`);
-                        const lastMsgQuery = query(messagesRef, orderByChild('timestamp'), limitToLast(1));
-                        const lastMsgSnap = await get(lastMsgQuery);
-                        
-                        let lastMsg = 'اضغط لبدء المحادثة';
-                        let lastTime = '';
-                        
-                        if (lastMsgSnap.exists()) {
-                            lastMsgSnap.forEach((msg) => {
-                                const msgData = msg.val();
-                                lastMsg = msgData.text || 'رسالة';
-                                if (msgData.timestamp) {
-                                    lastTime = new Date(msgData.timestamp).toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
-                                }
-                            });
-                        }
-
-                        const initial = displayName.charAt(0).toUpperCase();
-                        html += `
-                            <div class="chat-item" onclick="goToChat('${chat.otherUserId}', '${displayName}', '${userData.username || ''}')">
-                                <div class="avatar">${initial}</div>
-                                <div class="details">
-                                    <h4>${displayName}</h4>
-                                    <p>${lastMsg}</p>
-                                </div>
-                                <div class="time">${lastTime}</div>
-                            </div>
-                        `;
-                    } catch (error) {
-                        console.error(error);
+                    const userSnap = await get(ref(database, 'users/' + chat.otherUserId));
+                    if (!userSnap.exists()) continue;
+                    const userData = userSnap.val();
+                    const displayName = userData.fullName || userData.username || 'مستخدم';
+                    
+                    const messagesRef = ref(database, `chats/${chat.chatId}/messages`);
+                    const lastMsgQuery = query(messagesRef, orderByChild('timestamp'), limitToLast(1));
+                    const lastMsgSnap = await get(lastMsgQuery);
+                    let lastMsg = 'اضغط لبدء المحادثة';
+                    let lastTime = '';
+                    if (lastMsgSnap.exists()) {
+                        lastMsgSnap.forEach((msg) => {
+                            const msgData = msg.val();
+                            lastMsg = msgData.text || 'رسالة';
+                            if (msgData.timestamp) {
+                                lastTime = new Date(msgData.timestamp).toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
+                            }
+                        });
                     }
+                    const initial = displayName.charAt(0).toUpperCase();
+                    html += `
+                        <div class="chat-item" onclick="goToChat('${chat.otherUserId}', '${displayName}', '${userData.username || ''}')">
+                            <div class="avatar">${initial}</div>
+                            <div class="details">
+                                <h4>${displayName}</h4>
+                                <p>${lastMsg}</p>
+                            </div>
+                            <div class="time">${lastTime}</div>
+                        </div>
+                    `;
                 }
-
                 chatListDiv.innerHTML = html || '<div style="text-align:center; padding:2rem;">لا توجد محادثات بعد</div>';
             }, (error) => {
-                console.error('خطأ في تحميل المحادثات:', error);
+                console.error(error);
                 chatListDiv.innerHTML = `<div class="error">خطأ في الاتصال: ${error.message}</div>`;
             });
         }
 
-        // تحميل الجهات
         function loadContacts() {
             const usersRef = ref(database, 'users');
             onValue(usersRef, (snapshot) => {
@@ -608,7 +609,6 @@
             });
         }
 
-        // تحميل الملف الشخصي
         function loadProfile() {
             if (!currentUserData) return;
             const name = currentUserData.fullName || currentUserData.username || 'مستخدم';
@@ -622,13 +622,16 @@
             `;
         }
 
-        // دالة الذهاب إلى المحادثة
         window.goToChat = function(uid, name, username) {
             if (!uid) return;
             window.location.href = `chat.html?uid=${uid}&name=${encodeURIComponent(name)}&username=${username}`;
         };
 
-        // البحث عن المستخدمين
+        // دالة فتح إنشاء قناة/مجموعة
+        window.openCreateChannel = function() {
+            window.location.href = 'create-channel.html'; // غير هذا المسار حسب ملفك
+        };
+
         window.searchUsers = async function() {
             const searchText = searchInput.value.trim();
             if (searchText.length < 1) {
@@ -636,24 +639,19 @@
                 searchResultsDiv.innerHTML = '';
                 return;
             }
-
             searchResultsDiv.classList.add('show');
             searchResultsDiv.innerHTML = '<div class="small-loading">جاري البحث...</div>';
-
             try {
                 const usersRef = ref(database, 'users');
                 const userQuery = query(usersRef, orderByChild('username'), startAt(searchText), endAt(searchText + '\uf8ff'), limitToFirst(20));
                 const snapshot = await get(userQuery);
-                
                 if (snapshot.exists()) {
                     let results = '';
                     snapshot.forEach((childSnapshot) => {
                         const userData = childSnapshot.val();
                         const uid = childSnapshot.key;
                         if (uid === currentUserId) return;
-                        
                         const initial = (userData.fullName || userData.username).charAt(0).toUpperCase();
-                        
                         results += `
                             <div class="user-item" onclick="goToChat('${uid}', '${userData.fullName || userData.username}', '${userData.username}')">
                                 <div class="user-avatar">${initial}</div>
@@ -664,13 +662,12 @@
                             </div>
                         `;
                     });
-                    
                     searchResultsDiv.innerHTML = results || '<div style="padding:1rem; text-align:center;">لا توجد نتائج</div>';
                 } else {
                     searchResultsDiv.innerHTML = '<div style="padding:1rem; text-align:center;">لا توجد نتائج</div>';
                 }
             } catch (error) {
-                console.error('خطأ في البحث:', error);
+                console.error(error);
                 searchResultsDiv.innerHTML = '<div style="padding:1rem; text-align:center;">حدث خطأ في البحث</div>';
             }
         };
@@ -706,7 +703,6 @@
             const searchBarEl = document.getElementById('searchBar');
             const searchResultsEl = document.getElementById('searchResults');
             const searchIcon = document.querySelector('.search-icon');
-            
             if (!searchBarEl.contains(event.target) && !searchResultsEl.contains(event.target) && !searchIcon.contains(event.target)) {
                 searchBarEl.classList.remove('show');
                 searchResultsEl.classList.remove('show');
