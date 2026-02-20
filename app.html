@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تواصل - الرئيسية</title>
+    <title>Clipn - الرئيسية</title>
     <style>
-        /* نفس التصميم السابق مع إضافة الزر العائم والبحث المحسّن */
+        /* نفس التصميم السابق مع تغيير اسم التطبيق */
         * {
             margin: 0;
             padding: 0;
@@ -36,6 +36,7 @@
         .header .app-title {
             font-size: 1.5rem;
             font-weight: 600;
+            transition: opacity 0.3s;
         }
         .header .search-icon {
             font-size: 1.5rem;
@@ -298,7 +299,6 @@
         .nav-item span:last-child {
             font-size: 0.7rem;
         }
-        /* الزر العائم الأزرق */
         .fab {
             position: fixed;
             bottom: 80px;
@@ -355,19 +355,24 @@
             color: #8899aa;
             font-size: 0.85rem;
         }
+        .status-message {
+            font-size: 0.9rem;
+            color: #7f8fa4;
+            margin-left: 10px;
+        }
     </style>
 </head>
 <body>
     <!-- الشريط العلوي -->
     <div class="header">
         <div class="menu-icon" onclick="toggleMenu()">☰</div>
-        <div class="app-title">تواصل</div>
+        <div class="app-title" id="appTitle">Clipn</div>
         <div class="search-icon" onclick="toggleSearch()">🔍</div>
     </div>
 
     <!-- شريط البحث -->
     <div id="searchBar" class="search-bar">
-        <input type="text" id="searchInput" placeholder="ابحث عن مستخدم أو قناة..." oninput="searchUsers()">
+        <input type="text" id="searchInput" placeholder="ابحث عن مستخدم أو قناة أو بوت..." oninput="searchUsers()">
     </div>
     <div id="searchResults" class="search-results"></div>
 
@@ -475,9 +480,11 @@
         const chatListDiv = document.getElementById('chatList');
         const contactsListDiv = document.getElementById('contactsList');
         const profileCardDiv = document.getElementById('profileCard');
+        const appTitle = document.getElementById('appTitle');
 
         let currentUserId = null;
         let currentUserData = null;
+        let isLoading = true;
 
         // دالة تبديل التبويبات
         window.switchTab = function(tabName) {
@@ -530,6 +537,10 @@
 
         function loadChats() {
             const chatsRef = ref(database, 'chats');
+            // تغيير عنوان التحميل
+            appTitle.textContent = 'يتم الاتصال...';
+            isLoading = true;
+
             onValue(chatsRef, async (snapshot) => {
                 chatListDiv.innerHTML = '<div class="loading">جاري تحميل المحادثات...</div>';
                 const userChats = [];
@@ -547,45 +558,50 @@
                 }
                 if (userChats.length === 0) {
                     chatListDiv.innerHTML = '<div style="text-align:center; padding:2rem;">لا توجد محادثات بعد</div>';
-                    return;
-                }
-                let html = '';
-                for (const chat of userChats) {
-                    const userSnap = await get(ref(database, 'users/' + chat.otherUserId));
-                    if (!userSnap.exists()) continue;
-                    const userData = userSnap.val();
-                    const displayName = userData.fullName || userData.username || 'مستخدم';
-                    
-                    const messagesRef = ref(database, `chats/${chat.chatId}/messages`);
-                    const lastMsgQuery = query(messagesRef, orderByChild('timestamp'), limitToLast(1));
-                    const lastMsgSnap = await get(lastMsgQuery);
-                    let lastMsg = 'اضغط لبدء المحادثة';
-                    let lastTime = '';
-                    if (lastMsgSnap.exists()) {
-                        lastMsgSnap.forEach((msg) => {
-                            const msgData = msg.val();
-                            lastMsg = msgData.text || 'رسالة';
-                            if (msgData.timestamp) {
-                                lastTime = new Date(msgData.timestamp).toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
-                            }
-                        });
-                    }
-                    const initial = displayName.charAt(0).toUpperCase();
-                    html += `
-                        <div class="chat-item" onclick="goToChat('${chat.otherUserId}', '${displayName}', '${userData.username || ''}')">
-                            <div class="avatar">${initial}</div>
-                            <div class="details">
-                                <h4>${displayName}</h4>
-                                <p>${lastMsg}</p>
+                } else {
+                    let html = '';
+                    for (const chat of userChats) {
+                        const userSnap = await get(ref(database, 'users/' + chat.otherUserId));
+                        if (!userSnap.exists()) continue;
+                        const userData = userSnap.val();
+                        const displayName = userData.fullName || userData.username || 'مستخدم';
+                        
+                        const messagesRef = ref(database, `chats/${chat.chatId}/messages`);
+                        const lastMsgQuery = query(messagesRef, orderByChild('timestamp'), limitToLast(1));
+                        const lastMsgSnap = await get(lastMsgQuery);
+                        let lastMsg = 'اضغط لبدء المحادثة';
+                        let lastTime = '';
+                        if (lastMsgSnap.exists()) {
+                            lastMsgSnap.forEach((msg) => {
+                                const msgData = msg.val();
+                                lastMsg = msgData.text || 'رسالة';
+                                if (msgData.timestamp) {
+                                    lastTime = new Date(msgData.timestamp).toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
+                                }
+                            });
+                        }
+                        const initial = displayName.charAt(0).toUpperCase();
+                        html += `
+                            <div class="chat-item" onclick="goToChat('${chat.otherUserId}', '${displayName}', '${userData.username || ''}')">
+                                <div class="avatar">${initial}</div>
+                                <div class="details">
+                                    <h4>${displayName}</h4>
+                                    <p>${lastMsg}</p>
+                                </div>
+                                <div class="time">${lastTime}</div>
                             </div>
-                            <div class="time">${lastTime}</div>
-                        </div>
-                    `;
+                        `;
+                    }
+                    chatListDiv.innerHTML = html || '<div style="text-align:center; padding:2rem;">لا توجد محادثات بعد</div>';
                 }
-                chatListDiv.innerHTML = html || '<div style="text-align:center; padding:2rem;">لا توجد محادثات بعد</div>';
+                // انتهى التحميل
+                appTitle.textContent = 'Clipn';
+                isLoading = false;
             }, (error) => {
                 console.error(error);
                 chatListDiv.innerHTML = `<div class="error">خطأ في الاتصال: ${error.message}</div>`;
+                appTitle.textContent = 'Clipn';
+                isLoading = false;
             });
         }
 
@@ -636,12 +652,17 @@
             window.location.href = `channel-view.html?id=${channelId}`;
         };
 
+        // دالة الذهاب إلى بوت
+        window.goToBot = function(username) {
+            window.location.href = `botfather.html?username=${username}`;
+        };
+
         // دالة فتح صفحة إنشاء قناة/مجموعة
         window.openCreateChannel = function() {
             window.location.href = 'create-channel.html';
         };
 
-        // البحث عن المستخدمين والقنوات
+        // البحث عن المستخدمين والقنوات والبوتات
         window.searchUsers = async function() {
             const searchText = searchInput.value.trim();
             if (searchText.length < 1) {
@@ -702,6 +723,28 @@
                                 </div>
                             </div>
                         `;
+                    });
+                }
+
+                // 3. البحث عن البوتات (المخزنة في localStorage)
+                const botsData = localStorage.getItem('telegram_bots');
+                if (botsData) {
+                    const bots = JSON.parse(botsData);
+                    Object.values(bots).forEach(bot => {
+                        const botUsername = bot.username || '';
+                        const botName = bot.name || '';
+                        if (botUsername.includes(searchText) || botName.includes(searchText)) {
+                            const initial = botName.charAt(0).toUpperCase();
+                            results += `
+                                <div class="user-item" onclick="goToBot('${botUsername}')">
+                                    <div class="user-avatar" style="background: #9b59b6;">${initial}</div>
+                                    <div class="user-info">
+                                        <h4>${botName} 🤖</h4>
+                                        <p>@${botUsername}</p>
+                                    </div>
+                                </div>
+                            `;
+                        }
                     });
                 }
 
