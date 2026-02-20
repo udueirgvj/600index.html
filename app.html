@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>تواصل - الرئيسية</title>
     <style>
-        /* نفس التصميم السابق مع إضافة الزر العائم */
+        /* نفس التصميم السابق مع إضافة الزر العائم والبحث المحسّن */
         * {
             margin: 0;
             padding: 0;
@@ -105,6 +105,9 @@
         .user-info h4 {
             font-size: 1rem;
             color: #1a2b3e;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
         }
         .user-info p {
             font-size: 0.85rem;
@@ -298,7 +301,7 @@
         /* الزر العائم الأزرق */
         .fab {
             position: fixed;
-            bottom: 80px; /* فوق الشريط السفلي مباشرة */
+            bottom: 80px;
             left: 20px;
             width: 60px;
             height: 60px;
@@ -364,7 +367,7 @@
 
     <!-- شريط البحث -->
     <div id="searchBar" class="search-bar">
-        <input type="text" id="searchInput" placeholder="ابحث باسم المستخدم..." oninput="searchUsers()">
+        <input type="text" id="searchInput" placeholder="ابحث عن مستخدم أو قناة..." oninput="searchUsers()">
     </div>
     <div id="searchResults" class="search-results"></div>
 
@@ -431,7 +434,7 @@
         </a>
     </div>
 
-    <!-- الزر العائم الأزرق (إنشاء قناة/مجموعة) -->
+    <!-- الزر العائم (إنشاء قناة/مجموعة) -->
     <button class="fab" onclick="openCreateChannel()" title="إنشاء قناة أو مجموعة">➕</button>
 
     <!-- Firebase SDK -->
@@ -622,16 +625,23 @@
             `;
         }
 
+        // دالة الذهاب إلى محادثة خاصة مع مستخدم
         window.goToChat = function(uid, name, username) {
             if (!uid) return;
             window.location.href = `chat.html?uid=${uid}&name=${encodeURIComponent(name)}&username=${username}`;
         };
 
-        // دالة فتح إنشاء قناة/مجموعة
-        window.openCreateChannel = function() {
-            window.location.href = 'create-channel.html'; // غير هذا المسار حسب ملفك
+        // دالة الذهاب إلى قناة/مجموعة
+        window.goToChannel = function(channelId) {
+            window.location.href = `channel-view.html?id=${channelId}`;
         };
 
+        // دالة فتح صفحة إنشاء قناة/مجموعة
+        window.openCreateChannel = function() {
+            window.location.href = 'create-channel.html';
+        };
+
+        // البحث عن المستخدمين والقنوات
         window.searchUsers = async function() {
             const searchText = searchInput.value.trim();
             if (searchText.length < 1) {
@@ -639,35 +649,69 @@
                 searchResultsDiv.innerHTML = '';
                 return;
             }
+
             searchResultsDiv.classList.add('show');
             searchResultsDiv.innerHTML = '<div class="small-loading">جاري البحث...</div>';
+
             try {
+                let results = '';
+                
+                // 1. البحث عن المستخدمين
                 const usersRef = ref(database, 'users');
-                const userQuery = query(usersRef, orderByChild('username'), startAt(searchText), endAt(searchText + '\uf8ff'), limitToFirst(20));
-                const snapshot = await get(userQuery);
-                if (snapshot.exists()) {
-                    let results = '';
-                    snapshot.forEach((childSnapshot) => {
+                const usersQuery = query(usersRef, orderByChild('username'), startAt(searchText), endAt(searchText + '\uf8ff'), limitToFirst(20));
+                const usersSnapshot = await get(usersQuery);
+                
+                if (usersSnapshot.exists()) {
+                    usersSnapshot.forEach((childSnapshot) => {
                         const userData = childSnapshot.val();
                         const uid = childSnapshot.key;
                         if (uid === currentUserId) return;
+                        
                         const initial = (userData.fullName || userData.username).charAt(0).toUpperCase();
                         results += `
                             <div class="user-item" onclick="goToChat('${uid}', '${userData.fullName || userData.username}', '${userData.username}')">
                                 <div class="user-avatar">${initial}</div>
                                 <div class="user-info">
-                                    <h4>${userData.fullName || userData.username}</h4>
+                                    <h4>${userData.fullName || userData.username} 👤</h4>
                                     <p>@${userData.username}</p>
                                 </div>
                             </div>
                         `;
                     });
-                    searchResultsDiv.innerHTML = results || '<div style="padding:1rem; text-align:center;">لا توجد نتائج</div>';
-                } else {
+                }
+
+                // 2. البحث عن القنوات (التي لها username)
+                const channelsRef = ref(database, 'channels');
+                const channelsQuery = query(channelsRef, orderByChild('username'), startAt(searchText), endAt(searchText + '\uf8ff'), limitToFirst(20));
+                const channelsSnapshot = await get(channelsQuery);
+                
+                if (channelsSnapshot.exists()) {
+                    channelsSnapshot.forEach((childSnapshot) => {
+                        const channelData = childSnapshot.val();
+                        const channelId = childSnapshot.key;
+                        if (!channelData.username) return; // القنوات بدون اسم مستخدم لا تظهر في البحث
+                        
+                        const type = channelData.type === 'channel' ? '📢' : '👥';
+                        const initial = channelData.name.charAt(0).toUpperCase();
+                        results += `
+                            <div class="user-item" onclick="goToChannel('${channelId}')">
+                                <div class="user-avatar" style="background: #28a745;">${initial}</div>
+                                <div class="user-info">
+                                    <h4>${channelData.name} ${type}</h4>
+                                    <p>@${channelData.username}</p>
+                                </div>
+                            </div>
+                        `;
+                    });
+                }
+
+                if (results === '') {
                     searchResultsDiv.innerHTML = '<div style="padding:1rem; text-align:center;">لا توجد نتائج</div>';
+                } else {
+                    searchResultsDiv.innerHTML = results;
                 }
             } catch (error) {
-                console.error(error);
+                console.error('خطأ في البحث:', error);
                 searchResultsDiv.innerHTML = '<div style="padding:1rem; text-align:center;">حدث خطأ في البحث</div>';
             }
         };
@@ -689,6 +733,7 @@
             await signOut(auth);
         };
 
+        // تحديث عند العودة للصفحة
         window.addEventListener('pageshow', function(event) {
             if (event.persisted && currentUserId) {
                 loadChats();
@@ -699,6 +744,7 @@
     </script>
 
     <script>
+        // إخفاء نتائج البحث عند النقر خارجها
         document.addEventListener('click', function(event) {
             const searchBarEl = document.getElementById('searchBar');
             const searchResultsEl = document.getElementById('searchResults');
