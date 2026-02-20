@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تواصل - الإعدادات</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        body {
+            background: #f0f2f5;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .header {
+            background: #2A6B9C;
+            color: white;
+            padding: 0.8rem 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .back-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.8rem;
+            cursor: pointer;
+        }
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+        .container {
+            flex: 1;
+            padding: 1rem;
+            max-width: 500px;
+            margin: 0 auto;
+            width: 100%;
+        }
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-bottom: 1rem;
+        }
+        h2 {
+            color: #1a2b3e;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+        .input-group {
+            margin-bottom: 1.2rem;
+        }
+        .input-group label {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #4b5f73;
+            margin-bottom: 0.3rem;
+        }
+        .input-group input {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border: 1px solid #d9e1ec;
+            border-radius: 12px;
+            background: #f9fcff;
+            font-size: 1rem;
+            outline: none;
+        }
+        .input-group input:focus {
+            border-color: #2A6B9C;
+            box-shadow: 0 0 0 3px rgba(42,107,156,0.1);
+        }
+        .btn {
+            width: 100%;
+            padding: 1rem;
+            font-size: 1rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 30px;
+            background: #2A6B9C;
+            color: white;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-top: 1rem;
+        }
+        .btn:hover {
+            background: #1f4e7a;
+        }
+        .btn-danger {
+            background: #dc3545;
+        }
+        .btn-danger:hover {
+            background: #bb2d3b;
+        }
+        .btn-secondary {
+            background: #6c757d;
+        }
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+        .message {
+            padding: 0.8rem;
+            border-radius: 10px;
+            margin-top: 1rem;
+            text-align: center;
+            display: none;
+        }
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            display: block;
+        }
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            display: block;
+        }
+        .info-text {
+            color: #7f8fa4;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+        .divider {
+            height: 1px;
+            background: #eef2f7;
+            margin: 2rem 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <button class="back-btn" onclick="goBack()">←</button>
+        <h1>الإعدادات</h1>
+        <div style="width: 40px;"></div>
+    </div>
+
+    <div class="container">
+        <!-- معلومات الحساب -->
+        <div class="card">
+            <h2>معلومات الحساب</h2>
+            <div id="userInfo">
+                <p style="text-align: center;" class="loading">جاري تحميل المعلومات...</p>
+            </div>
+        </div>
+
+        <!-- تعديل الاسم الشخصي -->
+        <div class="card">
+            <h2>تعديل الاسم الشخصي</h2>
+            <div class="input-group">
+                <label>الاسم الجديد</label>
+                <input type="text" id="newFullName" placeholder="أدخل الاسم الجديد">
+            </div>
+            <button class="btn" onclick="updateFullName()">تحديث الاسم</button>
+            <div id="nameMessage" class="message"></div>
+        </div>
+
+        <!-- تغيير كلمة المرور -->
+        <div class="card">
+            <h2>تغيير كلمة المرور</h2>
+            <div class="input-group">
+                <label>كلمة المرور الحالية</label>
+                <input type="password" id="currentPassword" placeholder="أدخل كلمة المرور الحالية">
+            </div>
+            <div class="input-group">
+                <label>كلمة المرور الجديدة</label>
+                <input type="password" id="newPassword" placeholder="أدخل كلمة المرور الجديدة (6 أحرف على الأقل)">
+            </div>
+            <div class="input-group">
+                <label>تأكيد كلمة المرور الجديدة</label>
+                <input type="password" id="confirmPassword" placeholder="أعد كتابة كلمة المرور الجديدة">
+            </div>
+            <button class="btn" onclick="changePassword()">تغيير كلمة المرور</button>
+            <div id="passwordMessage" class="message"></div>
+        </div>
+
+        <!-- خيارات إضافية -->
+        <div class="card">
+            <h2>خيارات أخرى</h2>
+            <button class="btn btn-secondary" onclick="logout()">تسجيل الخروج</button>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged, updatePassword, EmailAuthProvider, reauthenticateWithCredential, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getDatabase, ref, update, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDRCtfuYrEdnuKUsWu_79NC6G_xGLznBJc",
+            authDomain: "tttrt-b8c5a.firebaseapp.com",
+            databaseURL: "https://tttrt-b8c5a-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "tttrt-b8c5a",
+            storageBucket: "tttrt-b8c5a.firebasestorage.app",
+            messagingSenderId: "975123752593",
+            appId: "1:975123752593:web:e591e930af3a3e29568130"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const database = getDatabase(app);
+
+        const userInfoDiv = document.getElementById('userInfo');
+        const newFullNameInput = document.getElementById('newFullName');
+        const nameMessageDiv = document.getElementById('nameMessage');
+        const currentPasswordInput = document.getElementById('currentPassword');
+        const newPasswordInput = document.getElementById('newPassword');
+        const confirmPasswordInput = document.getElementById('confirmPassword');
+        const passwordMessageDiv = document.getElementById('passwordMessage');
+
+        let currentUser = null;
+
+        // مراقبة حالة المصادقة
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                window.location.href = 'index.html';
+                return;
+            }
+            currentUser = user;
+            await loadUserInfo();
+        });
+
+        async function loadUserInfo() {
+            try {
+                const userRef = ref(database, 'users/' + currentUser.uid);
+                const snapshot = await get(userRef);
+                if (snapshot.exists()) {
+                    const userData = snapshot.val();
+                    userInfoDiv.innerHTML = `
+                        <p><strong>الاسم:</strong> ${userData.fullName || 'غير محدد'}</p>
+                        <p><strong>اسم المستخدم:</strong> ${userData.username || 'غير محدد'}</p>
+                        <p><strong>البريد الإلكتروني:</strong> ${userData.email || currentUser.email}</p>
+                    `;
+                    newFullNameInput.value = userData.fullName || '';
+                } else {
+                    userInfoDiv.innerHTML = `<p><strong>البريد الإلكتروني:</strong> ${currentUser.email}</p>`;
+                }
+            } catch (error) {
+                console.error(error);
+                userInfoDiv.innerHTML = '<p style="color: #dc3545;">حدث خطأ في تحميل المعلومات</p>';
+            }
+        }
+
+        // تحديث الاسم الشخصي
+        window.updateFullName = async function() {
+            const newName = newFullNameInput.value.trim();
+            if (!newName) {
+                showMessage(nameMessageDiv, 'الاسم لا يمكن أن يكون فارغاً', false);
+                return;
+            }
+
+            try {
+                const userRef = ref(database, 'users/' + currentUser.uid);
+                await update(userRef, { fullName: newName });
+                showMessage(nameMessageDiv, 'تم تحديث الاسم بنجاح', true);
+                await loadUserInfo(); // إعادة تحميل المعلومات
+            } catch (error) {
+                console.error(error);
+                showMessage(nameMessageDiv, 'حدث خطأ: ' + error.message, false);
+            }
+        };
+
+        // تغيير كلمة المرور
+        window.changePassword = async function() {
+            const currentPassword = currentPasswordInput.value;
+            const newPassword = newPasswordInput.value;
+            const confirmPassword = confirmPasswordInput.value;
+
+            if (!currentPassword || !newPassword || !confirmPassword) {
+                showMessage(passwordMessageDiv, 'جميع الحقول مطلوبة', false);
+                return;
+            }
+            if (newPassword.length < 6) {
+                showMessage(passwordMessageDiv, 'كلمة المرور الجديدة يجب أن تكون 6 أحرف على الأقل', false);
+                return;
+            }
+            if (newPassword !== confirmPassword) {
+                showMessage(passwordMessageDiv, 'كلمة المرور الجديدة غير متطابقة', false);
+                return;
+            }
+
+            try {
+                // إعادة المصادقة
+                const credential = EmailAuthProvider.credential(currentUser.email, currentPassword);
+                await reauthenticateWithCredential(currentUser, credential);
+                
+                // تغيير كلمة المرور
+                await updatePassword(currentUser, newPassword);
+                showMessage(passwordMessageDiv, 'تم تغيير كلمة المرور بنجاح', true);
+                
+                // تفريغ الحقول
+                currentPasswordInput.value = '';
+                newPasswordInput.value = '';
+                confirmPasswordInput.value = '';
+            } catch (error) {
+                console.error(error);
+                if (error.code === 'auth/wrong-password') {
+                    showMessage(passwordMessageDiv, 'كلمة المرور الحالية غير صحيحة', false);
+                } else {
+                    showMessage(passwordMessageDiv, 'حدث خطأ: ' + error.message, false);
+                }
+            }
+        };
+
+        // تسجيل الخروج
+        window.logout = async function() {
+            await signOut(auth);
+            // سيتم التوجيه تلقائياً عبر onAuthStateChanged
+        };
+
+        // العودة إلى الصفحة الرئيسية
+        window.goBack = function() {
+            window.location.href = 'app.html';
+        };
+
+        function showMessage(element, text, isSuccess) {
+            element.textContent = text;
+            element.className = isSuccess ? 'message success' : 'message error';
+        }
+    </script>
+</body>
+</html>
