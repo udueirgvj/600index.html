@@ -25,6 +25,9 @@
             align-items: center;
             gap: 1rem;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
         .back-btn {
             background: none;
@@ -37,14 +40,20 @@
             font-size: 1.5rem;
             font-weight: 600;
             flex: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
-        .edit-btn {
+        .header-actions {
+            display: flex;
+            gap: 1rem;
+        }
+        .header-actions button {
             background: none;
             border: none;
             color: white;
             font-size: 1.3rem;
             cursor: pointer;
-            padding: 0.5rem;
         }
         .container {
             flex: 1;
@@ -79,6 +88,7 @@
             cursor: pointer;
             position: relative;
             overflow: hidden;
+            flex-shrink: 0;
         }
         .channel-avatar img {
             width: 100%;
@@ -102,6 +112,7 @@
         }
         .channel-info {
             flex: 1;
+            min-width: 0;
         }
         .channel-info h2 {
             font-size: 1.3rem;
@@ -110,6 +121,7 @@
             display: flex;
             align-items: center;
             gap: 0.5rem;
+            flex-wrap: wrap;
         }
         .channel-info .username {
             color: #7f8fa4;
@@ -134,6 +146,7 @@
             margin-top: 1rem;
             padding-top: 1rem;
             border-top: 1px solid #eef2f7;
+            justify-content: space-around;
         }
         .stat-item {
             text-align: center;
@@ -203,14 +216,122 @@
         .action-item .value {
             color: #8899aa;
         }
-        /* منطقة الرسائل (للمالك) */
+        /* منطقة الرسائل */
+        .messages-container {
+            margin-top: 1rem;
+        }
+        .pinned-message {
+            background: #f9f3d9;
+            border-right: 4px solid #f1c40f;
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.8rem;
+        }
+        .pinned-message .pin-icon {
+            color: #f1c40f;
+            font-size: 1.2rem;
+        }
+        .pinned-message .message-content {
+            flex: 1;
+        }
+        .pinned-message .message-sender {
+            font-weight: 600;
+            color: #1a2b3e;
+        }
+        .pinned-message .message-text {
+            color: #2c3e50;
+            margin: 0.2rem 0;
+        }
+        .pinned-message .message-meta {
+            display: flex;
+            gap: 1rem;
+            font-size: 0.8rem;
+            color: #8899aa;
+        }
+        .message-item {
+            background: white;
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 0.8rem;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .message-header {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            margin-bottom: 0.5rem;
+        }
+        .message-avatar {
+            width: 40px;
+            height: 40px;
+            background: #2A6B9C;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1rem;
+            flex-shrink: 0;
+        }
+        .message-sender-info {
+            flex: 1;
+        }
+        .message-sender-name {
+            font-weight: 600;
+            color: #1a2b3e;
+        }
+        .message-sender-username {
+            font-size: 0.8rem;
+            color: #7f8fa4;
+        }
+        .message-time {
+            font-size: 0.7rem;
+            color: #8899aa;
+        }
+        .message-text {
+            color: #2c3e50;
+            margin: 0.3rem 0 0.5rem;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+        .message-actions {
+            display: flex;
+            gap: 1.5rem;
+            margin-top: 0.5rem;
+            color: #8899aa;
+            font-size: 0.9rem;
+        }
+        .message-actions span {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+            cursor: pointer;
+        }
+        .message-actions span:hover {
+            color: #2A6B9C;
+        }
+        .message-stats {
+            display: flex;
+            gap: 1rem;
+            font-size: 0.7rem;
+            color: #8899aa;
+            margin-top: 0.3rem;
+        }
+        /* منطقة إدخال الرسالة */
         .message-input-area {
             background: white;
             border-radius: 30px;
             padding: 0.5rem;
             display: flex;
             gap: 0.5rem;
-            margin-bottom: 1rem;
+            margin: 1rem 0;
+            position: sticky;
+            bottom: 0;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
         }
         .message-input-area input {
             flex: 1;
@@ -218,6 +339,10 @@
             border: 1px solid #d9e1ec;
             border-radius: 30px;
             outline: none;
+            background: #f9fcff;
+        }
+        .message-input-area input:focus {
+            border-color: #2A6B9C;
         }
         .message-input-area button {
             background: #2A6B9C;
@@ -226,8 +351,13 @@
             border-radius: 30px;
             padding: 0 1.5rem;
             cursor: pointer;
+            font-weight: 600;
         }
-        /* نافذة تعديل الإعدادات */
+        .message-input-area button:disabled {
+            background: #b0c4de;
+            cursor: not-allowed;
+        }
+        /* نافذة الإعدادات */
         .modal {
             display: none;
             position: fixed;
@@ -263,12 +393,20 @@
             display: block;
             margin-bottom: 0.3rem;
             color: #4b5f73;
+            font-size: 0.9rem;
         }
-        .modal-content input, .modal-content select, .modal-content textarea {
+        .modal-content input,
+        .modal-content select,
+        .modal-content textarea {
             width: 100%;
             padding: 0.8rem;
             border: 1px solid #d9e1ec;
             border-radius: 12px;
+            outline: none;
+        }
+        .modal-content textarea {
+            min-height: 80px;
+            resize: vertical;
         }
         .modal-content .btn {
             width: 100%;
@@ -280,12 +418,8 @@
             cursor: pointer;
             margin-top: 1rem;
         }
-        .modal-content .close {
-            position: absolute;
-            top: 1rem;
-            left: 1rem;
-            font-size: 1.5rem;
-            cursor: pointer;
+        .modal-content .btn-secondary {
+            background: #6c757d;
         }
         .invite-link {
             background: #f0f2f5;
@@ -295,6 +429,7 @@
             text-align: left;
             font-size: 0.8rem;
             word-break: break-all;
+            margin-bottom: 0.5rem;
         }
         .loading {
             text-align: center;
@@ -310,15 +445,17 @@
     <div class="header">
         <button class="back-btn" onclick="goBack()">←</button>
         <h1 id="headerTitle">القناة</h1>
-        <button class="edit-btn" id="editBtn" onclick="openSettings()">⚙️</button>
+        <div class="header-actions">
+            <button id="editBtn" onclick="openSettings()">⚙️</button>
+            <button onclick="window.location.reload()">🔄</button>
+        </div>
     </div>
 
     <div class="container" id="container">
-        <!-- سيتم ملء المحتوى عبر JavaScript -->
         <div class="loading">جاري التحميل...</div>
     </div>
 
-    <!-- نافذة تعديل الإعدادات -->
+    <!-- نافذة إعدادات القناة/المجموعة -->
     <div id="settingsModal" class="modal">
         <div class="modal-content">
             <h3>إعدادات القناة/المجموعة</h3>
@@ -331,30 +468,31 @@
                 <textarea id="editDesc" rows="3"></textarea>
             </div>
             <div class="input-group">
-                <label>اسم المستخدم (للقنوات العامة)</label>
-                <input type="text" id="editUsername" placeholder="اسم المستخدم">
+                <label>اسم المستخدم (للبحث)</label>
+                <input type="text" id="editUsername" placeholder="@username">
+                <small style="color:#7f8fa4;">يظهر في نتائج البحث</small>
             </div>
             <div class="input-group">
                 <label>الخصوصية</label>
                 <select id="editPrivacy">
-                    <option value="public">عامة</option>
-                    <option value="private">خاصة</option>
+                    <option value="public">عامة (يمكن لأي شخص الانضمام)</option>
+                    <option value="private">خاصة (دعوة فقط)</option>
                 </select>
             </div>
             <div class="input-group">
                 <label>رابط الدعوة (للمجموعات الخاصة)</label>
                 <div class="invite-link" id="inviteLinkDisplay">لا يوجد رابط</div>
-                <button class="btn" onclick="copyInviteLink()" id="copyBtn">نسخ الرابط</button>
+                <button class="btn btn-secondary" onclick="copyInviteLink()">نسخ الرابط</button>
             </div>
             <button class="btn" onclick="saveSettings()">حفظ التغييرات</button>
-            <button class="btn" onclick="closeSettings()" style="background: #6c757d;">إلغاء</button>
+            <button class="btn btn-secondary" onclick="closeSettings()">إلغاء</button>
         </div>
     </div>
 
-    <!-- نافذة رفع الصورة -->
+    <!-- نافذة تغيير الصورة -->
     <div id="imageModal" class="modal">
         <div class="modal-content">
-            <h3>تغيير الصورة</h3>
+            <h3>تغيير صورة القناة</h3>
             <div class="input-group">
                 <label>رابط الصورة</label>
                 <input type="text" id="imageUrl" placeholder="أدخل رابط الصورة">
@@ -365,14 +503,27 @@
                 <input type="file" id="imageFile" accept="image/*">
             </div>
             <button class="btn" onclick="uploadImage()">رفع</button>
-            <button class="btn" onclick="closeImageModal()" style="background: #6c757d;">إلغاء</button>
+            <button class="btn btn-secondary" onclick="closeImageModal()">إلغاء</button>
         </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { getDatabase, ref, get, update, onValue, push, set, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { 
+            getDatabase, 
+            ref, 
+            get, 
+            update, 
+            onValue, 
+            push, 
+            set,
+            query,
+            orderByChild,
+            equalTo,
+            serverTimestamp,
+            increment
+        } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
         import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
 
         const firebaseConfig = {
@@ -410,6 +561,8 @@
         let currentChannelData = null;
         let isOwner = false;
         let isMember = false;
+        let pinnedMessageId = null;
+        let messagesRef = null;
 
         onAuthStateChanged(auth, (user) => {
             if (!user) {
@@ -417,11 +570,11 @@
                 return;
             }
             currentUserId = user.uid;
-            if (channelId) {
-                loadChannel();
-            } else {
+            if (!channelId) {
                 container.innerHTML = '<div class="error">معرف القناة غير موجود</div>';
+                return;
             }
+            loadChannel();
         });
 
         function loadChannel() {
@@ -434,7 +587,9 @@
                 currentChannelData = snapshot.val();
                 isOwner = currentChannelData.createdBy === currentUserId;
                 isMember = currentChannelData.members?.includes(currentUserId) || false;
+                pinnedMessageId = currentChannelData.pinnedMessage || null;
                 renderChannel();
+                loadMessages();
             });
         }
 
@@ -446,18 +601,29 @@
             const initials = data.name ? data.name.charAt(0).toUpperCase() : '?';
             const membersCount = data.members?.length || 1;
             const adminsCount = data.admins?.length || 1;
-            const canSend = data.type === 'group' ? true : isOwner; // في القناة فقط المالك يكتب
+            const canSend = data.type === 'group' ? isMember : isOwner; // في القناة فقط المالك، في المجموعة أي عضو
+
+            // زر الانضمام/المغادرة
+            let joinButton = '';
+            if (!isMember && !isOwner) {
+                joinButton = `<button class="join-btn" onclick="joinChannel()">انضمام</button>`;
+            } else if (isMember && !isOwner) {
+                joinButton = `
+                    <button class="join-btn joined" onclick="leaveChannel()">مشترك ✓</button>
+                    <button class="mute-btn" onclick="muteChannel()">🔇 كتم الإشعارات</button>
+                `;
+            }
 
             let html = `
                 <div class="channel-card">
                     <div class="channel-header">
                         <div class="channel-avatar" onclick="openImageModal()">
                             ${data.avatar ? `<img src="${data.avatar}" alt="avatar">` : initials}
-                            <div class="edit-overlay">تعديل</div>
+                            ${isOwner ? '<div class="edit-overlay">تعديل</div>' : ''}
                         </div>
                         <div class="channel-info">
                             <h2>${data.name} <span class="privacy-badge">${data.privacy === 'private' ? 'خاص' : 'عام'}</span></h2>
-                            <div class="username">${data.username ? '@' + data.username : ''}</div>
+                            ${data.username ? `<div class="username">@${data.username}</div>` : ''}
                             <div class="description">${data.description || 'لا يوجد وصف'}</div>
                         </div>
                     </div>
@@ -471,16 +637,11 @@
                             <div class="label">مشرفون</div>
                         </div>
                         <div class="stat-item">
-                            <div class="number">0</div>
+                            <div class="number">${data.totalMessages || 0}</div>
                             <div class="label">رسائل</div>
                         </div>
                     </div>
-                    ${!isMember ? `
-                        <button class="join-btn" onclick="joinChannel()">انضمام</button>
-                    ` : `
-                        <button class="join-btn joined" onclick="leaveChannel()">مشترك ✓</button>
-                        <button class="mute-btn" onclick="muteChannel()">🔇 كتم الإشعارات</button>
-                    `}
+                    ${joinButton}
                 </div>
 
                 <div class="actions">
@@ -499,9 +660,11 @@
                         <span class="value">${adminsCount}</span>
                     </div>
                 </div>
+
+                <div id="pinnedMessageContainer" class="pinned-message" style="display: none;"></div>
+                <div class="messages-container" id="messagesContainer"></div>
             `;
 
-            // إذا كان المالك، نضيف منطقة إرسال الرسائل (للقناة) أو للمجموعة دائماً
             if (canSend) {
                 html += `
                     <div class="message-input-area">
@@ -511,14 +674,83 @@
                 `;
             }
 
-            // إضافة منطقة عرض الرسائل (مثال بسيط)
-            html += `<div id="messagesArea" style="margin-top:1rem;"></div>`;
-
             container.innerHTML = html;
-            loadMessages();
+
+            // إذا كان هناك رسالة مثبتة، نعرضها
+            if (pinnedMessageId) {
+                loadPinnedMessage();
+            }
         }
 
-        // دوال الإجراءات
+        async function loadPinnedMessage() {
+            if (!pinnedMessageId) return;
+            const msgRef = ref(database, `channels/${channelId}/messages/${pinnedMessageId}`);
+            const snapshot = await get(msgRef);
+            if (snapshot.exists()) {
+                const msg = snapshot.val();
+                const userSnap = await get(ref(database, `users/${msg.senderId}`));
+                const sender = userSnap.exists() ? userSnap.val() : { fullName: 'مستخدم', username: '' };
+                const time = msg.timestamp ? new Date(msg.timestamp).toLocaleString('ar-EG') : '';
+                const container = document.getElementById('pinnedMessageContainer');
+                container.style.display = 'flex';
+                container.innerHTML = `
+                    <div class="pin-icon">📌</div>
+                    <div class="message-content">
+                        <div class="message-sender">${sender.fullName || sender.username}</div>
+                        <div class="message-text">${msg.text}</div>
+                        <div class="message-meta">
+                            <span>👁️ ${msg.views || 0}</span>
+                            <span>${time}</span>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        function loadMessages() {
+            messagesRef = ref(database, `channels/${channelId}/messages`);
+            const messagesQuery = query(messagesRef, orderByChild('timestamp'));
+            onValue(messagesQuery, async (snapshot) => {
+                const msgsContainer = document.getElementById('messagesContainer');
+                if (!msgsContainer) return;
+                let html = '';
+                const messages = [];
+                snapshot.forEach((child) => {
+                    messages.push({ id: child.key, ...child.val() });
+                });
+                // ترتيب من الأقدم إلى الأحدث (يمكن عكسه)
+                messages.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
+                for (const msg of messages) {
+                    const userSnap = await get(ref(database, `users/${msg.senderId}`));
+                    const sender = userSnap.exists() ? userSnap.val() : { fullName: 'مستخدم', username: '' };
+                    const time = msg.timestamp ? new Date(msg.timestamp).toLocaleString('ar-EG', { hour: '2-digit', minute: '2-digit' }) : '';
+                    const isOwnerMsg = msg.senderId === currentUserId;
+                    const avatarInitial = (sender.fullName || sender.username || '?').charAt(0).toUpperCase();
+                    html += `
+                        <div class="message-item" id="msg-${msg.id}">
+                            <div class="message-header">
+                                <div class="message-avatar">${avatarInitial}</div>
+                                <div class="message-sender-info">
+                                    <div class="message-sender-name">${sender.fullName || sender.username}</div>
+                                    <div class="message-sender-username">@${sender.username || ''}</div>
+                                </div>
+                                <div class="message-time">${time}</div>
+                            </div>
+                            <div class="message-text">${msg.text}</div>
+                            <div class="message-actions">
+                                <span onclick="likeMessage('${msg.id}')">❤️ ${msg.likes || 0}</span>
+                                <span onclick="viewMessage('${msg.id}')">👁️ ${msg.views || 0}</span>
+                                ${isOwner ? `<span onclick="pinMessage('${msg.id}')">📌 ${pinnedMessageId === msg.id ? '✔️ مثبتة' : 'تثبيت'}</span>` : ''}
+                                <span onclick="shareMessage('${msg.id}')">🔗 مشاركة</span>
+                            </div>
+                        </div>
+                    `;
+                }
+                msgsContainer.innerHTML = html || '<div style="text-align:center; color:#8899aa;">لا توجد رسائل بعد</div>';
+            });
+        }
+
+        // دالة الانضمام
         window.joinChannel = async function() {
             try {
                 const channelRef = ref(database, 'channels/' + channelId);
@@ -526,20 +758,25 @@
                 if (!members.includes(currentUserId)) {
                     members.push(currentUserId);
                     await update(channelRef, { members: members });
-                    // يمكن إضافة إشعار أو رسالة ترحيب
                 }
             } catch (error) {
                 console.error(error);
+                alert('حدث خطأ في الانضمام');
             }
         };
 
         window.leaveChannel = async function() {
+            if (isOwner) {
+                alert('المالك لا يمكنه مغادرة القناة');
+                return;
+            }
             try {
                 const channelRef = ref(database, 'channels/' + channelId);
                 const members = (currentChannelData.members || []).filter(uid => uid !== currentUserId);
                 await update(channelRef, { members: members });
             } catch (error) {
                 console.error(error);
+                alert('حدث خطأ في المغادرة');
             }
         };
 
@@ -552,45 +789,79 @@
         };
 
         window.showMembers = function() {
-            alert('عرض قائمة المشتركين - قيد التطوير');
+            // يمكن عرض قائمة المشتركين في نافذة منبثقة
+            const members = currentChannelData.members || [];
+            alert('عدد المشتركين: ' + members.length + '\n(قائمة المشتركين قيد التطوير)');
         };
 
         window.showAdmins = function() {
-            alert('عرض قائمة المشرفين - قيد التطوير');
+            const admins = currentChannelData.admins || [];
+            alert('عدد المشرفين: ' + admins.length + '\n(قائمة المشرفين قيد التطوير)');
         };
 
-        window.sendMessage = function() {
+        // إرسال رسالة
+        window.sendMessage = async function() {
             const input = document.getElementById('messageInput');
             const text = input.value.trim();
             if (!text) return;
-            // حفظ الرسالة في قاعدة البيانات
-            const messagesRef = ref(database, `channels/${channelId}/messages`);
-            const newMsgRef = push(messagesRef);
-            set(newMsgRef, {
-                senderId: currentUserId,
-                text: text,
-                timestamp: serverTimestamp(),
-                type: 'text'
-            }).then(() => {
+            try {
+                const msgRef = push(ref(database, `channels/${channelId}/messages`));
+                await set(msgRef, {
+                    senderId: currentUserId,
+                    text: text,
+                    timestamp: serverTimestamp(),
+                    likes: 0,
+                    views: 0
+                });
+                // تحديث عدد الرسائل الكلي
+                await update(ref(database, 'channels/' + channelId), {
+                    totalMessages: (currentChannelData.totalMessages || 0) + 1
+                });
                 input.value = '';
-            }).catch(console.error);
+            } catch (error) {
+                console.error(error);
+                alert('فشل الإرسال');
+            }
         };
 
-        function loadMessages() {
-            const messagesRef = ref(database, `channels/${channelId}/messages`);
-            onValue(messagesRef, (snapshot) => {
-                const msgsArea = document.getElementById('messagesArea');
-                if (!msgsArea) return;
-                let html = '';
-                if (snapshot.exists()) {
-                    snapshot.forEach((child) => {
-                        const msg = child.val();
-                        html += `<div style="background:white; padding:0.5rem; margin-bottom:0.3rem; border-radius:8px;">${msg.text}</div>`;
-                    });
-                }
-                msgsArea.innerHTML = html;
-            });
-        }
+        // تفاعلات الرسائل
+        window.likeMessage = async function(messageId) {
+            if (!currentUserId) return;
+            const likeRef = ref(database, `channels/${channelId}/messages/${messageId}/likes`);
+            // نستخدم transaction لزيادة العداد بشكل آمن
+            const msgRef = ref(database, `channels/${channelId}/messages/${messageId}`);
+            const snapshot = await get(msgRef);
+            if (snapshot.exists()) {
+                const currentLikes = snapshot.val().likes || 0;
+                await update(msgRef, { likes: currentLikes + 1 });
+            }
+        };
+
+        window.viewMessage = async function(messageId) {
+            const msgRef = ref(database, `channels/${channelId}/messages/${messageId}`);
+            const snapshot = await get(msgRef);
+            if (snapshot.exists()) {
+                const currentViews = snapshot.val().views || 0;
+                await update(msgRef, { views: currentViews + 1 });
+            }
+        };
+
+        window.pinMessage = async function(messageId) {
+            if (!isOwner) return;
+            try {
+                await update(ref(database, 'channels/' + channelId), { pinnedMessage: messageId });
+                pinnedMessageId = messageId;
+                loadPinnedMessage();
+            } catch (error) {
+                console.error(error);
+            }
+        };
+
+        window.shareMessage = function(messageId) {
+            const url = window.location.href + '&msg=' + messageId;
+            navigator.clipboard.writeText(url);
+            alert('تم نسخ رابط الرسالة');
+        };
 
         // الإعدادات
         window.openSettings = function() {
@@ -624,6 +895,22 @@
             };
             if (editUsername.value.trim()) {
                 updates.username = editUsername.value.trim();
+                // التحقق من أن اسم المستخدم غير مستخدم في قناة أخرى
+                const channelsRef = ref(database, 'channels');
+                const usernameQuery = query(channelsRef, orderByChild('username'), equalTo(editUsername.value.trim()));
+                const snapshot = await get(usernameQuery);
+                if (snapshot.exists()) {
+                    let conflict = false;
+                    snapshot.forEach((child) => {
+                        if (child.key !== channelId) conflict = true;
+                    });
+                    if (conflict) {
+                        alert('اسم المستخدم موجود بالفعل لقناة أخرى');
+                        return;
+                    }
+                }
+            } else {
+                updates.username = null; // إزالة username
             }
             try {
                 await update(ref(database, 'channels/' + channelId), updates);
@@ -671,25 +958,10 @@
             closeImageModal();
         };
 
+        // العودة
         window.goBack = function() {
             window.location.href = 'app.html';
         };
-
-        // إضافة الدوال إلى window
-        window.openSettings = window.openSettings;
-        window.closeSettings = window.closeSettings;
-        window.saveSettings = window.saveSettings;
-        window.copyInviteLink = window.copyInviteLink;
-        window.openImageModal = window.openImageModal;
-        window.closeImageModal = window.closeImageModal;
-        window.uploadImage = window.uploadImage;
-        window.joinChannel = window.joinChannel;
-        window.leaveChannel = window.leaveChannel;
-        window.muteChannel = window.muteChannel;
-        window.openStory = window.openStory;
-        window.showMembers = window.showMembers;
-        window.showAdmins = window.showAdmins;
-        window.sendMessage = window.sendMessage;
     </script>
 </body>
 </html>
