@@ -5,6 +5,35 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>تواصل - الإعدادات</title>
     <style>
+        /* متغيرات للوضع العادي والداكن */
+        :root {
+            --bg-primary: #f0f2f5;
+            --bg-secondary: #ffffff;
+            --text-primary: #1a2b3e;
+            --text-secondary: #4b5f73;
+            --border-color: #eef2f7;
+            --accent-color: #2A6B9C;
+            --accent-hover: #1f4e7a;
+            --danger-color: #dc3545;
+            --danger-hover: #bb2d3b;
+            --shadow: 0 5px 15px rgba(0,0,0,0.05);
+            --card-bg: #ffffff;
+        }
+
+        body.dark-mode {
+            --bg-primary: #1a1a2e;
+            --bg-secondary: #16213e;
+            --text-primary: #e0e0e0;
+            --text-secondary: #a0a0a0;
+            --border-color: #2a2a4a;
+            --accent-color: #4a6fa5;
+            --accent-hover: #3a5a8a;
+            --danger-color: #b02a37;
+            --danger-hover: #9a1f2b;
+            --shadow: 0 5px 15px rgba(0,0,0,0.3);
+            --card-bg: #16213e;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -12,13 +41,14 @@
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
         body {
-            background: #f0f2f5;
+            background: var(--bg-primary);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
+            transition: background 0.3s, color 0.3s;
         }
         .header {
-            background: #2A6B9C;
+            background: var(--accent-color);
             color: white;
             padding: 1rem;
             display: flex;
@@ -32,24 +62,33 @@
             color: white;
             font-size: 1.8rem;
             cursor: pointer;
+            line-height: 1;
         }
         .header h1 {
             font-size: 1.5rem;
             font-weight: 600;
             margin: 0;
+            flex: 1;
         }
         .container {
             display: flex;
             flex: 1;
             overflow: hidden;
+            transition: all 0.3s ease;
         }
         /* القائمة الجانبية */
         .sidebar {
             width: 280px;
-            background: white;
-            border-left: 1px solid #eef2f7;
+            background: var(--bg-secondary);
+            border-left: 1px solid var(--border-color);
             overflow-y: auto;
             padding: 1rem 0;
+            transition: transform 0.3s ease, background 0.3s;
+        }
+        .sidebar.hidden {
+            transform: translateX(100%);
+            width: 0;
+            min-width: 0;
         }
         .sidebar-item {
             display: flex;
@@ -58,16 +97,16 @@
             padding: 1rem 1.5rem;
             cursor: pointer;
             transition: background 0.2s;
-            color: #1a2b3e;
+            color: var(--text-primary);
             border-right: 3px solid transparent;
         }
         .sidebar-item:hover {
-            background: #f0f2f5;
+            background: var(--bg-primary);
         }
         .sidebar-item.active {
-            background: #e8f0fe;
-            border-right-color: #2A6B9C;
-            color: #2A6B9C;
+            background: var(--bg-primary);
+            border-right-color: var(--accent-color);
+            color: var(--accent-color);
             font-weight: 500;
         }
         .sidebar-item .icon {
@@ -83,21 +122,27 @@
             flex: 1;
             padding: 2rem;
             overflow-y: auto;
-            background: #f9fcff;
+            background: var(--bg-primary);
+            transition: all 0.3s ease;
         }
-        .content-card {
-            background: white;
-            border-radius: 20px;
-            padding: 2rem;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-            max-width: 600px;
+        .content.full {
+            max-width: 800px;
             margin: 0 auto;
         }
+        .content-card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: var(--shadow);
+            max-width: 600px;
+            margin: 0 auto;
+            transition: background 0.3s, box-shadow 0.3s;
+        }
         .content-card h2 {
-            color: #1a2b3e;
+            color: var(--text-primary);
             margin-bottom: 1.5rem;
             font-size: 1.5rem;
-            border-bottom: 1px solid #eef2f7;
+            border-bottom: 1px solid var(--border-color);
             padding-bottom: 0.8rem;
         }
         .input-group {
@@ -107,21 +152,27 @@
             display: block;
             font-size: 0.9rem;
             font-weight: 500;
-            color: #4b5f73;
+            color: var(--text-secondary);
             margin-bottom: 0.3rem;
         }
-        .input-group input {
+        .input-group input, .input-group textarea {
             width: 100%;
             padding: 0.8rem 1rem;
-            border: 1px solid #d9e1ec;
+            border: 1px solid var(--border-color);
             border-radius: 12px;
-            background: #f9fcff;
+            background: var(--bg-primary);
             font-size: 1rem;
             outline: none;
+            color: var(--text-primary);
+            transition: border 0.2s, background 0.3s;
         }
-        .input-group input:focus {
-            border-color: #2A6B9C;
+        .input-group input:focus, .input-group textarea:focus {
+            border-color: var(--accent-color);
             box-shadow: 0 0 0 3px rgba(42,107,156,0.1);
+        }
+        .input-group textarea {
+            min-height: 80px;
+            resize: vertical;
         }
         .btn {
             width: 100%;
@@ -130,26 +181,26 @@
             font-weight: 600;
             border: none;
             border-radius: 30px;
-            background: #2A6B9C;
+            background: var(--accent-color);
             color: white;
             cursor: pointer;
             transition: background 0.2s;
             margin-top: 1rem;
         }
         .btn:hover {
-            background: #1f4e7a;
+            background: var(--accent-hover);
         }
         .btn-secondary {
-            background: #6c757d;
+            background: var(--text-secondary);
         }
         .btn-secondary:hover {
             background: #5a6268;
         }
         .btn-danger {
-            background: #dc3545;
+            background: var(--danger-color);
         }
         .btn-danger:hover {
-            background: #bb2d3b;
+            background: var(--danger-hover);
         }
         .message {
             padding: 0.8rem;
@@ -171,43 +222,33 @@
             display: block;
         }
         .info-text {
-            color: #7f8fa4;
+            color: var(--text-secondary);
             font-size: 0.9rem;
             margin-top: 0.5rem;
         }
         .user-info {
-            background: #f9fcff;
+            background: var(--bg-primary);
             padding: 1.5rem;
             border-radius: 16px;
             margin-bottom: 1.5rem;
+            transition: background 0.3s;
         }
         .user-info p {
             margin-bottom: 0.5rem;
-            color: #1a2b3e;
+            color: var(--text-primary);
         }
         .user-info strong {
-            color: #2A6B9C;
+            color: var(--accent-color);
             min-width: 100px;
             display: inline-block;
         }
         .loading {
             text-align: center;
             padding: 2rem;
-            color: #8899aa;
-        }
-        /* تنسيقات إضافية */
-        .section-placeholder {
-            text-align: center;
-            padding: 3rem;
-            color: #8899aa;
-        }
-        .section-placeholder h3 {
-            font-size: 1.5rem;
-            margin-bottom: 1rem;
-            color: #1a2b3e;
+            color: var(--text-secondary);
         }
         .faq-item {
-            background: #f9fcff;
+            background: var(--bg-primary);
             border-radius: 12px;
             padding: 1rem;
             margin-bottom: 1rem;
@@ -215,32 +256,89 @@
             transition: background 0.2s;
         }
         .faq-item:hover {
-            background: #eef2f7;
+            background: var(--border-color);
         }
         .faq-item h4 {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            color: #1a2b3e;
+            color: var(--text-primary);
         }
         .faq-item p {
             margin-top: 0.5rem;
-            color: #4b5f73;
+            color: var(--text-secondary);
             display: none;
         }
         .faq-item.active p {
             display: block;
         }
+        /* تنسيق الصورة الشخصية */
+        .profile-image {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+        .profile-image img {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--accent-color);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        .profile-image .avatar-placeholder {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: var(--accent-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            font-weight: bold;
+            margin: 0 auto;
+            border: 3px solid var(--accent-color);
+        }
+        .image-upload {
+            margin-top: 0.5rem;
+        }
+        .image-upload input[type="file"] {
+            display: none;
+        }
+        .image-upload label {
+            background: var(--accent-color);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 30px;
+            cursor: pointer;
+            display: inline-block;
+            font-size: 0.9rem;
+        }
+        /* زر الدعم */
+        .support-btn {
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            padding: 0.8rem 1.5rem;
+            font-size: 1rem;
+            cursor: pointer;
+            margin-top: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            justify-content: center;
+        }
     </style>
 </head>
-<body>
+<body class="">
     <div class="header">
-        <button class="back-btn" onclick="goBack()">←</button>
+        <button class="back-btn" id="mainBackBtn" onclick="goBack()">←</button>
         <h1>الإعدادات</h1>
         <div style="width: 40px;"></div>
     </div>
 
-    <div class="container">
+    <div class="container" id="container">
         <!-- القائمة الجانبية -->
         <div class="sidebar" id="sidebar">
             <div class="sidebar-item active" data-section="account">
@@ -283,11 +381,14 @@
                 <span class="icon">❓</span>
                 <span class="text">الأسئلة الشائعة</span>
             </div>
+            <div class="sidebar-item" data-section="support">
+                <span class="icon">📬</span>
+                <span class="text">الدعم</span>
+            </div>
         </div>
 
         <!-- المحتوى الرئيسي -->
         <div class="content" id="content">
-            <!-- سيتم تحميل المحتوى ديناميكياً عبر JavaScript -->
             <div class="loading">جاري التحميل...</div>
         </div>
     </div>
@@ -297,6 +398,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, onAuthStateChanged, updatePassword, EmailAuthProvider, reauthenticateWithCredential, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         import { getDatabase, ref, update, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDRCtfuYrEdnuKUsWu_79NC6G_xGLznBJc",
@@ -311,13 +413,24 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const database = getDatabase(app);
+        const storage = getStorage(app);
 
         // عناصر الصفحة
-        const sidebarItems = document.querySelectorAll('.sidebar-item');
+        const sidebar = document.getElementById('sidebar');
         const contentDiv = document.getElementById('content');
+        const mainBackBtn = document.getElementById('mainBackBtn');
+        const sidebarItems = document.querySelectorAll('.sidebar-item');
+        
         let currentUser = null;
+        let currentSection = 'account';
+        let isFullScreen = false;
 
-        // التحقق من المصادقة
+        // تحميل التفضيلات (الوضع الداكن)
+        const darkMode = localStorage.getItem('darkMode') === 'true';
+        if (darkMode) {
+            document.body.classList.add('dark-mode');
+        }
+
         onAuthStateChanged(auth, async (user) => {
             if (!user) {
                 window.location.href = 'index.html';
@@ -325,10 +438,9 @@
             }
             currentUser = user;
             await loadUserData();
-            showSection('account'); // عرض قسم الحساب افتراضياً
+            showSection(currentSection, false);
         });
 
-        // تحميل بيانات المستخدم (للاستخدام في قسم الحساب)
         async function loadUserData() {
             try {
                 const userRef = ref(database, 'users/' + currentUser.uid);
@@ -344,17 +456,31 @@
             }
         }
 
-        // التبديل بين الأقسام
         sidebarItems.forEach(item => {
             item.addEventListener('click', () => {
-                sidebarItems.forEach(i => i.classList.remove('active'));
-                item.classList.add('active');
                 const section = item.dataset.section;
-                showSection(section);
+                currentSection = section;
+                enterFullScreen(section);
             });
         });
 
-        function showSection(section) {
+        function enterFullScreen(section) {
+            isFullScreen = true;
+            sidebar.classList.add('hidden');
+            contentDiv.classList.add('full');
+            mainBackBtn.onclick = exitFullScreen;
+            showSection(section, true);
+        }
+
+        function exitFullScreen() {
+            isFullScreen = false;
+            sidebar.classList.remove('hidden');
+            contentDiv.classList.remove('full');
+            mainBackBtn.onclick = goBack;
+            showSection(currentSection, false);
+        }
+
+        function showSection(section, fullScreen) {
             let html = '';
             switch (section) {
                 case 'account':
@@ -387,6 +513,10 @@
                 case 'faq':
                     html = renderFaq();
                     break;
+                case 'support':
+                    // فتح صفحة الدعم مباشرة
+                    window.location.href = 'support.html';
+                    return;
                 default:
                     html = '<div class="loading">قريباً...</div>';
             }
@@ -394,24 +524,47 @@
             attachEvents(section);
         }
 
-        // دوال عرض كل قسم
         function renderAccount() {
             const user = window.userData || {};
+            const photoURL = user.photoURL || '';
+            const initials = (user.fullName || user.username || 'U').charAt(0).toUpperCase();
+            const bio = user.bio || '';
+            const phone = user.phone || '';
             return `
                 <div class="content-card">
                     <h2>الحساب</h2>
+                    <div class="profile-image">
+                        ${photoURL ? 
+                            `<img src="${photoURL}" alt="صورة المستخدم" id="profileImg">` : 
+                            `<div class="avatar-placeholder" id="profilePlaceholder">${initials}</div>`
+                        }
+                        <div class="image-upload">
+                            <label for="uploadImage">تغيير الصورة</label>
+                            <input type="file" id="uploadImage" accept="image/*" onchange="uploadImage()">
+                        </div>
+                    </div>
                     <div class="user-info">
                         <p><strong>الاسم:</strong> ${user.fullName || 'غير محدد'}</p>
                         <p><strong>اسم المستخدم:</strong> ${user.username || 'غير محدد'}</p>
                         <p><strong>البريد:</strong> ${user.email || currentUser?.email}</p>
+                        <p><strong>الهاتف:</strong> ${phone || 'غير محدد'}</p>
+                        <p><strong>نبذة:</strong> ${bio || 'غير محدد'}</p>
                     </div>
-                    <h3>تعديل الاسم الشخصي</h3>
+                    <h3>تعديل المعلومات</h3>
                     <div class="input-group">
                         <label>الاسم الجديد</label>
                         <input type="text" id="newFullName" placeholder="أدخل الاسم الجديد" value="${user.fullName || ''}">
                     </div>
-                    <button class="btn" onclick="updateFullName()">تحديث الاسم</button>
-                    <div id="nameMessage" class="message"></div>
+                    <div class="input-group">
+                        <label>رقم الهاتف</label>
+                        <input type="text" id="newPhone" placeholder="أدخل رقم الهاتف" value="${phone}">
+                    </div>
+                    <div class="input-group">
+                        <label>نبذة عنك</label>
+                        <textarea id="newBio" placeholder="أدخل نبذة قصيرة">${bio}</textarea>
+                    </div>
+                    <button class="btn" onclick="updateProfile()">تحديث المعلومات</button>
+                    <div id="profileMessage" class="message"></div>
 
                     <h3 style="margin-top: 2rem;">تغيير كلمة المرور</h3>
                     <div class="input-group">
@@ -440,7 +593,13 @@
                     <h2>إعدادات المحادثات</h2>
                     <p class="info-text">خلفية الشاشة، الوضع الليلي، المؤثرات الحركية</p>
                     <div style="margin-top: 1rem;">
-                        <p>🔧 قيد التطوير...</p>
+                        <div class="input-group">
+                            <label>الوضع الداكن</label>
+                            <button class="btn ${document.body.classList.contains('dark-mode') ? 'btn-secondary' : ''}" onclick="toggleDarkMode()">
+                                ${document.body.classList.contains('dark-mode') ? 'تعطيل الوضع الداكن' : 'تفعيل الوضع الداكن'}
+                            </button>
+                        </div>
+                        <p>🔧 باقي الإعدادات قيد التطوير...</p>
                     </div>
                 </div>
             `;
@@ -547,6 +706,10 @@
                         <p>في الصفحة الرئيسية، اضغط على أيقونة البحث في الأعلى واكتب اسم المستخدم الذي تريده.</p>
                     </div>
                     <div class="faq-item">
+                        <h4 onclick="toggleFaq(this)">كيف أضيف صورة للملف الشخصي؟ <span>▼</span></h4>
+                        <p>في قسم "الحساب"، اضغط على زر "تغيير الصورة" واختر صورة من جهازك.</p>
+                    </div>
+                    <div class="faq-item">
                         <h4 onclick="toggleFaq(this)">هل تطبيقنا مجاني؟ <span>▼</span></h4>
                         <p>نعم، التطبيق مجاني بالكامل ولا توجد أي رسوم.</p>
                     </div>
@@ -554,7 +717,7 @@
             `;
         }
 
-        // دوال إضافية لربط الأحداث
+        // دوال إضافية
         window.toggleFaq = function(header) {
             const item = header.closest('.faq-item');
             item.classList.toggle('active');
@@ -562,19 +725,53 @@
             span.textContent = item.classList.contains('active') ? '▲' : '▼';
         };
 
-        // دوال تحديث الاسم وتغيير كلمة المرور (ستُستدعى من HTML)
-        window.updateFullName = async function() {
+        // رفع الصورة
+        window.uploadImage = async function() {
+            const fileInput = document.getElementById('uploadImage');
+            if (!fileInput.files.length) return;
+            const file = fileInput.files[0];
+            const fileRef = storageRef(storage, `profile_images/${currentUser.uid}/${Date.now()}_${file.name}`);
+            try {
+                await uploadBytes(fileRef, file);
+                const downloadURL = await getDownloadURL(fileRef);
+                // تحديث قاعدة البيانات
+                const userRef = ref(database, 'users/' + currentUser.uid);
+                await update(userRef, { photoURL: downloadURL });
+                window.userData.photoURL = downloadURL;
+                showMessage(document.getElementById('profileMessage'), 'تم رفع الصورة بنجاح', true);
+                // تحديث الصورة المعروضة
+                const profileImg = document.getElementById('profileImg');
+                if (profileImg) {
+                    profileImg.src = downloadURL;
+                } else {
+                    // إذا كانت الصورة غير موجودة، نعيد تحميل القسم
+                    showSection('account', isFullScreen);
+                }
+            } catch (error) {
+                console.error(error);
+                showMessage(document.getElementById('profileMessage'), 'فشل رفع الصورة: ' + error.message, false);
+            }
+        };
+
+        // تحديث المعلومات
+        window.updateProfile = async function() {
             const newName = document.getElementById('newFullName')?.value.trim();
-            const msgDiv = document.getElementById('nameMessage');
-            if (!newName) {
-                showMessage(msgDiv, 'الاسم لا يمكن أن يكون فارغاً', false);
+            const newPhone = document.getElementById('newPhone')?.value.trim();
+            const newBio = document.getElementById('newBio')?.value.trim();
+            const msgDiv = document.getElementById('profileMessage');
+            const updates = {};
+            if (newName) updates.fullName = newName;
+            if (newPhone) updates.phone = newPhone;
+            if (newBio) updates.bio = newBio;
+            if (Object.keys(updates).length === 0) {
+                showMessage(msgDiv, 'لا توجد تغييرات', false);
                 return;
             }
             try {
                 const userRef = ref(database, 'users/' + currentUser.uid);
-                await update(userRef, { fullName: newName });
-                showMessage(msgDiv, 'تم تحديث الاسم بنجاح', true);
-                window.userData.fullName = newName;
+                await update(userRef, updates);
+                Object.assign(window.userData, updates);
+                showMessage(msgDiv, 'تم تحديث المعلومات بنجاح', true);
             } catch (error) {
                 showMessage(msgDiv, 'خطأ: ' + error.message, false);
             }
@@ -614,6 +811,22 @@
             }
         };
 
+        window.toggleDarkMode = function() {
+            const body = document.body;
+            const isDark = body.classList.contains('dark-mode');
+            if (isDark) {
+                body.classList.remove('dark-mode');
+                localStorage.setItem('darkMode', 'false');
+            } else {
+                body.classList.add('dark-mode');
+                localStorage.setItem('darkMode', 'true');
+            }
+            // تحديث زر الوضع الداكن في القسم الحالي
+            if (currentSection === 'chats') {
+                showSection('chats', isFullScreen);
+            }
+        };
+
         window.logout = async function() {
             await signOut(auth);
         };
@@ -627,8 +840,11 @@
             element.className = isSuccess ? 'message success' : 'message error';
         }
 
-        // إضافة دوال إلى النافذة لاستخدامها من HTML
         window.showMessage = showMessage;
+
+        function attachEvents(section) {
+            // يمكن إضافة أي مستمعات إضافية هنا إذا لزم الأمر
+        }
     </script>
 </body>
 </html>
