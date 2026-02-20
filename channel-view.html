@@ -3,188 +3,233 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تواصل - القناة</title>
+    <title>القناة</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-        }
+        /* إعداد عام */
         body {
-            background: #f0f2f5;
-            min-height: 100vh;
+            margin: 0;
+            font-family: Tahoma, sans-serif;
+            background: #d9e5d6;
+            height: 100vh;
             display: flex;
             flex-direction: column;
         }
+
+        /* الهيدر */
         .header {
-            background: #2A6B9C;
-            color: white;
-            padding: 0.8rem 1rem;
+            background: #ededed;
+            height: 65px;
             display: flex;
             align-items: center;
-            gap: 1rem;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            position: sticky;
-            top: 0;
-            z-index: 100;
+            padding: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,.25);
         }
-        .back-btn {
-            background: none;
-            border: none;
-            color: white;
-            font-size: 1.8rem;
+
+        .back {
+            font-size: 22px;
+            margin-left: 10px;
             cursor: pointer;
         }
-        .header h1 {
-            font-size: 1.5rem;
-            font-weight: 600;
-            flex: 1;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            text-align: center;
-        }
-        .header-actions {
+
+        .avatar {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: linear-gradient(45deg,#5fb6e5,#2a83c7);
+            color: #fff;
             display: flex;
-            gap: 0.5rem;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            margin-left: 10px;
         }
-        .header-actions button {
-            background: none;
-            border: none;
-            color: white;
-            font-size: 1.5rem;
+
+        .title {
+            flex: 1;
+        }
+
+        .title b {
+            font-size: 17px;
+        }
+
+        .title span {
+            font-size: 13px;
+            color: gray;
+        }
+
+        .menu {
+            font-size: 22px;
             cursor: pointer;
         }
-        .container {
+
+        /* منطقة المحادثة */
+        .chat {
             flex: 1;
             overflow-y: auto;
-            padding: 1rem;
+            padding: 12px;
+            background-image: url("https://i.imgur.com/9v6p0mT.png");
         }
-        /* العناصر المشتركة */
-        .channel-avatar {
-            width: 100px;
-            height: 100px;
-            background: #2A6B9C;
-            color: white;
-            border-radius: 50%;
+
+        /* تاريخ */
+        .date {
+            text-align: center;
+            margin: 14px 0;
+        }
+
+        .date span {
+            background: #b7c9a8;
+            color: #fff;
+            padding: 6px 14px;
+            border-radius: 14px;
+            font-size: 13px;
+            display: inline-block;
+        }
+
+        /* رسائل النظام */
+        .system {
+            text-align: center;
+            margin: 6px 0;
+        }
+
+        .system span {
+            background: #b7c9a8;
+            color: #fff;
+            padding: 6px 14px;
+            border-radius: 14px;
+            font-size: 13px;
+        }
+
+        /* فقاعة الرسالة */
+        .message {
+            max-width: 75%;
+            background: #fff;
+            padding: 10px;
+            border-radius: 14px;
+            box-shadow: 0 1px 2px rgba(0,0,0,.2);
+            margin-bottom: 8px;
+        }
+
+        .sender {
+            color: #1d6fa5;
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+
+        /* التفاعلات */
+        .reactions {
+            display: flex;
+            gap: 10px;
+            margin-top: 6px;
+            font-size: 14px;
+            color: #555;
+        }
+
+        .reaction {
+            background: #f1f1f1;
+            padding: 3px 8px;
+            border-radius: 12px;
+            cursor: pointer;
+        }
+
+        .reaction:hover {
+            background: #e0e0e0;
+        }
+
+        /* معلومات الرسالة */
+        .info {
+            display: flex;
+            justify-content: flex-end;
+            font-size: 12px;
+            color: #777;
+            margin-top: 4px;
+            gap: 10px;
+        }
+
+        /* زر كتم الصوت */
+        .mute {
+            background: #eaeaea;
+            height: 60px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 2.5rem;
-            font-weight: bold;
-            margin: 1rem auto 0.5rem;
-            overflow: hidden;
+            gap: 10px;
+            padding: 0 10px;
         }
-        .channel-avatar img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
+
+        .mute button {
+            width: 80%;
+            height: 40px;
+            border: none;
+            border-radius: 20px;
+            background: #fff;
+            font-size: 15px;
+            cursor: pointer;
         }
-        .channel-name {
-            font-size: 1.8rem;
-            font-weight: 600;
-            color: #1a2b3e;
-            text-align: center;
-            margin-top: 0.5rem;
+
+        .mute button:hover {
+            background: #f5f5f5;
         }
-        .channel-stats {
-            text-align: center;
-            color: #7f8fa4;
-            font-size: 0.9rem;
-            margin: 0.2rem 0 1.5rem;
-        }
-        .btn {
-            display: block;
-            width: 200px;
-            margin: 1rem auto;
-            padding: 0.8rem;
+
+        /* زر الانضمام (يظهر للزوار) */
+        .join-btn {
+            width: 80%;
+            height: 40px;
+            border: none;
+            border-radius: 20px;
             background: #2A6B9C;
             color: white;
-            border: none;
-            border-radius: 30px;
-            font-size: 1rem;
-            font-weight: 600;
+            font-size: 15px;
             cursor: pointer;
-            text-align: center;
+            margin: 0 auto;
         }
-        .btn.joined {
-            background: #eef2f7;
-            color: #1a2b3e;
+
+        .join-btn:hover {
+            background: #1f4e7a;
         }
-        .btn-secondary {
-            background: #eef2f7;
-            color: #1a2b3e;
-        }
-        /* واجهة عادية (لغير المكتوم) */
-        .message-card {
-            background: white;
-            border-radius: 20px;
-            padding: 1.5rem;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-            margin: 1rem 0;
-        }
-        .message-sender {
-            font-weight: 600;
-            color: #1a2b3e;
-            margin-bottom: 0.5rem;
-        }
-        .message-text {
-            color: #2c3e50;
-            margin-bottom: 1rem;
-        }
-        .message-reactions {
-            display: flex;
-            gap: 2rem;
-            color: #8899aa;
-            margin-bottom: 0.5rem;
-        }
-        .message-footer {
-            display: flex;
-            justify-content: space-between;
-            color: #8899aa;
-            font-size: 0.9rem;
-            border-top: 1px solid #eef2f7;
-            padding-top: 0.8rem;
-        }
-        .join-message {
-            text-align: center;
-            color: #8899aa;
-            font-size: 0.9rem;
-            margin: 1rem 0;
-        }
-        .buttons-row {
-            display: flex;
-            gap: 0.8rem;
-            justify-content: center;
-            margin: 1rem 0;
-        }
-        /* واجهة مبسطة (للمكتوم) */
-        .simple-view {
-            text-align: center;
-            padding: 2rem;
-        }
+
+        /* رسائل الخطأ والتحميل */
         .loading {
             text-align: center;
             padding: 2rem;
             color: #8899aa;
         }
+        .error {
+            text-align: center;
+            padding: 2rem;
+            color: #dc3545;
+        }
+        .hidden {
+            display: none;
+        }
     </style>
 </head>
 <body>
+
+    <!-- الهيدر (سيتم تعبئة البيانات عبر JavaScript) -->
     <div class="header">
-        <button class="back-btn" onclick="goBack()">←</button>
-        <h1 id="headerTitle">القناة</h1>
-        <div class="header-actions">
-            <button id="editBtn" onclick="openSettings()" style="display: none;">⚙️</button>
+        <div class="back" onclick="goBack()">←</div>
+
+        <div class="avatar" id="avatar"></div>
+
+        <div class="title">
+            <b id="channelName">المطور التطبيق</b><br>
+            <span id="subscriberCount">3 مشتركين</span>
         </div>
+
+        <div class="menu" id="settingsMenu" style="display: none;" onclick="openSettings()">⋮</div>
     </div>
 
-    <div class="container" id="container">
+    <!-- منطقة المحادثة (ستُملأ بالرسائل) -->
+    <div class="chat" id="chatContainer">
         <div class="loading">جاري التحميل...</div>
     </div>
 
-    <!-- نافذة الإعدادات (للمالك فقط) -->
+    <!-- منطقة زر الكتم/الانضمام (تظهر حسب حالة المستخدم) -->
+    <div class="mute" id="actionBar">
+        <!-- سيتم تعبئتها عبر JavaScript -->
+    </div>
+
+    <!-- نافذة الإعدادات (تظهر فقط للمالك) -->
     <div id="settingsModal" style="display: none; position: fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); align-items:center; justify-content:center; z-index:1000;">
         <div style="background:white; border-radius:20px; padding:2rem; max-width:400px; width:90%;">
             <h3 style="margin-bottom:1rem; color:#1a2b3e;">إعدادات القناة</h3>
@@ -215,7 +260,19 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { getDatabase, ref, get, update, onValue, push, set, query, orderByChild, equalTo, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { 
+            getDatabase, 
+            ref, 
+            get, 
+            update, 
+            onValue, 
+            push, 
+            set,
+            query,
+            orderByChild,
+            equalTo,
+            serverTimestamp
+        } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDRCtfuYrEdnuKUsWu_79NC6G_xGLznBJc",
@@ -231,12 +288,17 @@
         const auth = getAuth(app);
         const database = getDatabase(app);
 
+        // الحصول على معرف القناة من الرابط (مثلاً channel-view.html?id=abc123)
         const urlParams = new URLSearchParams(window.location.search);
         const channelId = urlParams.get('id');
 
-        const container = document.getElementById('container');
-        const headerTitle = document.getElementById('headerTitle');
-        const editBtn = document.getElementById('editBtn');
+        // عناصر الصفحة
+        const avatarDiv = document.getElementById('avatar');
+        const channelNameEl = document.getElementById('channelName');
+        const subscriberCountEl = document.getElementById('subscriberCount');
+        const settingsMenu = document.getElementById('settingsMenu');
+        const chatContainer = document.getElementById('chatContainer');
+        const actionBar = document.getElementById('actionBar');
         const settingsModal = document.getElementById('settingsModal');
         const editName = document.getElementById('editName');
         const editDesc = document.getElementById('editDesc');
@@ -247,7 +309,7 @@
         let currentChannelData = null;
         let isOwner = false;
         let isMember = false;
-        // حالة الكتم مخزنة في localStorage لكل قناة ولكل مستخدم
+        // حالة الكتم مخزنة في localStorage
         let isMuted = false;
 
         onAuthStateChanged(auth, (user) => {
@@ -257,7 +319,7 @@
             }
             currentUserId = user.uid;
             if (!channelId) {
-                container.innerHTML = '<div class="error">معرف القناة غير موجود</div>';
+                chatContainer.innerHTML = '<div class="error">معرف القناة غير موجود</div>';
                 return;
             }
             loadChannel();
@@ -267,7 +329,7 @@
             const channelRef = ref(database, 'channels/' + channelId);
             onValue(channelRef, async (snapshot) => {
                 if (!snapshot.exists()) {
-                    container.innerHTML = '<div class="error">القناة غير موجودة</div>';
+                    chatContainer.innerHTML = '<div class="error">القناة غير موجودة</div>';
                     return;
                 }
                 currentChannelData = snapshot.val();
@@ -278,59 +340,63 @@
                 const muteKey = `muted_${channelId}_${currentUserId}`;
                 isMuted = localStorage.getItem(muteKey) === 'true';
 
-                // إخفاء زر الإعدادات إذا لم يكن المالك
-                editBtn.style.display = isOwner ? 'inline-block' : 'none';
+                // تحديث الهيدر
+                const channelName = currentChannelData.name || 'القناة';
+                channelNameEl.textContent = channelName;
+                const memberCount = currentChannelData.members?.length || 1;
+                subscriberCountEl.textContent = `${memberCount} مشتركين`;
 
-                renderChannel();
+                // الصورة الرمزية (حرف أول من الاسم)
+                const initial = channelName.charAt(0).toUpperCase();
+                avatarDiv.textContent = initial;
+
+                // إخفاء/إظهار زر الإعدادات (ثلاث نقاط) للمالك فقط
+                settingsMenu.style.display = isOwner ? 'inline-block' : 'none';
+
+                // عرض المحتوى المناسب حسب حالة المستخدم والكتم
+                renderContent();
             });
         }
 
-        function renderChannel() {
-            const data = currentChannelData;
-            headerTitle.textContent = data.name || 'القناة';
+        function renderContent() {
+            if (!currentChannelData) return;
 
-            const membersCount = data.members?.length || 1;
-            const createdDate = data.createdAt ? new Date(data.createdAt).toLocaleDateString('ar-EG', { day: 'numeric', month: 'long' }) : '20 فبراير';
+            // عرض تاريخ الإنشاء ورسالة الانضمام (إذا كان عضوًا)
+            let chatHtml = '';
 
-            let html = `
-                <div class="channel-avatar">
-                    ${data.avatar ? `<img src="${data.avatar}" alt="avatar">` : (data.name ? data.name.charAt(0).toUpperCase() : '📢')}
-                </div>
-                <div class="channel-name">${data.name}</div>
-                <div class="channel-stats">مشتركان ${membersCount}</div>
-            `;
+            if (currentChannelData.createdAt) {
+                const createdDate = new Date(currentChannelData.createdAt).toLocaleDateString('ar-EG', { day: 'numeric', month: 'long' });
+                chatHtml += `
+                    <div class="date"><span>${createdDate}</span></div>
+                    <div class="system"><span>تم إنشاء القناة</span></div>
+                `;
+            } else {
+                chatHtml += `
+                    <div class="date"><span>20 فبراير</span></div>
+                    <div class="system"><span>تم إنشاء القناة</span></div>
+                `;
+            }
 
-            // إذا كان المستخدم مالكاً أو مشتركاً غير مكتوم → نعرض الواجهة العادية (مع الرسائل)
+            if (isMember) {
+                chatHtml += `<div class="system"><span>لقد انضممت لهذه القناة</span></div>`;
+            }
+
+            chatHtml += `<br>`;
+
+            // إذا كان المستخدم مشتركاً وغير مكتوم (أو مالك)، نعرض الرسائل
             if (isOwner || (isMember && !isMuted)) {
-                container.innerHTML = html;
-                // نعرض التاريخ فقط للمالك أو المشترك العادي
-                const dateDiv = document.createElement('div');
-                dateDiv.className = 'channel-date';
-                dateDiv.textContent = createdDate + '\nتم إنشاء القناة';
-                container.appendChild(dateDiv);
+                chatContainer.innerHTML = chatHtml;
+                loadMessages(); // تحميل الرسائل وعرضها داخل chatContainer
+            } else {
+                // للمشترك المكتوم أو الزائر، نعرض فقط التاريخ ورسالة النظام دون رسائل
+                chatContainer.innerHTML = chatHtml;
+            }
 
-                // تحميل وعرض آخر رسالة (للعرض العادي)
-                loadLatestMessage();
-            } 
-            // إذا كان مشتركاً ومكتوماً → نعرض الواجهة المبسطة (بدون رسائل، فقط زر إلغاء الكتم)
-            else if (isMember && isMuted) {
-                html += `<div class="simple-view">`;
-                html += `<button class="btn" onclick="toggleMute()">إلغاء كتم الصوت</button>`;
-                html += `</div>`;
-                container.innerHTML = html;
-            }
-            // إذا كان زائراً (غير مشترك) → نعرض واجهة الزائر (زر انضمام)
-            else {
-                container.innerHTML = html;
-                const joinBtn = document.createElement('button');
-                joinBtn.className = 'btn';
-                joinBtn.textContent = 'انضمام';
-                joinBtn.onclick = toggleJoin;
-                container.appendChild(joinBtn);
-            }
+            // تحديد محتوى شريط الإجراءات (الأسفل)
+            renderActionBar();
         }
 
-        async function loadLatestMessage() {
+        async function loadMessages() {
             const messagesRef = ref(database, `channels/${channelId}/messages`);
             const messagesQuery = query(messagesRef, orderByChild('timestamp'));
             const snapshot = await get(messagesQuery);
@@ -340,74 +406,77 @@
                 snapshot.forEach((child) => {
                     messages.push({ id: child.key, ...child.val() });
                 });
-                messages.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
-                const latest = messages[0];
-                
-                const userSnap = await get(ref(database, `users/${latest.senderId}`));
-                const sender = userSnap.exists() ? userSnap.val() : { fullName: 'مستخدم', username: '' };
-                const time = latest.timestamp ? new Date(latest.timestamp).toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' }) : '2:46 م';
-                const senderName = sender.fullName || sender.username || 'أقر أنا';
+                // ترتيب تصاعدي (الأقدم أولاً)
+                messages.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
 
-                const messageHtml = `
-                    <div class="message-card">
-                        <div class="message-sender">${senderName}</div>
-                        <div class="message-text">${latest.text}</div>
-                        <div class="message-reactions">
-                            <span>❤️ ${latest.likes || 0}</span>
-                            <span>👤 ${latest.views || 0}</span>
-                            <span>🔥 ${latest.popularity || 0}</span>
-                        </div>
-                        <div class="message-footer">
-                            <span>${time}</span>
-                            <span>${senderName}</span>
-                        </div>
-                    </div>
-                    <div class="join-message">لمدة انضمامت لهذه القناة</div>
-                `;
+                for (const msg of messages) {
+                    const userSnap = await get(ref(database, `users/${msg.senderId}`));
+                    const sender = userSnap.exists() ? userSnap.val() : { fullName: 'مستخدم', username: '' };
+                    const time = msg.timestamp ? new Date(msg.timestamp).toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' }) : '12:00 م';
+                    const senderName = sender.fullName || sender.username || 'مستخدم';
 
-                container.innerHTML += messageHtml;
+                    // إضافة الرسالة إلى chatContainer
+                    const msgDiv = document.createElement('div');
+                    msgDiv.className = 'message';
+                    msgDiv.innerHTML = `
+                        <div class="sender">${senderName}</div>
+                        ${msg.text}
+                        <div class="reactions">
+                            <div class="reaction" onclick="likeMessage('${msg.id}')">❤️ ${msg.likes || 0}</div>
+                            <div class="reaction" onclick="viewMessage('${msg.id}')">👁️ ${msg.views || 0}</div>
+                            <div class="reaction">🔥 ${msg.popularity || 0}</div>
+                        </div>
+                        <div class="info">
+                            👁 ${msg.views || 0} &nbsp; ${time}
+                        </div>
+                    `;
+                    chatContainer.appendChild(msgDiv);
+                }
             } else {
-                container.innerHTML += `
-                    <div class="message-card">
-                        <div class="message-sender">المطور التطبيقي</div>
-                        <div class="message-text">مرحباً بكم في قنات مطور تطبيق</div>
-                        <div class="message-reactions">
-                            <span>❤️ 1</span>
-                            <span>👤 1</span>
-                            <span>🔥 1</span>
-                        </div>
-                        <div class="message-footer">
-                            <span>2:46 م</span>
-                            <span>أقر أنا</span>
-                        </div>
+                // لا توجد رسائل → نعرض رسالة افتراضية
+                const msgDiv = document.createElement('div');
+                msgDiv.className = 'message';
+                msgDiv.innerHTML = `
+                    <div class="sender">المطور التطبيق</div>
+                    مرحبا بكم في قناة مطور تطبيق
+                    <div class="reactions">
+                        <div class="reaction">❤️ 1</div>
+                        <div class="reaction">👍 1</div>
+                        <div class="reaction">🥰 1</div>
                     </div>
-                    <div class="join-message">لمدة انضمامت لهذه القناة</div>
+                    <div class="info">
+                        👁 1 &nbsp; 2:46 م
+                    </div>
                 `;
+                chatContainer.appendChild(msgDiv);
             }
+        }
 
-            // إضافة أزرار التفاعل (للمشترك العادي)
-            if (isMember && !isOwner) {
-                const buttonsDiv = document.createElement('div');
-                buttonsDiv.className = 'buttons-row';
-                buttonsDiv.innerHTML = `
-                    <button class="btn joined" onclick="toggleJoin()">مشترك ✓</button>
-                    <button class="btn btn-secondary" onclick="toggleMute()">${isMuted ? 'إلغاء كتم الصوت' : 'كتم'}</button>
-                `;
-                container.appendChild(buttonsDiv);
+        function renderActionBar() {
+            // إذا كان المستخدم زائراً (غير مشترك)
+            if (!isMember && !isOwner) {
+                actionBar.innerHTML = `<button class="join-btn" onclick="joinChannel()">انضمام</button>`;
+            }
+            // إذا كان مشتركاً (وليس مالكاً)
+            else if (isMember && !isOwner) {
+                if (isMuted) {
+                    actionBar.innerHTML = `<button onclick="toggleMute()">إلغاء كتم الصوت</button>`;
+                } else {
+                    actionBar.innerHTML = `<button onclick="toggleMute()">كتم الصوت</button>`;
+                }
+            }
+            // إذا كان مالكاً
+            else if (isOwner) {
+                // المالك لا يرى زر كتم، ربما نعرض شيئاً آخر أو نتركه فارغاً
+                actionBar.innerHTML = ''; // أو يمكن إضافة زر مغادرة؟ لكن المالك لا يمكنه المغادرة.
             }
         }
 
         // دوال التفاعل
-        window.toggleJoin = async function() {
-            if (isOwner) return;
+        window.joinChannel = async function() {
             const channelRef = ref(database, 'channels/' + channelId);
             const members = currentChannelData.members || [];
-            if (isMember) {
-                // مغادرة
-                const newMembers = members.filter(uid => uid !== currentUserId);
-                await update(channelRef, { members: newMembers });
-            } else {
-                // انضمام
+            if (!members.includes(currentUserId)) {
                 members.push(currentUserId);
                 await update(channelRef, { members: members });
             }
@@ -417,10 +486,29 @@
             const muteKey = `muted_${channelId}_${currentUserId}`;
             isMuted = !isMuted;
             localStorage.setItem(muteKey, isMuted);
-            // تحديث الواجهة
-            renderChannel();
+            // إعادة تحميل المحتوى بناءً على الحالة الجديدة
+            renderContent();
         };
 
+        window.likeMessage = async function(messageId) {
+            const msgRef = ref(database, `channels/${channelId}/messages/${messageId}`);
+            const snapshot = await get(msgRef);
+            if (snapshot.exists()) {
+                const currentLikes = snapshot.val().likes || 0;
+                await update(msgRef, { likes: currentLikes + 1 });
+            }
+        };
+
+        window.viewMessage = async function(messageId) {
+            const msgRef = ref(database, `channels/${channelId}/messages/${messageId}`);
+            const snapshot = await get(msgRef);
+            if (snapshot.exists()) {
+                const currentViews = snapshot.val().views || 0;
+                await update(msgRef, { views: currentViews + 1 });
+            }
+        };
+
+        // الإعدادات
         window.openSettings = function() {
             if (!isOwner) return;
             editName.value = currentChannelData.name || '';
