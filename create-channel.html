@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -131,6 +132,11 @@
             border: 1px solid #f5c6cb;
             display: block;
         }
+        .info-text {
+            color: #7f8fa4;
+            font-size: 0.8rem;
+            margin-top: 0.3rem;
+        }
         .loading {
             text-align: center;
             padding: 2rem;
@@ -156,8 +162,13 @@
                 </select>
             </div>
             <div class="input-group">
-                <label>اسم القناة/المجموعة</label>
+                <label>الاسم</label>
                 <input type="text" id="name" placeholder="أدخل الاسم" required>
+            </div>
+            <div class="input-group">
+                <label>اسم المستخدم (username) <span style="color:#dc3545;">*</span></label>
+                <input type="text" id="username" placeholder="مثال: mychannel" required>
+                <div class="info-text">هذا الاسم سيظهر في نتائج البحث ويجب أن يكون فريداً.</div>
             </div>
             <div class="input-group">
                 <label>الوصف (اختياري)</label>
@@ -182,7 +193,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { getDatabase, ref, push, set, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { getDatabase, ref, push, set, query, orderByChild, equalTo, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDRCtfuYrEdnuKUsWu_79NC6G_xGLznBJc",
@@ -200,6 +211,7 @@
 
         const typeSelect = document.getElementById('type');
         const nameInput = document.getElementById('name');
+        const usernameInput = document.getElementById('username');
         const descInput = document.getElementById('desc');
         const avatarInput = document.getElementById('avatar');
         const privacyRadios = document.getElementsByName('privacy');
@@ -220,9 +232,25 @@
             messageDiv.className = isSuccess ? 'message success' : 'message error';
         }
 
+        // التحقق من أن اسم المستخدم غير مستخدم مسبقاً (في users أو channels)
+        async function isUsernameUnique(username) {
+            // التحقق في users
+            const usersRef = ref(database, 'users');
+            const userQuery = query(usersRef, orderByChild('username'), equalTo(username));
+            const userSnapshot = await get(userQuery);
+            if (userSnapshot.exists()) return false;
+
+            // التحقق في channels
+            const channelsRef = ref(database, 'channels');
+            const channelQuery = query(channelsRef, orderByChild('username'), equalTo(username));
+            const channelSnapshot = await get(channelQuery);
+            return !channelSnapshot.exists();
+        }
+
         window.createChannel = async function() {
             const type = typeSelect.value;
             const name = nameInput.value.trim();
+            const username = usernameInput.value.trim().toLowerCase(); // نخزنه بأحرف صغيرة لتوحيد البحث
             const description = descInput.value.trim() || '';
             const avatar = avatarInput.value.trim() || '';
             let privacy = 'public';
@@ -234,8 +262,24 @@
                 showMessage('الاسم مطلوب', false);
                 return;
             }
+            if (!username) {
+                showMessage('اسم المستخدم مطلوب', false);
+                return;
+            }
+            // تحقق بسيط من صيغة username (حروف وأرقام فقط)
+            if (!/^[a-z0-9_]+$/.test(username)) {
+                showMessage('اسم المستخدم يجب أن يحتوي على أحرف إنجليزية صغيرة وأرقام وشرطة سفلية فقط', false);
+                return;
+            }
 
             try {
+                // التحقق من أن اسم المستخدم فريد
+                const unique = await isUsernameUnique(username);
+                if (!unique) {
+                    showMessage('اسم المستخدم موجود بالفعل، اختر اسماً آخر', false);
+                    return;
+                }
+
                 const channelsRef = ref(database, 'channels');
                 const newChannelRef = push(channelsRef);
                 const channelId = newChannelRef.key;
@@ -249,16 +293,18 @@
                 await set(newChannelRef, {
                     type: type,
                     name: name,
+                    username: username,          // حفظ اسم المستخدم للبحث
                     description: description,
                     avatar: avatar,
                     privacy: privacy,
                     createdBy: currentUserId,
-                    createdAt: serverTimestamp(),
-                    members: [currentUserId], // المالك أول عضو
+                    createdAt: new Date().toISOString(),
+                    members: [currentUserId],
                     admins: [currentUserId],
                     inviteLink: inviteLink,
+                    totalMessages: 0,
                     settings: {
-                        canSendMessages: type === 'group' ? true : false, // القناة لا يمكن الكتابة إلا للمالك
+                        canSendMessages: type === 'group' ? true : false,
                         slowMode: false,
                         joinRequests: privacy === 'private' ? true : false
                     }
