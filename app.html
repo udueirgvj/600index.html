@@ -467,6 +467,22 @@
         const auth = getAuth(app);
         const database = getDatabase(app);
 
+        // ========== التأكد من وجود البوت الافتراضي في localStorage ==========
+        const BOTS_KEY = 'telegram_bots';
+        let botsDatabase = JSON.parse(localStorage.getItem(BOTS_KEY)) || {};
+        const defaultBotUsername = 'ffnblp';
+        if (!botsDatabase[defaultBotUsername]) {
+            botsDatabase[defaultBotUsername] = {
+                name: 'FFNBLP',
+                username: defaultBotUsername,
+                token: '8539663633:AAFfbj12JC1OAqkQWRRWiHBvGE8Wa2N-9tM',
+                description: '',
+                about: '',
+                commands: []
+            };
+            localStorage.setItem(BOTS_KEY, JSON.stringify(botsDatabase));
+        }
+
         // عناصر الصفحة
         const searchBar = document.getElementById('searchBar');
         const searchInput = document.getElementById('searchInput');
@@ -537,10 +553,8 @@
             // 1. المحادثات الخاصة (chats)
             const chatsRef = ref(database, 'chats');
             onValue(chatsRef, async (snapshot) => {
-                // سنقوم بجمع البيانات من عدة مصادر ثم عرضها معاً
                 const allChats = [];
                 
-                // معالجة المحادثات الخاصة
                 if (snapshot.exists()) {
                     snapshot.forEach((childSnapshot) => {
                         const chatId = childSnapshot.key;
@@ -552,7 +566,7 @@
                                     type: 'private',
                                     id: otherUserId,
                                     chatId: chatId,
-                                    name: '', // سنملأه لاحقاً
+                                    name: '',
                                     lastMsg: '',
                                     lastTime: '',
                                     avatar: '',
@@ -586,7 +600,7 @@
                 }
 
                 // 3. البوتات التي تفاعل معها المستخدم (من localStorage)
-                const botsData = localStorage.getItem('telegram_bots');
+                const botsData = localStorage.getItem(BOTS_KEY);
                 const interactedBots = JSON.parse(localStorage.getItem('interacted_bots') || '[]');
                 if (botsData) {
                     const bots = JSON.parse(botsData);
@@ -607,7 +621,7 @@
                     });
                 }
 
-                // الآن نحتاج لجلب أسماء المستخدمين للمحادثات الخاصة
+                // جلب أسماء المستخدمين للمحادثات الخاصة
                 for (let chat of allChats) {
                     if (chat.type === 'private') {
                         const userSnap = await get(ref(database, 'users/' + chat.id));
@@ -631,7 +645,7 @@
                     }
                 }
 
-                // ترتيب حسب الوقت (الأحدث أولاً) - مبسط
+                // ترتيب حسب الوقت (الأحدث أولاً)
                 allChats.sort((a, b) => (b.lastTime || '') > (a.lastTime || '') ? 1 : -1);
 
                 // بناء HTML
@@ -720,7 +734,6 @@
             }
         };
 
-        // دالة الذهاب إلى محادثة خاصة (للتوافق مع الكود القديم)
         window.goToChat = function(uid, name, username) {
             window.location.href = `chat.html?uid=${uid}&name=${encodeURIComponent(name)}&username=${username}`;
         };
@@ -750,6 +763,7 @@
 
             try {
                 let results = '';
+                const lowerSearch = searchText.toLowerCase(); // للبحث غير حساس لحالة الأحرف
                 
                 // 1. البحث عن المستخدمين
                 const usersRef = ref(database, 'users');
@@ -801,13 +815,13 @@
                 }
 
                 // 3. البحث عن البوتات
-                const botsData = localStorage.getItem('telegram_bots');
+                const botsData = localStorage.getItem(BOTS_KEY);
                 if (botsData) {
                     const bots = JSON.parse(botsData);
                     Object.values(bots).forEach(bot => {
                         const botUsername = bot.username || '';
                         const botName = bot.name || '';
-                        if (botUsername.includes(searchText) || botName.includes(searchText)) {
+                        if (botUsername.toLowerCase().includes(lowerSearch) || botName.toLowerCase().includes(lowerSearch)) {
                             const initial = botName.charAt(0).toUpperCase();
                             results += `
                                 <div class="user-item" onclick="goToBot('${botUsername}')">
