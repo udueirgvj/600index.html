@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تسجيل الدخول - Clipn</title>
+    <title>تسجيل الدخول - تواصل</title>
     <link rel="manifest" href="/manifest.json">
     <style>
         * {
@@ -13,7 +13,7 @@
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
         body {
-            background: linear-gradient(145deg, #e8f0fe 0%, #d9e4f5 100%);
+            background: #f0f2f5;
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -21,165 +21,105 @@
             padding: 1rem;
         }
         .container {
-            max-width: 1000px;
+            max-width: 450px;
             width: 100%;
-            display: flex;
-            flex-wrap: wrap;
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(10px);
-            border-radius: 2.5rem;
-            box-shadow: 0 20px 40px rgba(0, 20, 50, 0.15), 0 8px 20px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
-            transition: all 0.3s;
-        }
-        .hero {
-            flex: 1 1 300px;
-            background: #2A6B9C;
-            background-image: radial-gradient(circle at 20% 30%, #3a8bc2, #1f4e7a);
-            color: white;
-            padding: 2rem;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            min-height: 300px;
-        }
-        .hero h2 {
-            font-size: 2.5rem;
-            font-weight: 600;
-            margin-bottom: 1rem;
-            letter-spacing: -0.5px;
-        }
-        .hero p {
-            font-size: 1.1rem;
-            opacity: 0.9;
-            max-width: 280px;
-            line-height: 1.6;
-        }
-        .hero-icon {
-            font-size: 5rem;
-            margin-bottom: 1rem;
-            filter: drop-shadow(0 10px 10px rgba(0,0,0,0.2));
-        }
-        .forms-section {
-            flex: 1 1 400px;
-            padding: 2.5rem;
             background: white;
-            border-radius: 2rem 0 0 2rem;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            padding: 2rem 1.5rem;
+        }
+        h2 {
+            text-align: center;
+            color: #1a2b3e;
+            margin-bottom: 1.8rem;
+            font-size: 1.8rem;
         }
         .tabs {
             display: flex;
             gap: 1rem;
-            margin-bottom: 2.5rem;
+            margin-bottom: 2rem;
             border-bottom: 2px solid #eef2f7;
-            padding-bottom: 1rem;
+            padding-bottom: 0.5rem;
         }
         .tab {
-            font-size: 1.3rem;
+            font-size: 1.2rem;
             font-weight: 600;
-            padding: 0.5rem 0;
+            padding: 0.5rem 1rem;
             cursor: pointer;
             color: #8899aa;
-            transition: color 0.2s;
+            transition: all 0.2s;
             border-bottom: 3px solid transparent;
-            margin-bottom: -1rem;
         }
-        #tab1:checked ~ .tabs .tab:first-child,
-        #tab2:checked ~ .tabs .tab:last-child {
+        .tab.active {
             color: #2A6B9C;
             border-bottom-color: #2A6B9C;
         }
-        .forms {
-            margin-top: 1rem;
-        }
         .form {
             display: none;
-            animation: fade 0.3s ease;
         }
-        #tab1:checked ~ .forms .form.signup,
-        #tab2:checked ~ .forms .form.login {
+        .form.active {
             display: block;
         }
-        @keyframes fade {
-            from { opacity: 0.5; transform: translateY(5px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .form h3 {
-            font-size: 1.8rem;
-            font-weight: 600;
-            color: #1a2b3e;
-            margin-bottom: 1.8rem;
-        }
         .input-group {
-            margin-bottom: 1.5rem;
+            margin-bottom: 1.2rem;
         }
         .input-group label {
             display: block;
             font-size: 0.9rem;
             font-weight: 500;
             color: #4b5f73;
-            margin-bottom: 0.4rem;
+            margin-bottom: 0.3rem;
         }
         .input-group input {
             width: 100%;
-            padding: 0.9rem 1.2rem;
+            padding: 0.8rem 1rem;
             font-size: 1rem;
-            border: 1.5px solid #e1e8f0;
-            border-radius: 1.2rem;
+            border: 1px solid #d9e1ec;
+            border-radius: 12px;
             background: #f9fcff;
-            transition: border-color 0.2s, box-shadow 0.2s;
+            transition: border-color 0.2s;
             outline: none;
         }
         .input-group input:focus {
             border-color: #2A6B9C;
-            box-shadow: 0 0 0 4px rgba(42, 107, 156, 0.1);
-            background: white;
+            box-shadow: 0 0 0 3px rgba(42,107,156,0.1);
         }
         .btn {
             width: 100%;
-            padding: 1rem;
+            padding: 0.8rem;
             font-size: 1.1rem;
             font-weight: 600;
             border: none;
-            border-radius: 1.5rem;
+            border-radius: 12px;
             background: #2A6B9C;
             color: white;
             cursor: pointer;
-            transition: background 0.2s, transform 0.1s;
             margin-top: 0.5rem;
-            box-shadow: 0 8px 16px rgba(42, 107, 156, 0.3);
+            transition: background 0.2s;
         }
         .btn:hover {
             background: #1f4e7a;
         }
-        .btn:active {
-            transform: scale(0.98);
-        }
-        .extra-links {
-            margin-top: 1.8rem;
+        .link {
             text-align: center;
-            font-size: 0.95rem;
+            margin-top: 1.5rem;
             color: #7f8fa4;
         }
-        .extra-links a {
+        .link a {
             color: #2A6B9C;
             text-decoration: none;
             font-weight: 500;
             cursor: pointer;
         }
-        .extra-links a:hover {
+        .link a:hover {
             text-decoration: underline;
         }
-        .tab-selector {
-            display: none;
-        }
         .message {
-            padding: 0.8rem;
-            border-radius: 1rem;
+            padding: 0.7rem;
+            border-radius: 10px;
             margin-top: 1rem;
             text-align: center;
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             display: none;
         }
         .message.success {
@@ -194,101 +134,73 @@
             border: 1px solid #f5c6cb;
             display: block;
         }
-        @media (max-width: 700px) {
-            .container {
-                flex-direction: column;
-                border-radius: 2rem;
-            }
-            .hero {
-                border-radius: 2rem 2rem 0 0;
-            }
-            .forms-section {
-                border-radius: 0 0 2rem 2rem;
-            }
-            .tabs {
-                justify-content: center;
-            }
-        }
     </style>
 </head>
 <body>
     <div class="container">
-        <input type="radio" name="tab" id="tab1" class="tab-selector" checked>
-        <input type="radio" name="tab" id="tab2" class="tab-selector">
-
-        <div class="hero">
-            <div class="hero-icon">📱</div>
-            <h2>Clipn</h2>
-            <p>تطبيق تواصل آمن وسريع، بتصميمك الخاص.</p>
+        <h2>تواصل</h2>
+        
+        <!-- التبويبات -->
+        <div class="tabs">
+            <div class="tab active" id="tabSignup" onclick="switchTab('signup')">إنشاء حساب</div>
+            <div class="tab" id="tabLogin" onclick="switchTab('login')">تسجيل الدخول</div>
         </div>
 
-        <div class="forms-section">
-            <div class="tabs">
-                <label for="tab1" class="tab">إنشاء حساب</label>
-                <label for="tab2" class="tab">تسجيل دخول</label>
+        <!-- نموذج إنشاء حساب -->
+        <div class="form active" id="signupForm">
+            <form onsubmit="event.preventDefault(); signup()">
+                <div class="input-group">
+                    <label>الاسم الشخصي</label>
+                    <input type="text" id="fullName" placeholder="أدخل اسمك" required>
+                </div>
+                <div class="input-group">
+                    <label>اسم المستخدم</label>
+                    <input type="text" id="username" placeholder="أدخل اسم المستخدم" required>
+                </div>
+                <div class="input-group">
+                    <label>البريد الإلكتروني</label>
+                    <input type="email" id="email" placeholder="example@mail.com" required>
+                </div>
+                <div class="input-group">
+                    <label>كلمة المرور</label>
+                    <input type="password" id="password" placeholder="******" required>
+                </div>
+                <button type="submit" class="btn">إنشاء الحساب</button>
+                <div id="signupMessage" class="message"></div>
+            </form>
+            <div class="link">
+                لديك حساب؟ <a onclick="switchTab('login')">تسجيل الدخول</a>
             </div>
+        </div>
 
-            <div class="forms">
-                <!-- نموذج إنشاء حساب -->
-                <div class="form signup">
-                    <h3>حساب جديد</h3>
-                    <form id="signupForm">
-                        <div class="input-group">
-                            <label>الاسم الشخصي</label>
-                            <input type="text" id="fullName" placeholder="مثل: أحمد محمد" required>
-                        </div>
-                        <div class="input-group">
-                            <label>اسم المستخدم</label>
-                            <input type="text" id="username" placeholder="ahmed123" required>
-                        </div>
-                        <div class="input-group">
-                            <label>البريد الإلكتروني</label>
-                            <input type="email" id="email" placeholder="ahmed@example.com" required>
-                        </div>
-                        <div class="input-group">
-                            <label>كلمة المرور</label>
-                            <input type="password" id="password" placeholder="********" required>
-                        </div>
-                        <button type="submit" class="btn">إنشاء الحساب</button>
-                        <div id="signupMessage" class="message"></div>
-                    </form>
-                    <div class="extra-links">
-                        لديك حساب بالفعل؟ <a onclick="document.getElementById('tab2').checked=true;">سجل دخولك</a>
-                    </div>
+        <!-- نموذج تسجيل الدخول -->
+        <div class="form" id="loginForm">
+            <form onsubmit="event.preventDefault(); login()">
+                <div class="input-group">
+                    <label>البريد الإلكتروني</label>
+                    <input type="email" id="loginEmail" placeholder="example@mail.com" required>
                 </div>
-
-                <!-- نموذج تسجيل دخول -->
-                <div class="form login">
-                    <h3>تسجيل الدخول</h3>
-                    <form id="loginForm">
-                        <div class="input-group">
-                            <label>البريد الإلكتروني</label>
-                            <input type="email" id="loginEmail" placeholder="ahmed@example.com" required>
-                        </div>
-                        <div class="input-group">
-                            <label>كلمة المرور</label>
-                            <input type="password" id="loginPassword" placeholder="********" required>
-                        </div>
-                        <button type="submit" class="btn">تسجيل دخول</button>
-                        <div id="loginMessage" class="message"></div>
-                    </form>
-                    <div class="extra-links">
-                        <a href="#" id="forgotPassword">نسيت كلمة المرور؟</a> · 
-                        <a onclick="document.getElementById('tab1').checked=true;">إنشاء حساب</a>
-                    </div>
+                <div class="input-group">
+                    <label>كلمة المرور</label>
+                    <input type="password" id="loginPassword" placeholder="******" required>
                 </div>
+                <button type="submit" class="btn">تسجيل الدخول</button>
+                <div id="loginMessage" class="message"></div>
+            </form>
+            <div class="link">
+                ليس لديك حساب؟ <a onclick="switchTab('signup')">إنشاء حساب</a>
             </div>
         </div>
     </div>
 
     <!-- Firebase SDK -->
     <script type="module">
+        // استيراد Firebase
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { 
             getAuth, 
             createUserWithEmailAndPassword, 
-            signInWithEmailAndPassword,
-            sendPasswordResetEmail 
+            signInWithEmailAndPassword
         } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         import { 
             getDatabase, 
@@ -297,10 +209,10 @@
             query, 
             orderByChild, 
             equalTo, 
-            get 
+            get
         } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-        // إعدادات Firebase (استبدل بمفاتيحك)
+        // 🔥 استبدل هذا الكائن بمفاتيحك من Firebase Console 🔥
         const firebaseConfig = {
             apiKey: "AIzaSyDRCtfuYrEdnuKUsWu_79NC6G_xGLznBJc",
             authDomain: "tttrt-b8c5a.firebaseapp.com",
@@ -308,20 +220,22 @@
             projectId: "tttrt-b8c5a",
             storageBucket: "tttrt-b8c5a.firebasestorage.app",
             messagingSenderId: "975123752593",
-            appId: "1:975123752593:web:e591e930af3a3e29568130",
-            measurementId: "G-VJVE851FEW"
+            appId: "1:975123752593:web:e591e930af3a3e29568130"
         };
 
+        // تهيئة Firebase
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const database = getDatabase(app);
 
-        function showMessage(elementId, message, isSuccess) {
+        // دالة عرض الرسائل
+        window.showMessage = function(elementId, message, isSuccess) {
             const msgDiv = document.getElementById(elementId);
             msgDiv.textContent = message;
             msgDiv.className = isSuccess ? 'message success' : 'message error';
-        }
+        };
 
+        // التحقق من اسم المستخدم الفريد
         async function isUsernameUnique(username) {
             const usersRef = ref(database, 'users');
             const usernameQuery = query(usersRef, orderByChild('username'), equalTo(username));
@@ -329,10 +243,8 @@
             return !snapshot.exists();
         }
 
-        // إنشاء حساب
-        document.getElementById('signupForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
+        // دالة إنشاء الحساب
+        window.signup = async function() {
             const fullName = document.getElementById('fullName').value.trim();
             const username = document.getElementById('username').value.trim();
             const email = document.getElementById('email').value.trim();
@@ -348,15 +260,18 @@
             }
 
             try {
+                // تحقق من اسم المستخدم
                 const unique = await isUsernameUnique(username);
                 if (!unique) {
-                    showMessage('signupMessage', 'اسم المستخدم موجود بالفعل، اختر اسماً آخر', false);
+                    showMessage('signupMessage', 'اسم المستخدم موجود بالفعل', false);
                     return;
                 }
 
+                // إنشاء المستخدم
                 const userCredential = await createUserWithEmailAndPassword(auth, email, password);
                 const user = userCredential.user;
 
+                // حفظ البيانات
                 await set(ref(database, 'users/' + user.uid), {
                     fullName: fullName,
                     username: username,
@@ -364,8 +279,12 @@
                     createdAt: new Date().toISOString()
                 });
 
-                showMessage('signupMessage', 'تم إنشاء الحساب بنجاح! مرحباً ' + fullName, true);
-                setTimeout(() => { window.location.href = 'app.html'; }, 1500);
+                showMessage('signupMessage', 'تم إنشاء الحساب! جارٍ التحويل...', true);
+                
+                // التوجيه إلى صفحة التطبيق بعد ثانية
+                setTimeout(() => {
+                    window.location.href = 'app.html';
+                }, 1500);
             } catch (error) {
                 console.error(error);
                 if (error.code === 'auth/email-already-in-use') {
@@ -374,12 +293,10 @@
                     showMessage('signupMessage', 'خطأ: ' + error.message, false);
                 }
             }
-        });
+        };
 
-        // تسجيل الدخول
-        document.getElementById('loginForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
+        // دالة تسجيل الدخول
+        window.login = async function() {
             const email = document.getElementById('loginEmail').value.trim();
             const password = document.getElementById('loginPassword').value;
 
@@ -390,34 +307,23 @@
 
             try {
                 await signInWithEmailAndPassword(auth, email, password);
-                showMessage('loginMessage', 'تم تسجيل الدخول بنجاح! مرحباً بعودتك', true);
-                setTimeout(() => { window.location.href = 'app.html'; }, 1500);
+                showMessage('loginMessage', 'تم تسجيل الدخول! جارٍ التحويل...', true);
+                
+                setTimeout(() => {
+                    window.location.href = 'app.html';
+                }, 1500);
             } catch (error) {
                 console.error(error);
                 if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
-                    showMessage('loginMessage', 'البريد الإلكتروني أو كلمة المرور غير صحيحة', false);
-                } else if (error.code === 'auth/invalid-email') {
-                    showMessage('loginMessage', 'صيغة البريد الإلكتروني غير صحيحة', false);
+                    showMessage('loginMessage', 'البريد أو كلمة المرور غير صحيحة', false);
                 } else {
                     showMessage('loginMessage', 'خطأ: ' + error.message, false);
                 }
             }
-        });
-
-        // نسيت كلمة المرور
-        document.getElementById('forgotPassword').addEventListener('click', async (e) => {
-            e.preventDefault();
-            const email = prompt('أدخل بريدك الإلكتروني لإعادة تعيين كلمة المرور:');
-            if (!email) return;
-            try {
-                await sendPasswordResetEmail(auth, email);
-                alert('تم إرسال رابط إعادة التعيين إلى بريدك الإلكتروني');
-            } catch (error) {
-                alert('خطأ: ' + error.message);
-            }
-        });
+        };
     </script>
 
+    <!-- دالة التبديل بين التبويبات -->
     <script>
         function switchTab(tab) {
             if (tab === 'signup') {
