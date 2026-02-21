@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>هدية القناة - Clipn</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        body {
+            background: #f0f2f5;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .header {
+            background: #2A6B9C;
+            color: white;
+            padding: 0.8rem 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .back-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.8rem;
+            cursor: pointer;
+        }
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            flex: 1;
+        }
+        .container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            text-align: center;
+        }
+        .gift-box {
+            font-size: 8rem;
+            margin-bottom: 2rem;
+            animation: bounce 1s infinite alternate;
+        }
+        @keyframes bounce {
+            from { transform: translateY(0); }
+            to { transform: translateY(-20px); }
+        }
+        h2 {
+            color: #1a2b3e;
+            margin-bottom: 1rem;
+        }
+        p {
+            color: #7f8fa4;
+            margin-bottom: 2rem;
+        }
+        .btn {
+            background: #ff9800;
+            color: white;
+            border: none;
+            border-radius: 30px;
+            padding: 1rem 2rem;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .btn:hover {
+            background: #f57c00;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <button class="back-btn" onclick="goBack()">←</button>
+        <h1>هدية القناة</h1>
+    </div>
+    <div class="container">
+        <div class="gift-box">🎁</div>
+        <h2>تهانينا!</h2>
+        <p>هذه صفحة هدية خاصة بالقناة. يمكنك وضع أي محتوى تريده هنا (رابط، صورة، كود خصم، إلخ).</p>
+        <button class="btn" onclick="goBack()">العودة للقناة</button>
+    </div>
+    <script>
+        window.goBack = function() {
+            window.location.href = 'channel-view.html'; // العودة إلى صفحة القناة
+        };
+    </script>
+</body>
+</html>
