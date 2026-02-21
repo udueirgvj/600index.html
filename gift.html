@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>هدية القناة - Clipn</title>
+    <title>صندوق الهدايا - Clipn</title>
     <style>
         * {
             margin: 0;
@@ -12,7 +12,7 @@
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
         body {
-            background: #f0f2f5;
+            background: #f8f9fa;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
@@ -25,6 +25,9 @@
             align-items: center;
             gap: 1rem;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
         .back-btn {
             background: none;
@@ -40,61 +43,158 @@
         }
         .container {
             flex: 1;
+            padding: 1rem;
+            max-width: 600px;
+            margin: 0 auto;
+            width: 100%;
+        }
+        .gift-box-header {
             display: flex;
-            flex-direction: column;
             align-items: center;
-            justify-content: center;
-            padding: 2rem;
-            text-align: center;
-        }
-        .gift-box {
-            font-size: 8rem;
+            gap: 1rem;
+            background: white;
+            border-radius: 20px;
+            padding: 1.5rem;
             margin-bottom: 2rem;
-            animation: bounce 1s infinite alternate;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
         }
-        @keyframes bounce {
-            from { transform: translateY(0); }
-            to { transform: translateY(-20px); }
-        }
-        h2 {
-            color: #1a2b3e;
-            margin-bottom: 1rem;
-        }
-        p {
-            color: #7f8fa4;
-            margin-bottom: 2rem;
-        }
-        .btn {
+        .gift-icon {
+            font-size: 4rem;
             background: #ff9800;
             color: white;
-            border: none;
-            border-radius: 30px;
-            padding: 1rem 2rem;
-            font-size: 1.2rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background 0.2s;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 5px 10px rgba(255,152,0,0.3);
         }
-        .btn:hover {
-            background: #f57c00;
+        .gift-text h2 {
+            color: #1a2b3e;
+            margin-bottom: 0.3rem;
+        }
+        .gift-text p {
+            color: #7f8fa4;
+        }
+        .balance {
+            background: #2A6B9C;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 30px;
+            display: inline-block;
+            margin-top: 0.5rem;
+        }
+        .gift-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+        .gift-card {
+            background: white;
+            border-radius: 20px;
+            padding: 1.5rem 0.8rem;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer;
+        }
+        .gift-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        .gift-card .emoji {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+        }
+        .gift-card .name {
+            font-weight: 600;
+            color: #1a2b3e;
+            margin-bottom: 0.3rem;
+        }
+        .gift-card .stars {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.3rem;
+            color: #f1c40f;
+            font-weight: 600;
+            background: #fef9e7;
+            padding: 0.3rem 0.8rem;
+            border-radius: 30px;
+            width: fit-content;
+            margin: 0.5rem auto 0;
+        }
+        .gift-card .stars span {
+            color: #2c3e50;
+        }
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #8899aa;
         }
     </style>
 </head>
 <body>
     <div class="header">
         <button class="back-btn" onclick="goBack()">←</button>
-        <h1>هدية القناة</h1>
+        <h1>صندوق الهدايا</h1>
+        <div style="width: 40px;"></div>
     </div>
+
     <div class="container">
-        <div class="gift-box">🎁</div>
-        <h2>تهانينا!</h2>
-        <p>هذه صفحة هدية خاصة بالقناة. يمكنك وضع أي محتوى تريده هنا (رابط، صورة، كود خصم، إلخ).</p>
-        <button class="btn" onclick="goBack()">العودة للقناة</button>
+        <div class="gift-box-header">
+            <div class="gift-icon">🎁</div>
+            <div class="gift-text">
+                <h2>صندوق الهدايا</h2>
+                <p>اختر هديتك وأرسلها لأصدقائك</p>
+                <div class="balance">رصيدك: 1000 ⭐</div>
+            </div>
+        </div>
+
+        <div class="gift-grid" id="giftGrid">
+            <!-- سيتم ملء الهدايا عبر JavaScript -->
+        </div>
     </div>
+
     <script>
-        window.goBack = function() {
-            window.location.href = 'channel-view.html'; // العودة إلى صفحة القناة
+        const gifts = [
+            { id: 1, name: 'وردة حمراء', emoji: '🌹', stars: 40 },
+            { id: 2, name: 'تاج', emoji: '👑', stars: 200 },
+            { id: 3, name: 'سمجة', emoji: '🐟', stars: 200 },
+            { id: 4, name: 'تمصاح', emoji: '📿', stars: 100 },
+            { id: 5, name: 'أسد', emoji: '🦁', stars: 1000 },
+            { id: 6, name: 'طيارة', emoji: '✈️', stars: 500 },
+            { id: 7, name: 'جكارة', emoji: '🚬', stars: 50000 },
+            { id: 8, name: 'سيارة', emoji: '🚗', stars: 5 }
+        ];
+
+        function renderGifts() {
+            const grid = document.getElementById('giftGrid');
+            let html = '';
+            gifts.forEach(gift => {
+                html += `
+                    <div class="gift-card" onclick="selectGift(${gift.id})">
+                        <div class="emoji">${gift.emoji}</div>
+                        <div class="name">${gift.name}</div>
+                        <div class="stars">
+                            <span>${gift.stars}</span> ⭐
+                        </div>
+                    </div>
+                `;
+            });
+            grid.innerHTML = html;
+        }
+
+        window.selectGift = function(id) {
+            window.location.href = `gift-detail.html?id=${id}`;
         };
+
+        window.goBack = function() {
+            window.location.href = 'channel-view.html'; // أو الصفحة السابقة
+        };
+
+        renderGifts();
     </script>
 </body>
 </html>
