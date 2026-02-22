@@ -190,7 +190,7 @@
 
         const urlParams = new URLSearchParams(window.location.search);
         const giftId = parseInt(urlParams.get('id'));
-        const channelId = urlParams.get('channel'); // معرف القناة التي نأتي منها (اختياري)
+        const channelId = urlParams.get('channel'); // مهم: يجب تمريره من صفحة القناة
 
         let currentUserId = null;
         let currentUserData = null;
@@ -223,7 +223,7 @@
                 return;
             }
 
-            container.innerHTML = `
+            let html = `
                 <div class="gift-card">
                     <div class="gift-emoji">${gift.emoji}</div>
                     <div class="gift-name">${gift.name}</div>
@@ -233,23 +233,38 @@
                     <div class="balance">
                         رصيدك الحالي: ${currentUserData?.stars || 0} ⭐
                     </div>
-                    ${channelId ? `
-                        <button class="btn btn-send" onclick="sendGiftToChannel(${gift.id})">إرسال الهدية إلى القناة</button>
-                    ` : ''}
+            `;
+
+            // إذا كان هناك channelId (أي أن المستخدم أتى من قناة)، نضيف زر إرسال الهدية إلى القناة
+            if (channelId) {
+                html += `<button class="btn btn-send" onclick="sendGiftToChannel(${gift.id}, ${gift.stars})">إرسال الهدية إلى القناة</button>`;
+            }
+
+            html += `
                     <button class="btn" onclick="buyGift(${gift.id}, ${gift.stars})">شراء الهدية</button>
                     <button class="btn btn-secondary" onclick="goBack()">العودة</button>
                 </div>
             `;
+
+            container.innerHTML = html;
         }
 
-        // شراء الهدية (شحن رصيد)
+        // شراء الهدية (للمستخدم نفسه)
         window.buyGift = async function(id, requiredStars) {
             await loadUserData(); // تحديث الرصيد
             
             if ((currentUserData?.stars || 0) >= requiredStars) {
-                // لديه رصيد كافٍ - يمكن شراء الهدية (تطبيق شراء)
-                // هنا يمكن خصم الرصيد وإضافة الهدية للمستخدم
-                alert('تم شراء الهدية بنجاح!');
+                // خصم الرصيد وإضافة الهدية لمخزون المستخدم (يمكن تطويره)
+                try {
+                    const newStars = (currentUserData.stars || 0) - requiredStars;
+                    await update(ref(database, 'users/' + currentUserId), { stars: newStars });
+                    alert('تم شراء الهدية بنجاح!');
+                    // تحديث الرصيد في الواجهة
+                    currentUserData.stars = newStars;
+                    loadGift(); // إعادة تحميل الصفحة لتحديث الرصيد
+                } catch (error) {
+                    alert('خطأ في عملية الشراء');
+                }
             } else {
                 // رصيد غير كافٍ - توجيه للشحن
                 const container = document.getElementById('detailContainer');
@@ -269,8 +284,8 @@
             }
         };
 
-        // إرسال الهدية إلى القناة
-        window.sendGiftToChannel = async function(giftId) {
+        // إرسال الهدية إلى القناة (خصم الرصيد ثم إضافة رسالة في القناة)
+        window.sendGiftToChannel = async function(giftId, requiredStars) {
             if (!channelId) {
                 alert('لم يتم تحديد قناة');
                 return;
@@ -279,19 +294,19 @@
             const gift = gifts.find(g => g.id === giftId);
             if (!gift) return;
 
-            // التحقق من وجود رصيد كافٍ (اختياري)
+            // التحقق من الرصيد
             await loadUserData();
-            if ((currentUserData?.stars || 0) < gift.stars) {
-                alert('رصيدك غير كافٍ لشراء هذه الهدية');
+            if ((currentUserData?.stars || 0) < requiredStars) {
+                alert('رصيدك غير كافٍ لإرسال هذه الهدية');
                 return;
             }
 
             try {
-                // خصم الرصيد (اختياري)
-                const newStars = (currentUserData?.stars || 0) - gift.stars;
+                // 1. خصم الرصيد
+                const newStars = (currentUserData.stars || 0) - requiredStars;
                 await update(ref(database, 'users/' + currentUserId), { stars: newStars });
 
-                // إضافة رسالة هدية إلى القناة
+                // 2. إضافة رسالة هدية إلى القناة
                 const messagesRef = ref(database, `channels/${channelId}/messages`);
                 const newMsgRef = push(messagesRef);
                 await set(newMsgRef, {
@@ -299,18 +314,21 @@
                     giftId: giftId,
                     giftName: gift.name,
                     giftEmoji: gift.emoji,
+                    giftStars: requiredStars,
                     senderId: currentUserId,
                     timestamp: serverTimestamp(),
-                    text: `🎁 أرسل هدية: ${gift.emoji} ${gift.name}`,
-                    // يمكن إضافة حقول أخرى
+                    text: `🎁 أرسل هدية: ${gift.emoji} ${gift.name}`
                 });
 
-                // عرض رسالة نجاح ثم العودة للقناة
+                // 3. عرض رسالة نجاح ثم العودة للقناة
                 const container = document.getElementById('detailContainer');
                 const successDiv = document.createElement('div');
                 successDiv.className = 'success-message';
                 successDiv.textContent = '✅ تم إرسال الهدية إلى القناة بنجاح!';
                 container.insertBefore(successDiv, container.firstChild);
+
+                // تحديث الرصيد في الذاكرة
+                currentUserData.stars = newStars;
 
                 setTimeout(() => {
                     window.location.href = `channel-view.html?id=${channelId}`;
