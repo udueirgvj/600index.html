@@ -221,6 +221,27 @@ cursor:pointer;
 }
 .box{background:white;margin-top:10px;padding:15px}
 
+/* زر عرض هدايا القناة */
+.gifts-show-btn {
+    background: linear-gradient(145deg, #ff6b6b, #ff4757);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 12px 20px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    margin: 15px 0;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 4px 10px rgba(255, 71, 87, 0.3);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.gifts-show-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(255, 71, 87, 0.4);
+}
+
 /* ===== شاشة التعديل ===== */
 #editPage{
 display:none;
@@ -293,6 +314,9 @@ pointer-events:none;
 </div>
 
 <div class="box">عدد المشتركين: <span id="infoSubs">3</span></div>
+
+<!-- زر عرض هدايا القناة (مستطيل وردي/أحمر) -->
+<button class="gifts-show-btn" onclick="showChannelGifts()">🎁 عرض هدايا القناة</button>
 
 <div class="box" style="margin-top:5px;">
 <button onclick="goToChat()">العودة للمحادثة</button>
@@ -604,9 +628,14 @@ pointer-events:none;
         loadMessages();
     };
 
-    // ================= دالة فتح الهدية =================
+    // ================= دالة فتح الهدية (من الزر العائم) =================
     window.openGift = function() {
         window.location.href = `gift.html?channel=${channelId}`;
+    };
+
+    // ================= دالة عرض هدايا القناة (من زر المعلومات) =================
+    window.showChannelGifts = function() {
+        window.location.href = `channel-gifts.html?channel=${channelId}`;
     };
 
     // ================= التنقل =================
