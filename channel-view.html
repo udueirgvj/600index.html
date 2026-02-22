@@ -450,8 +450,15 @@ pointer-events:none;
         const desc = currentChannelData.description || 'لا يوجد وصف';
         const avatar = currentChannelData.avatar || '';
 
+        // ========== التعديل الخاص بقناة xxxxx ==========
+        let displayCount = memberCount;
+        if (currentChannelData.username === 'xxxxx') {
+            displayCount = 77383 + memberCount; // يبدأ من 77,383 ويزيد مع كل عضو حقيقي
+        }
+        // =============================================
+
         cnameEl.textContent = name;
-        subsEl.textContent = memberCount + ' مشتركين';
+        subsEl.textContent = displayCount + ' مشتركين'; // استخدام العدد المعدل
         if (avatar) {
             avatarEl.style.backgroundImage = `url('${avatar}')`;
             avatarEl.textContent = '';
@@ -462,7 +469,7 @@ pointer-events:none;
 
         infoNameEl.textContent = name;
         infoDescEl.textContent = desc;
-        infoSubsEl.textContent = memberCount;
+        infoSubsEl.textContent = displayCount; // استخدام العدد المعدل أيضاً في صفحة المعلومات
         if (avatar) {
             bigAvatarEl.style.backgroundImage = `url('${avatar}')`;
             bigAvatarEl.textContent = '';
