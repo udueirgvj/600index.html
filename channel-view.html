@@ -491,7 +491,7 @@ pointer-events:none;
                 }
                 const time = msg.timestamp ? new Date(msg.timestamp).toLocaleTimeString('ar-EG', { hour:'2-digit', minute:'2-digit' }) : '';
 
-                // زيادة المشاهدات فقط إذا كان المستخدم عضواً (اختياري، يمكن إبقاؤه للجميع)
+                // زيادة المشاهدات فقط إذا كان المستخدم عضواً (اختياري)
                 if (isMember && !localStorage.getItem(`viewed_${msg.id}_${currentUserId}`)) {
                     await update(ref(database, `channels/${channelId}/messages/${msg.id}`), {
                         views: (msg.views || 0) + 1
@@ -530,7 +530,7 @@ pointer-events:none;
                     `;
                     chatContainer.appendChild(giftDiv);
                 } else {
-                    // رسالة نصية عادية (تظهر للجميع، لكن التفاعلات تظهر فقط للأعضاء)
+                    // رسالة نصية عادية (تظهر للجميع)
                     const msgDiv = document.createElement('div');
                     msgDiv.className = 'message';
                     let reactionsHtml = '';
@@ -556,7 +556,7 @@ pointer-events:none;
                 }
             }
         } else {
-            // لا توجد رسائل، نعرض رسالة ترحيب افتراضية (يمكن إظهارها للجميع)
+            // لا توجد رسائل، نعرض رسالة ترحيب افتراضية
             const defaultMsg = document.createElement('div');
             defaultMsg.className = 'message';
             defaultMsg.innerHTML = `
