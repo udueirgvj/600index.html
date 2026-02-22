@@ -459,7 +459,7 @@ pointer-events:none;
         editIcon.style.display = isOwner ? 'block' : 'none';
     }
 
-    // ================= تحميل وعرض الرسائل =================
+    // ================= تحميل وعرض الرسائل (معدل ليظهر للجميع) =================
     async function loadMessages() {
         const messagesRef = ref(database, `channels/${channelId}/messages`);
         const messagesQuery = query(messagesRef, orderByChild('timestamp'));
@@ -467,7 +467,9 @@ pointer-events:none;
 
         chatContainer.innerHTML = '';
 
-        if (!isMember || isMuted) return;
+        // إزالة الشرط الذي يمنع ظهور الرسائل لغير المشتركين
+        // فقط المكتومون لا يرون الرسائل
+        if (isMuted) return;
 
         if (snapshot.exists()) {
             const messages = [];
@@ -489,7 +491,8 @@ pointer-events:none;
                 }
                 const time = msg.timestamp ? new Date(msg.timestamp).toLocaleTimeString('ar-EG', { hour:'2-digit', minute:'2-digit' }) : '';
 
-                if (!localStorage.getItem(`viewed_${msg.id}_${currentUserId}`)) {
+                // زيادة المشاهدات فقط إذا كان المستخدم عضواً (اختياري، يمكن إبقاؤه للجميع)
+                if (isMember && !localStorage.getItem(`viewed_${msg.id}_${currentUserId}`)) {
                     await update(ref(database, `channels/${channelId}/messages/${msg.id}`), {
                         views: (msg.views || 0) + 1
                     });
@@ -497,7 +500,7 @@ pointer-events:none;
                 }
 
                 if (msg.type === 'gift') {
-                    // تصميم الهدية بشكل مربع مع التفاصيل
+                    // تصميم الهدية (يظهر للجميع)
                     const giftDiv = document.createElement('div');
                     giftDiv.className = 'gift-message';
                     giftDiv.onclick = () => {
@@ -527,17 +530,23 @@ pointer-events:none;
                     `;
                     chatContainer.appendChild(giftDiv);
                 } else {
-                    // رسالة نصية عادية
+                    // رسالة نصية عادية (تظهر للجميع، لكن التفاعلات تظهر فقط للأعضاء)
                     const msgDiv = document.createElement('div');
                     msgDiv.className = 'message';
+                    let reactionsHtml = '';
+                    if (isMember) {
+                        reactionsHtml = `
+                            <div class="reactions">
+                                <div class="react" onclick="react('${msg.id}', 'love')">❤️ <span id="love_${msg.id}">${msg.love || 0}</span></div>
+                                <div class="react" onclick="react('${msg.id}', 'like')">👍 <span id="like_${msg.id}">${msg.like || 0}</span></div>
+                                <div class="react" onclick="react('${msg.id}', 'wow')">🥰 <span id="wow_${msg.id}">${msg.wow || 0}</span></div>
+                            </div>
+                        `;
+                    }
                     msgDiv.innerHTML = `
                         <div class="sender">${senderName}</div>
                         ${msg.text}
-                        <div class="reactions">
-                            <div class="react" onclick="react('${msg.id}', 'love')">❤️ <span id="love_${msg.id}">${msg.love || 0}</span></div>
-                            <div class="react" onclick="react('${msg.id}', 'like')">👍 <span id="like_${msg.id}">${msg.like || 0}</span></div>
-                            <div class="react" onclick="react('${msg.id}', 'wow')">🥰 <span id="wow_${msg.id}">${msg.wow || 0}</span></div>
-                        </div>
+                        ${reactionsHtml}
                         <div class="info">
                             <span>👁 ${msg.views || 0}</span>
                             <span>${time}</span>
@@ -547,19 +556,15 @@ pointer-events:none;
                 }
             }
         } else {
+            // لا توجد رسائل، نعرض رسالة ترحيب افتراضية (يمكن إظهارها للجميع)
             const defaultMsg = document.createElement('div');
             defaultMsg.className = 'message';
             defaultMsg.innerHTML = `
                 <div class="sender">المطور التطبيق</div>
                 مرحبا بكم في قناة مطور تطبيق
-                <div class="reactions">
-                    <div class="react" onclick="react('default', 'love')">❤️ <span id="love_default">1</span></div>
-                    <div class="react" onclick="react('default', 'like')">👍 <span id="like_default">1</span></div>
-                    <div class="react" onclick="react('default', 'wow')">🥰 <span id="wow_default">1</span></div>
-                </div>
                 <div class="info">
-                    <span>👁 1</span>
-                    <span>2:46 م</span>
+                    <span>👁 0</span>
+                    <span>الآن</span>
                 </div>
             `;
             chatContainer.appendChild(defaultMsg);
@@ -568,17 +573,9 @@ pointer-events:none;
 
     // ================= دوال التفاعل =================
     window.react = async function(messageId, type) {
+        if (!isMember) return; // فقط الأعضاء يمكنهم التفاعل
         const userKey = `reacted_${messageId}_${type}_${currentUserId}`;
         if (localStorage.getItem(userKey)) return;
-
-        if (messageId === 'default') {
-            const span = document.getElementById(`${type}_default`);
-            if (span) {
-                span.textContent = parseInt(span.textContent) + 1;
-                localStorage.setItem(userKey, 'yes');
-            }
-            return;
-        }
 
         const msgRef = ref(database, `channels/${channelId}/messages/${messageId}`);
         const snapshot = await get(msgRef);
