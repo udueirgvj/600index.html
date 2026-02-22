@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -148,7 +149,7 @@
             <div class="gift-text">
                 <h2>صندوق الهدايا</h2>
                 <p>اختر هديتك وأرسلها لأصدقائك</p>
-                <div class="balance">رصيدك: 1000 ⭐</div>
+                <div class="balance" id="balanceDisplay">رصيدك: 0 ⭐</div>
             </div>
         </div>
 
@@ -157,7 +158,25 @@
         </div>
     </div>
 
-    <script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDRCtfuYrEdnuKUsWu_79NC6G_xGLznBJc",
+            authDomain: "tttrt-b8c5a.firebaseapp.com",
+            databaseURL: "https://tttrt-b8c5a-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "tttrt-b8c5a",
+            storageBucket: "tttrt-b8c5a.firebasestorage.app",
+            messagingSenderId: "975123752593",
+            appId: "1:975123752593:web:e591e930af3a3e29568130"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const database = getDatabase(app);
+
         const gifts = [
             { id: 1, name: 'وردة حمراء', emoji: '🌹', stars: 40 },
             { id: 2, name: 'تاج', emoji: '👑', stars: 200 },
@@ -168,6 +187,40 @@
             { id: 7, name: 'جكارة', emoji: '🚬', stars: 50000 },
             { id: 8, name: 'سيارة', emoji: '🚗', stars: 5 }
         ];
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const channelId = urlParams.get('channel'); // نقرأ channelId من الرابط إذا وجد
+
+        let currentUserId = null;
+        let currentUserData = null;
+
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                window.location.href = 'index.html';
+                return;
+            }
+            currentUserId = user.uid;
+            await loadUserData();
+            renderGifts();
+            updateBalanceDisplay();
+        });
+
+        async function loadUserData() {
+            const userRef = ref(database, 'users/' + currentUserId);
+            const snapshot = await get(userRef);
+            if (snapshot.exists()) {
+                currentUserData = snapshot.val();
+            } else {
+                currentUserData = { stars: 0 };
+            }
+        }
+
+        function updateBalanceDisplay() {
+            const balanceEl = document.getElementById('balanceDisplay');
+            if (balanceEl) {
+                balanceEl.textContent = `رصيدك: ${currentUserData?.stars || 0} ⭐`;
+            }
+        }
 
         function renderGifts() {
             const grid = document.getElementById('giftGrid');
@@ -187,14 +240,21 @@
         }
 
         window.selectGift = function(id) {
-            window.location.href = `gift-detail.html?id=${id}`;
+            if (channelId) {
+                // إذا كان هناك channelId (أي أتينا من قناة)، نمرره إلى صفحة التفاصيل
+                window.location.href = `gift-detail.html?id=${id}&channel=${channelId}`;
+            } else {
+                window.location.href = `gift-detail.html?id=${id}`;
+            }
         };
 
         window.goBack = function() {
-            window.location.href = 'channel-view.html'; // أو الصفحة السابقة
+            if (channelId) {
+                window.location.href = `channel-view.html?id=${channelId}`;
+            } else {
+                window.location.href = 'app.html'; // أو أي صفحة رئيسية
+            }
         };
-
-        renderGifts();
     </script>
 </body>
 </html>
