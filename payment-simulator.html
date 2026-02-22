@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الدفع - Clipn</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        body {
+            background: #f8f9fa;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .header {
+            background: #2A6B9C;
+            color: white;
+            padding: 0.8rem 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .back-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.8rem;
+            cursor: pointer;
+        }
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            flex: 1;
+        }
+        .container {
+            flex: 1;
+            padding: 2rem;
+            max-width: 500px;
+            margin: 0 auto;
+            width: 100%;
+        }
+        .payment-card {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        h2 {
+            color: #1a2b3e;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+        .gift-summary {
+            background: #f0f2f5;
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        .gift-summary p {
+            margin: 0.5rem 0;
+            color: #2c3e50;
+        }
+        .stars-highlight {
+            font-size: 1.3rem;
+            color: #f1c40f;
+            font-weight: 600;
+        }
+        .payment-methods {
+            margin: 1.5rem 0;
+        }
+        .payment-method {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            border: 1px solid #eef2f7;
+            border-radius: 12px;
+            margin-bottom: 0.8rem;
+            cursor: pointer;
+            transition: border-color 0.2s, background 0.2s;
+        }
+        .payment-method:hover {
+            border-color: #2A6B9C;
+            background: #f0f8ff;
+        }
+        .payment-method.selected {
+            border-color: #2A6B9C;
+            background: #e8f0fe;
+        }
+        .payment-method .icon {
+            font-size: 2rem;
+        }
+        .payment-method .details {
+            flex: 1;
+        }
+        .payment-method .details h4 {
+            color: #1a2b3e;
+            margin-bottom: 0.2rem;
+        }
+        .payment-method .details p {
+            color: #7f8fa4;
+            font-size: 0.9rem;
+        }
+        .btn {
+            background: #2A6B9C;
+            color: white;
+            border: none;
+            border-radius: 30px;
+            padding: 1rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            width: 100%;
+            margin-top: 1rem;
+        }
+        .btn:hover {
+            background: #1f4e7a;
+        }
+        .btn:disabled {
+            background: #b0c4de;
+            cursor: not-allowed;
+        }
+        .loading {
+            text-align: center;
+            padding: 1rem;
+            color: #8899aa;
+        }
+        .message {
+            padding: 1rem;
+            border-radius: 10px;
+            margin-top: 1rem;
+            text-align: center;
+            display: none;
+        }
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            display: block;
+        }
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            display: block;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: #eef2f7;
+            border-radius: 2px;
+            margin: 1rem 0;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: #2A6B9C;
+            width: 0%;
+            transition: width 0.3s;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <button class="back-btn" onclick="goBack()">←</button>
+        <h1>الدفع</h1>
+        <div style="width: 40px;"></div>
+    </div>
+
+    <div class="container" id="container">
+        <div class="loading">جاري التحميل...</div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getDatabase, ref, get, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDRCtfuYrEdnuKUsWu_79NC6G_xGLznBJc",
+            authDomain: "tttrt-b8c5a.firebaseapp.com",
+            databaseURL: "https://tttrt-b8c5a-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "tttrt-b8c5a",
+            storageBucket: "tttrt-b8c5a.firebasestorage.app",
+            messagingSenderId: "975123752593",
+            appId: "1:975123752593:web:e591e930af3a3e29568130"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const database = getDatabase(app);
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const giftId = parseInt(urlParams.get('giftId'));
+        const starsNeeded = parseInt(urlParams.get('stars'));
+
+        const gifts = [
+            { id: 1, name: 'وردة حمراء', emoji: '🌹', stars: 40 },
+            { id: 2, name: 'تاج', emoji: '👑', stars: 200 },
+            { id: 3, name: 'سمجة', emoji: '🐟', stars: 200 },
+            { id: 4, name: 'تمصاح', emoji: '📿', stars: 100 },
+            { id: 5, name: 'أسد', emoji: '🦁', stars: 1000 },
+            { id: 6, name: 'طيارة', emoji: '✈️', stars: 500 },
+            { id: 7, name: 'جكارة', emoji: '🚬', stars: 50000 },
+            { id: 8, name: 'سيارة', emoji: '🚗', stars: 5 }
+        ];
+
+        let currentUserId = null;
+        let currentUserData = null;
+        let selectedMethod = null;
+
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                window.location.href = 'index.html';
+                return;
+            }
+            currentUserId = user.uid;
+            await loadUserData();
+            renderPayment();
+        });
+
+        async function loadUserData() {
+            const userRef = ref(database, 'users/' + currentUserId);
+            const snapshot = await get(userRef);
+            if (snapshot.exists()) {
+                currentUserData = snapshot.val();
+            } else {
+                currentUserData = { stars: 0 };
+            }
+        }
+
+        function renderPayment() {
+            const container = document.getElementById('container');
+            const gift = gifts.find(g => g.id === giftId);
+
+            container.innerHTML = `
+                <div class="payment-card">
+                    <h2>إتمام الدفع</h2>
+                    <div class="gift-summary">
+                        <p>الهدية: ${gift?.emoji} ${gift?.name}</p>
+                        <p>المبلغ المطلوب: <span class="stars-highlight">${starsNeeded} ⭐</span></p>
+                        <p>رصيدك الحالي: ${currentUserData?.stars || 0} ⭐</p>
+                    </div>
+
+                    <h3>اختر طريقة الدفع</h3>
+                    <div class="payment-methods" id="paymentMethods">
+                        <div class="payment-method" data-method="card">
+                            <div class="icon">💳</div>
+                            <div class="details">
+                                <h4>بطاقة ائتمان / خصم</h4>
+                                <p>Visa, MasterCard, Mada</p>
+                            </div>
+                        </div>
+                        <div class="payment-method" data-method="paypal">
+                            <div class="icon">🅿️</div>
+                            <div class="details">
+                                <h4>PayPal</h4>
+                                <p>حساب PayPal مفعل</p>
+                            </div>
+                        </div>
+                        <div class="payment-method" data-method="applepay">
+                            <div class="icon">🍎</div>
+                            <div class="details">
+                                <h4>Apple Pay</h4>
+                                <p>ادفع بسرعة باستخدام Touch ID</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="progress-bar" style="display: none;" id="progressBar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+
+                    <button class="btn" id="payBtn" disabled>إتمام الدفع</button>
+                    <div id="message" class="message"></div>
+                </div>
+            `;
+
+            // إضافة مستمعات لاختيار طريقة الدفع
+            document.querySelectorAll('.payment-method').forEach(method => {
+                method.addEventListener('click', () => {
+                    document.querySelectorAll('.payment-method').forEach(m => m.classList.remove('selected'));
+                    method.classList.add('selected');
+                    selectedMethod = method.dataset.method;
+                    document.getElementById('payBtn').disabled = false;
+                });
+            });
+
+            document.getElementById('payBtn').addEventListener('click', processPayment);
+        }
+
+        async function processPayment() {
+            if (!selectedMethod) return;
+
+            const payBtn = document.getElementById('payBtn');
+            const progressBar = document.getElementById('progressBar');
+            const progressFill = document.getElementById('progressFill');
+            const messageDiv = document.getElementById('message');
+
+            payBtn.disabled = true;
+            progressBar.style.display = 'block';
+
+            // محاكاة شريط التقدم
+            let width = 0;
+            const interval = setInterval(() => {
+                if (width >= 100) {
+                    clearInterval(interval);
+                } else {
+                    width += 20;
+                    progressFill.style.width = width + '%';
+                }
+            }, 300);
+
+            // محاكاة تأخير الدفع (ثانيتين)
+            setTimeout(async () => {
+                try {
+                    // محاكاة دفع ناجح
+                    const newStars = (currentUserData?.stars || 0) + starsNeeded;
+
+                    // تحديث الرصيد في Firebase
+                    await update(ref(database, 'users/' + currentUserId), {
+                        stars: newStars
+                    });
+
+                    messageDiv.className = 'message success';
+                    messageDiv.textContent = `تم الدفع بنجاح! تمت إضافة ${starsNeeded} ⭐ إلى رصيدك.`;
+
+                    // إعادة توجيه بعد 3 ثوانٍ
+                    setTimeout(() => {
+                        window.location.href = `gift-detail.html?id=${giftId}`;
+                    }, 3000);
+
+                } catch (error) {
+                    messageDiv.className = 'message error';
+                    messageDiv.textContent = 'حدث خطأ أثناء الدفع. حاول مرة أخرى.';
+                    payBtn.disabled = false;
+                }
+            }, 2000);
+        }
+
+        window.goBack = function() {
+            window.location.href = document.referrer || 'gift.html';
+        };
+    </script>
+</body>
+</html>
