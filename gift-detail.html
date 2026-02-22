@@ -121,6 +121,14 @@
             from { opacity: 0; transform: translateY(-10px); }
             to { opacity: 1; transform: translateY(0); }
         }
+        .balance {
+            font-size: 1.1rem;
+            color: #2c3e50;
+            margin-bottom: 1rem;
+            padding: 0.5rem;
+            background: #f0f2f5;
+            border-radius: 30px;
+        }
     </style>
 </head>
 <body>
@@ -205,38 +213,44 @@
                     <div class="gift-stars">
                         <span>${gift.stars}</span> ⭐
                     </div>
-                    <div class="user-balance" style="margin-bottom:1rem; color:#7f8fa4;">
+                    <div class="balance">
                         رصيدك الحالي: ${currentUserData?.stars || 0} ⭐
                     </div>
-                    <button class="btn" onclick="buyGift(${gift.id})">شراء الهدية</button>
+                    <button class="btn" onclick="buyGift(${gift.id}, ${gift.stars})">شراء الهدية</button>
                     <button class="btn btn-secondary" onclick="goBack()">العودة</button>
                 </div>
             `;
         }
 
-        window.buyGift = async function(id) {
-            const gift = gifts.find(g => g.id === id);
+        window.buyGift = async function(id, requiredStars) {
+            // تحديث الرصيد من قاعدة البيانات (للتأكد)
+            await loadUserData();
             
-            // التحقق من وجود رصيد كافٍ (اختياري)
-            if ((currentUserData?.stars || 0) < gift.stars) {
-                alert('رصيدك غير كافٍ');
-                return;
+            if ((currentUserData?.stars || 0) >= requiredStars) {
+                // لديه رصيد كافٍ - يمكن شراء الهدية (يمكن إضافة منطق هنا)
+                alert('تم شراء الهدية بنجاح!');
+            } else {
+                // رصيد غير كافٍ - عرض رسالة حمراء وتوجيه فوري للشحن
+                const container = document.getElementById('detailContainer');
+                
+                // إزالة أي رسالة سابقة
+                const oldMsg = document.querySelector('.error-message');
+                if (oldMsg) oldMsg.remove();
+                
+                // إضافة رسالة حمراء
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'error-message';
+                errorDiv.textContent = `⚠️ رصيدك غير كافٍ! المبلغ المطلوب: ${requiredStars} ⭐. جاري تحويلك لصفحة الشحن...`;
+                container.insertBefore(errorDiv, container.firstChild);
+                
+                // تعطيل الأزرار مؤقتاً
+                document.querySelectorAll('button').forEach(btn => btn.disabled = true);
+                
+                // التوجيه إلى صفحة الدفع (الشحن) فوراً
+                setTimeout(() => {
+                    window.location.href = `payment-simulator.html?giftId=${id}&stars=${requiredStars}`;
+                }, 2000); // 2 ثوانٍ فقط لإظهار الرسالة
             }
-
-            // عرض رسالة حمراء
-            const container = document.getElementById('detailContainer');
-            const errorDiv = document.createElement('div');
-            errorDiv.className = 'error-message';
-            errorDiv.textContent = 'عزيزي ليس لديك نجوم كافية! جاري تحويلك لصفحة الدفع خلال 7 ثوانٍ...';
-            container.insertBefore(errorDiv, container.firstChild);
-
-            // تعطيل الأزرار مؤقتاً
-            document.querySelectorAll('button').forEach(btn => btn.disabled = true);
-
-            // عد تنازلي 7 ثوانٍ ثم التوجيه
-            setTimeout(() => {
-                window.location.href = `payment-simulator.html?giftId=${id}&stars=${gift.stars}`;
-            }, 7000);
         };
 
         window.goBack = function() {
