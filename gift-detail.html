@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تفاصيل الهدية - Clipn</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        body {
+            background: #f8f9fa;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .header {
+            background: #2A6B9C;
+            color: white;
+            padding: 0.8rem 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .back-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.8rem;
+            cursor: pointer;
+        }
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            flex: 1;
+        }
+        .container {
+            flex: 1;
+            padding: 2rem;
+            max-width: 500px;
+            margin: 0 auto;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .gift-card {
+            background: white;
+            border-radius: 30px;
+            padding: 3rem 2rem;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            width: 100%;
+        }
+        .gift-emoji {
+            font-size: 6rem;
+            margin-bottom: 1rem;
+        }
+        .gift-name {
+            font-size: 2rem;
+            font-weight: 600;
+            color: #1a2b3e;
+            margin-bottom: 0.5rem;
+        }
+        .gift-stars {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            font-size: 1.5rem;
+            color: #f1c40f;
+            margin-bottom: 2rem;
+        }
+        .gift-stars span {
+            color: #2c3e50;
+        }
+        .btn {
+            background: #ff9800;
+            color: white;
+            border: none;
+            border-radius: 40px;
+            padding: 1rem 2rem;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            width: 100%;
+            margin-top: 1rem;
+        }
+        .btn:hover {
+            background: #f57c00;
+        }
+        .btn-secondary {
+            background: #eef2f7;
+            color: #1a2b3e;
+        }
+        .btn-secondary:hover {
+            background: #d9e1ec;
+        }
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #8899aa;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <button class="back-btn" onclick="goBack()">←</button>
+        <h1>تفاصيل الهدية</h1>
+        <div style="width: 40px;"></div>
+    </div>
+
+    <div class="container" id="detailContainer">
+        <div class="loading">جاري التحميل...</div>
+    </div>
+
+    <script>
+        const gifts = [
+            { id: 1, name: 'وردة حمراء', emoji: '🌹', stars: 40 },
+            { id: 2, name: 'تاج', emoji: '👑', stars: 200 },
+            { id: 3, name: 'سمجة', emoji: '🐟', stars: 200 },
+            { id: 4, name: 'تمصاح', emoji: '📿', stars: 100 },
+            { id: 5, name: 'أسد', emoji: '🦁', stars: 1000 },
+            { id: 6, name: 'طيارة', emoji: '✈️', stars: 500 },
+            { id: 7, name: 'جكارة', emoji: '🚬', stars: 50000 },
+            { id: 8, name: 'سيارة', emoji: '🚗', stars: 5 }
+        ];
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const giftId = parseInt(urlParams.get('id'));
+
+        function loadGift() {
+            const container = document.getElementById('detailContainer');
+            const gift = gifts.find(g => g.id === giftId);
+            if (!gift) {
+                container.innerHTML = '<div class="error">الهدية غير موجودة</div>';
+                return;
+            }
+
+            container.innerHTML = `
+                <div class="gift-card">
+                    <div class="gift-emoji">${gift.emoji}</div>
+                    <div class="gift-name">${gift.name}</div>
+                    <div class="gift-stars">
+                        <span>${gift.stars}</span> ⭐
+                    </div>
+                    <button class="btn" onclick="sendGift()">إرسال الهدية</button>
+                    <button class="btn btn-secondary" onclick="goBack()">العودة</button>
+                </div>
+            `;
+        }
+
+        window.sendGift = function() {
+            alert('تم إرسال الهدية! (وهمي)');
+        };
+
+        window.goBack = function() {
+            window.location.href = 'gift.html';
+        };
+
+        loadGift();
+    </script>
+</body>
+</html>
