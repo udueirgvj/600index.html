@@ -412,19 +412,45 @@ pointer-events:none;
 
                 const msgDiv = document.createElement('div');
                 msgDiv.className = 'message';
-                msgDiv.innerHTML = `
-                    <div class="sender">${senderName}</div>
-                    ${msg.text}
-                    <div class="reactions">
-                        <div class="react" onclick="react('${msg.id}', 'love')">❤️ <span id="love_${msg.id}">${msg.love || 0}</span></div>
-                        <div class="react" onclick="react('${msg.id}', 'like')">👍 <span id="like_${msg.id}">${msg.like || 0}</span></div>
-                        <div class="react" onclick="react('${msg.id}', 'wow')">🥰 <span id="wow_${msg.id}">${msg.wow || 0}</span></div>
-                    </div>
-                    <div class="info">
-                        <span>👁 ${msg.views || 0}</span>
-                        <span>${time}</span>
-                    </div>
-                `;
+
+                // التحقق من نوع الرسالة (هدية أم نص عادي)
+                if (msg.type === 'gift') {
+                    // رسالة هدية
+                    msgDiv.innerHTML = `
+                        <div class="sender">🎁 هدية من ${senderName}</div>
+                        <div style="display: flex; align-items: center; gap: 1rem; margin: 0.5rem 0;">
+                            <span style="font-size: 3rem;">${msg.giftEmoji || '🎁'}</span>
+                            <div>
+                                <strong>${msg.giftName || 'هدية'}</strong>
+                                <div style="color: #f1c40f;">⭐ ${msg.giftStars || '?'}</div>
+                            </div>
+                        </div>
+                        <div class="info">
+                            <span>👁 ${msg.views || 0}</span>
+                            <span>${time}</span>
+                        </div>
+                    `;
+                    // عند النقر على الهدية، نفتح صفحة الهدية مع نفس القناة
+                    msgDiv.style.cursor = 'pointer';
+                    msgDiv.onclick = () => {
+                        window.location.href = `gift-detail.html?id=${msg.giftId}&channel=${channelId}`;
+                    };
+                } else {
+                    // رسالة نصية عادية
+                    msgDiv.innerHTML = `
+                        <div class="sender">${senderName}</div>
+                        ${msg.text}
+                        <div class="reactions">
+                            <div class="react" onclick="react('${msg.id}', 'love')">❤️ <span id="love_${msg.id}">${msg.love || 0}</span></div>
+                            <div class="react" onclick="react('${msg.id}', 'like')">👍 <span id="like_${msg.id}">${msg.like || 0}</span></div>
+                            <div class="react" onclick="react('${msg.id}', 'wow')">🥰 <span id="wow_${msg.id}">${msg.wow || 0}</span></div>
+                        </div>
+                        <div class="info">
+                            <span>👁 ${msg.views || 0}</span>
+                            <span>${time}</span>
+                        </div>
+                    `;
+                }
                 chatContainer.appendChild(msgDiv);
             }
         } else {
@@ -491,7 +517,7 @@ pointer-events:none;
 
     // ================= دالة فتح الهدية =================
     window.openGift = function() {
-        window.location.href = 'gift.html';
+        window.location.href = `gift.html?channel=${channelId}`;
     };
 
     // ================= التنقل =================
