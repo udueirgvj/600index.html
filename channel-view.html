@@ -53,7 +53,7 @@ background-image:url("chat_bg.png");
 background-size:cover;
 }
 
-/* رسالة */
+/* رسالة عادية */
 .message{
 background:white;
 padding:10px;
@@ -68,6 +68,88 @@ margin-bottom:8px;
 .react{background:#eee;padding:4px 10px;border-radius:12px;cursor:pointer}
 
 .info{font-size:13px;color:#555;margin-top:6px;display:flex;gap:8px;justify-content:flex-end}
+
+/* رسالة هدية - تصميم مربع */
+.gift-message {
+    background: white;
+    border-radius: 20px;
+    padding: 1rem;
+    max-width: 85%;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+    margin-bottom: 12px;
+    border: 1px solid #ffd700;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+.gift-message:hover {
+    transform: scale(1.02);
+}
+.gift-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.8rem;
+    color: #ff9800;
+    font-weight: bold;
+}
+.gift-content {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background: #fff9e6;
+    border-radius: 12px;
+    padding: 0.8rem;
+    margin-bottom: 0.5rem;
+}
+.gift-emoji {
+    font-size: 3rem;
+}
+.gift-details {
+    flex: 1;
+}
+.gift-name {
+    font-weight: 600;
+    color: #1a2b3e;
+    font-size: 1.1rem;
+    margin-bottom: 0.3rem;
+}
+.gift-stars {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    color: #f1c40f;
+    font-size: 0.9rem;
+    background: #fef9e7;
+    padding: 0.2rem 0.6rem;
+    border-radius: 20px;
+    width: fit-content;
+}
+.gift-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.85rem;
+    color: #7f8fa4;
+    padding-top: 0.3rem;
+    border-top: 1px dashed #e0e0e0;
+}
+.gift-sender {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+.sender-avatar {
+    width: 24px;
+    height: 24px;
+    background: #2A6B9C;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    font-weight: bold;
+}
 
 /* زر الانضمام والكتم والهدية */
 .bottom{
@@ -394,11 +476,15 @@ pointer-events:none;
 
             for (const msg of messages) {
                 let senderName = 'مستخدم';
+                let senderUsername = '';
+                let senderAvatar = '';
                 if (msg.senderId) {
                     const userSnap = await get(ref(database, 'users/' + msg.senderId));
                     if (userSnap.exists()) {
                         const userData = userSnap.val();
                         senderName = userData.fullName || userData.username || 'مستخدم';
+                        senderUsername = userData.username || '';
+                        senderAvatar = userData.avatar || '';
                     }
                 }
                 const time = msg.timestamp ? new Date(msg.timestamp).toLocaleTimeString('ar-EG', { hour:'2-digit', minute:'2-digit' }) : '';
@@ -410,33 +496,40 @@ pointer-events:none;
                     localStorage.setItem(`viewed_${msg.id}_${currentUserId}`, 'yes');
                 }
 
-                const msgDiv = document.createElement('div');
-                msgDiv.className = 'message';
-
-                // التحقق من نوع الرسالة (هدية أم نص عادي)
                 if (msg.type === 'gift') {
-                    // رسالة هدية
-                    msgDiv.innerHTML = `
-                        <div class="sender">🎁 هدية من ${senderName}</div>
-                        <div style="display: flex; align-items: center; gap: 1rem; margin: 0.5rem 0;">
-                            <span style="font-size: 3rem;">${msg.giftEmoji || '🎁'}</span>
-                            <div>
-                                <strong>${msg.giftName || 'هدية'}</strong>
-                                <div style="color: #f1c40f;">⭐ ${msg.giftStars || '?'}</div>
-                            </div>
-                        </div>
-                        <div class="info">
-                            <span>👁 ${msg.views || 0}</span>
-                            <span>${time}</span>
-                        </div>
-                    `;
-                    // عند النقر على الهدية، نفتح صفحة الهدية مع نفس القناة
-                    msgDiv.style.cursor = 'pointer';
-                    msgDiv.onclick = () => {
+                    // تصميم الهدية بشكل مربع مع التفاصيل
+                    const giftDiv = document.createElement('div');
+                    giftDiv.className = 'gift-message';
+                    giftDiv.onclick = () => {
                         window.location.href = `gift-detail.html?id=${msg.giftId}&channel=${channelId}`;
                     };
+                    giftDiv.innerHTML = `
+                        <div class="gift-header">
+                            <span>🎁</span> هدية
+                        </div>
+                        <div class="gift-content">
+                            <div class="gift-emoji">${msg.giftEmoji || '🎁'}</div>
+                            <div class="gift-details">
+                                <div class="gift-name">${msg.giftName || 'هدية'}</div>
+                                <div class="gift-stars">
+                                    <span>${msg.giftStars || 0}</span> ⭐
+                                </div>
+                            </div>
+                        </div>
+                        <div class="gift-footer">
+                            <div class="gift-sender">
+                                <div class="sender-avatar">${senderAvatar ? '' : (senderName.charAt(0).toUpperCase())}</div>
+                                <span>${senderName}</span>
+                                <span style="font-size:0.7rem; color:#aaa;">@${senderUsername}</span>
+                            </div>
+                            <span>👁 ${msg.views || 0}</span>
+                        </div>
+                    `;
+                    chatContainer.appendChild(giftDiv);
                 } else {
                     // رسالة نصية عادية
+                    const msgDiv = document.createElement('div');
+                    msgDiv.className = 'message';
                     msgDiv.innerHTML = `
                         <div class="sender">${senderName}</div>
                         ${msg.text}
@@ -450,8 +543,8 @@ pointer-events:none;
                             <span>${time}</span>
                         </div>
                     `;
+                    chatContainer.appendChild(msgDiv);
                 }
-                chatContainer.appendChild(msgDiv);
             }
         } else {
             const defaultMsg = document.createElement('div');
